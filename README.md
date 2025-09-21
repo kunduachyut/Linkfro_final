@@ -205,3 +205,4 @@ middleware.ts                  Clerk middleware (route protection)
 ## License
 Proprietary – internal project. Adjust as needed.
 # LinkFro
+# LinkFro
