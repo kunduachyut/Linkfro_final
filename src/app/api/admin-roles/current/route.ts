@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const user = await client.users.getUser(userId);
     const email = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase() || null;
 
-    const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || "kunduachyut19@gmail.com" || "basakbittu35@gmail.com").toLowerCase();
+    const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || "kunduachyut19@gmail.com" || "basakbittu35@gmail.com" || "santanu.digitalseo@gmail.com").toLowerCase();
     const superAdminIds = (process.env.SUPER_ADMIN_USER_IDS || "").split(",").map(s => s.trim()).filter(Boolean);
     
     const isSuper =
