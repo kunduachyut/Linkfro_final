@@ -4,8 +4,9 @@ import { dbConnect } from '@/lib/db';
 import Purchase from '@/models/Purchase';
 import { getOrCreateUser } from '@/lib/user';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: any) {
   try {
+    const params = await context.params;
     const { id } = params;
 
     await dbConnect();
@@ -45,11 +46,11 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, context: any) {
   try {
     const { userId } = await auth();
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
+    const params = await context.params;
     const { id } = params;
     const body = await req.json();
     const { status } = body;

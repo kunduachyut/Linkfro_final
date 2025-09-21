@@ -11,7 +11,7 @@ type RouteParams = {
   };
 };
 
-export async function GET(req: Request, context: { params: any }) {
+export async function GET(req: Request, context: any) {
   await dbConnect();
 
   // Next may provide `params` as a thenable — await it before using properties
@@ -50,7 +50,8 @@ export async function GET(req: Request, context: { params: any }) {
   return NextResponse.json(website.toJSON());
 }
 
-export async function PATCH(req: Request, { params }: RouteParams) {
+export async function PATCH(req: Request, context: any) {
+  const params = await context.params;
   try {
     const body = await req.json();
     const { id } = params; // ✅ Fixed: Removed await, access directly
@@ -135,9 +136,10 @@ export async function PATCH(req: Request, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(req: Request, { params }: RouteParams) {
+export async function DELETE(req: Request, context: any) {
   await dbConnect();
 
+  const params = await context.params;
   const id = params.id; // ✅ safe
 
   console.log("DELETE request for website with ID:", id);

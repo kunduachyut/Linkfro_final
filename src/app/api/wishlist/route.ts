@@ -14,9 +14,9 @@ export async function GET(req: Request) {
 
   try {
     // Find or create wishlist for the user
-    let wishlist = await Wishlist.findOne({ userId });
+    let wishlist = await (Wishlist as any).findOne({ userId });
     if (!wishlist) {
-      wishlist = await Wishlist.create({ userId, websiteIds: [] });
+      wishlist = await (Wishlist as any).create({ userId, websiteIds: [] });
     }
 
     return NextResponse.json({ 
@@ -51,9 +51,9 @@ export async function POST(req: Request) {
     }
 
     // Find or create wishlist for the user
-    let wishlist = await Wishlist.findOne({ userId });
+    let wishlist = await (Wishlist as any).findOne({ userId });
     if (!wishlist) {
-      wishlist = await Wishlist.create({ userId, websiteIds: [] });
+      wishlist = await (Wishlist as any).create({ userId, websiteIds: [] });
     }
 
     // Update wishlist based on action

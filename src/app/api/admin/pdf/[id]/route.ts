@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // API route to serve PDF files for super admin
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: any) {
   try {
     const authResult = await requireAuth();
     if (typeof authResult !== "string") return authResult;
@@ -18,7 +18,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     await dbConnect();
 
-    const contentId = params.id;
+  // Next may provide `params` as a thenable — await it before using properties
+  const params = await context.params;
+  const contentId = params?.id;
     if (!contentId) {
       return NextResponse.json({ error: "Content ID is required" }, { status: 400 });
     }
@@ -34,8 +36,27 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     headers.set("Content-Type", content.pdf.contentType || "application/pdf");
     headers.set("Content-Disposition", `inline; filename="${content.pdf.filename || 'document.pdf'}"`); 
 
-    // Return the PDF data
-    return new NextResponse(content.pdf.data, {
+    // Normalize PDF data into a raw buffer/Uint8Array for NextResponse
+    const rawCandidate: any = content.pdf && (content.pdf.data || content.pdf) ? (content.pdf.data || content.pdf) : null;
+    let body: any = null;
+
+    if (rawCandidate == null) {
+      return NextResponse.json({ error: "PDF not found" }, { status: 404 });
+    }
+
+    if (typeof Uint8Array !== 'undefined' && rawCandidate instanceof Uint8Array) {
+      body = rawCandidate;
+    } else if (typeof Buffer !== 'undefined' && Buffer.isBuffer(rawCandidate)) {
+      body = rawCandidate;
+    } else if (rawCandidate.data) {
+      // Some storages wrap binary in a { data: <Buffer> } shape
+      body = rawCandidate.data;
+    } else {
+      body = rawCandidate;
+    }
+
+    // Cast to any to satisfy NextResponse BodyInit expectations across lib types
+    return new NextResponse(body as any, {
       status: 200,
       headers,
     });

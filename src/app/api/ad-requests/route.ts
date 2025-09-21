@@ -17,7 +17,7 @@ export async function GET(req: Request) {
   const role = searchParams.get("role"); // "publisher" | default consumer
 
   if (role === "publisher") {
-    const mySites = await Website.find({ ownerId: userId }).select("_id").exec();
+    const mySites = await Website.find({ userId: userId }).select("_id").exec();
     const siteIds = mySites.map((s) => s._id);
     const requests = await AdRequest.find({ websiteId: { $in: siteIds } })
       .sort({ createdAt: -1 })
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
   const request = await AdRequest.create({
     websiteId,
     buyerId,
-    publisherId: site.ownerId,
+    publisherId: (site as any).userId || (site as any).ownerId,
     message,
   });
   return NextResponse.json(request, { status: 201 });
