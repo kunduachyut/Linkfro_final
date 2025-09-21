@@ -302,7 +302,7 @@ export default function PublisherDashboard() {
       Spam: website.Spam?.toString() || '',
       OrganicTraffic: website.OrganicTraffic?.toString() || '',
       DR: website.DR?.toString() || '',
-      RD: website.RD || '',
+  RD: website.RD != null ? String(website.RD) : '',
       tags: website.tags || '',
       primaryCountry: website.primaryCountry || '', // Add primaryCountry field
       trafficValue: website.trafficValue?.toString() || '',        // <-- Add this

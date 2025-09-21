@@ -16,7 +16,7 @@ export interface Website {
   Spam?: number;
   OrganicTraffic?: number;
   DR?: number;
-  RD?: string;
+  RD?: number;
   // New SEO Metrics
   trafficValue?: number;
   locationTraffic?: number;

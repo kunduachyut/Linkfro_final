@@ -21,7 +21,7 @@ export const WebsiteCreateSchema = z.object({
   Spam: z.number().optional(),
   OrganicTraffic: z.number().optional(),
   DR: z.number().optional(),
-  RD: z.string().url().optional(),
+  RD: z.number().int().optional(),
   // New SEO Metrics
   trafficValue: z.number().optional(),
   locationTraffic: z.number().optional(),

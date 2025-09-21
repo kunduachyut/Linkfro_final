@@ -82,7 +82,7 @@ export default function PublisherAddWebsiteSection({
     Spam: string;
     OrganicTraffic: string;
     DR: string;
-    RD: string;
+  RD: number | string;
     primaryCountry?: string;
     trafficValue?: string;        
     locationTraffic?: string;     
@@ -478,14 +478,15 @@ export default function PublisherAddWebsiteSection({
                 RD*
               </label>
               <input
-                type="url"
+                type="number"
                 id="RD"
                 name="RD"
-                value={formData.RD}
+                value={formData.RD ?? ''}
                 onChange={handleFormChange}
                 required
+                min="0"
+                step="1"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
-                placeholder="https://"
               />
             </div>
           </div>
