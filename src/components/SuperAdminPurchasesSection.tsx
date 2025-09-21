@@ -47,6 +47,8 @@ type SuperAdminPurchasesSectionProps = {
   confirmationAction: { purchaseId: string | null; status: "approved" | "rejected" | "ongoing" | "pendingPayment" | null };
 setConfirmationAction: (action: { purchaseId: string | null; status: "approved" | "rejected" | "ongoing" | "pendingPayment" | null }) => void;
   confirmPurchaseStatusUpdate: () => void;
+  messages?: { [key: string]: string };
+  setMessages?: (updater: (prev: { [key: string]: string }) => { [key: string]: string }) => void;
 };
 
 const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
@@ -70,6 +72,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
   confirmationAction,
   setConfirmationAction,
   confirmPurchaseStatusUpdate
+  , messages, setMessages
 }) => {
   const statusLabelMap: Record<string, string> = {
     ongoing: "Mark as Ongoing",
@@ -412,6 +415,56 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                           </svg>
                         </button>
                       )}
+                    </div>
+                    {/* Payment Link input per request - shown for all rows */}
+                    <div className="col-span-2 flex justify-center">
+                      <div className="flex flex-col w-full max-w-xs">
+                        <label className="text-xs text-gray-500 mb-1">Payment Link</label>
+                        <textarea
+                          value={messages?.[`paymentLink:${request.id}`] || ''}
+                          onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`paymentLink:${request.id}`]: e.target.value }))}
+                          placeholder="Enter payment link or gateway URL"
+                          className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 w-full"
+                          rows={2}
+                        />
+                        <div className="mt-2 flex items-center gap-2">
+                          <button
+                            onClick={async () => {
+                              const link = messages?.[`paymentLink:${request.id}`] || '';
+                              try {
+                                const res = await fetch(`/api/purchases/${request.id}/payment-link`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ paymentLink: link }),
+                                  credentials: 'same-origin',
+                                });
+
+                                let body: any = null;
+                                try {
+                                  body = await res.json();
+                                } catch (e) {
+                                  // ignore json parse errors
+                                }
+
+                                if (!res.ok) {
+                                  const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
+                                  console.error('Push link failed', { status: res.status, body });
+                                  alert(`Failed to push link: ${serverMsg}`);
+                                  return;
+                                }
+
+                                alert('Payment link pushed successfully');
+                              } catch (err) {
+                                console.error('Push link failed (network)', err);
+                                alert('Failed to push payment link (network error)');
+                              }
+                            }}
+                            className="px-3 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
+                          >
+                            Push Link
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}

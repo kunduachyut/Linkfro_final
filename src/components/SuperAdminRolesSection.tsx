@@ -8,7 +8,11 @@ type Role = {
   role: "websites" | "requests" | "super";
 };
 
-export default function SuperAdminRolesSection() {
+type Props = {
+  onRolesChange?: () => void;
+};
+
+export default function SuperAdminRolesSection({ onRolesChange }: Props) {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +58,8 @@ export default function SuperAdminRolesSection() {
       const json = await res.json();
       if (!json.success) throw new Error(json.error || "Failed to save");
       await load();
+  // notify parent that roles have changed so it can refresh allowed tabs
+  try { onRolesChange?.(); } catch (e) { /* ignore */ }
       if (role === "websites") setWebsitesEmail(email);
       if (role === "requests") setRequestsEmail(email);
       if (role === "super") setSuperEmail("");
@@ -74,6 +80,7 @@ export default function SuperAdminRolesSection() {
       const json = await res.json();
       if (!json.success) throw new Error(json.error || "Failed to delete");
       await load();
+  try { onRolesChange?.(); } catch (e) { /* ignore */ }
       if (role === "websites") setWebsitesEmail("");
       if (role === "requests") setRequestsEmail("");
     } catch (err: any) {
@@ -93,6 +100,7 @@ export default function SuperAdminRolesSection() {
       const json = await res.json();
       if (!json.success) throw new Error(json.error || "Failed to delete");
       await load();
+      try { onRolesChange?.(); } catch (e) { /* ignore */ }
     } catch (err: any) {
       console.error(err);
       alert(err?.message || "Failed to delete role");

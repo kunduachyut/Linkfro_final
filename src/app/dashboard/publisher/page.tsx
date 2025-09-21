@@ -296,7 +296,7 @@ export default function PublisherDashboard() {
       url: website.url,
       description: website.description,
       category: categoryValue,
-      price: (website.priceCents / 100).toString(),
+      price: (((website as any).originalPriceCents != null ? (website as any).originalPriceCents : website.priceCents) / 100).toString(),
       DA: website.DA?.toString() || '',
       PA: website.PA?.toString() || '',
       Spam: website.Spam?.toString() || '',

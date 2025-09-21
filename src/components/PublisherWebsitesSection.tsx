@@ -130,9 +130,12 @@ export default function PublisherWebsitesSection({
       if (!siteCategories.includes(categoryFilter)) return false;
     }
     
-    // Price filters
-    if (minPrice && site.priceCents < parseFloat(minPrice) * 100) return false;
-    if (maxPrice && site.priceCents > parseFloat(maxPrice) * 100) return false;
+    // Price filters - use originalPriceCents when present so publisher sees their listed price
+    const priceToUse = typeof (site as any).originalPriceCents === 'number' && (site as any).originalPriceCents != null
+      ? (site as any).originalPriceCents
+      : site.priceCents;
+    if (minPrice && priceToUse < parseFloat(minPrice) * 100) return false;
+    if (maxPrice && priceToUse > parseFloat(maxPrice) * 100) return false;
     
     // DA filters
     if (minDA && (site.DA ?? 0) < parseInt(minDA)) return false;
@@ -442,15 +445,8 @@ export default function PublisherWebsitesSection({
                     {site.RD && (
                       <div className="bg-indigo-50 rounded-lg p-2 text-center">
                         <p className="text-xs text-indigo-600 font-medium">RD</p>
-                        <a
-                          href={site.RD}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm font-bold text-indigo-800 hover:underline"
-                          title="Open RD Link"
-                        >
-                          Link
-                        </a>
+                       
+                         <p className="text-sm font-bold text-orange-800">{site.RD}</p>
                       </div>
                     )}
                     {site.trafficValue !== undefined && site.trafficValue !== null && (
@@ -508,7 +504,7 @@ export default function PublisherWebsitesSection({
                     }
                   </div>
                   <div className="text-green-600 font-bold text-lg">
-                    {formatPrice(site.priceCents)}
+                    {formatPrice(((site as any).originalPriceCents != null) ? (site as any).originalPriceCents : site.priceCents)}
                   </div>
                 </div>
               </div>

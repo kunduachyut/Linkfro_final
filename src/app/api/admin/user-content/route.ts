@@ -3,6 +3,7 @@ import { dbConnect } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { UserContent } from "@/models/Content";
 import Website from "@/models/Website";
+import mongoose from "mongoose";
 import { getOrCreateUser } from "@/lib/user";
 
 export const runtime = "nodejs";
@@ -57,19 +58,37 @@ export async function GET(req: NextRequest) {
     // Fetch website information for each item
     let enrichedItems = await Promise.all(items.map(async (item) => {
       const itemObj = item.toObject() as any;
-      
-      // If websiteId exists, get website title
+
+      // If websiteId exists, get website title. Validate ObjectId first to avoid CastError.
       if (itemObj.websiteId) {
         try {
-          const website = await Website.findById(itemObj.websiteId);
-          if (website) {
-            itemObj.websiteTitle = website.title;
+          let website = null;
+          const rawId = itemObj.websiteId;
+          let candidateId: string | null = null;
+
+          // If it's already a valid ObjectId string, use it
+          if (typeof rawId === 'string' && mongoose.Types.ObjectId.isValid(rawId)) {
+            candidateId = rawId;
+          } else if (typeof rawId === 'string') {
+            // Try to extract a 24-character hex substring (some stored ids have suffixes like "-1")
+            const m = rawId.match(/[a-fA-F0-9]{24}/);
+            if (m && mongoose.Types.ObjectId.isValid(m[0])) candidateId = m[0];
+          }
+
+          if (candidateId) {
+            website = await Website.findById(candidateId);
+            if (website) {
+              itemObj.websiteTitle = website.title;
+            }
+          } else {
+            // Can't resolve websiteId to a valid ObjectId; leave websiteTitle unset
+            itemObj.websiteTitle = null;
           }
         } catch (err) {
           console.error("Error fetching website:", err);
         }
       }
-      
+
       // Get user email from Clerk
       try {
         const user = await getOrCreateUser(itemObj.userId);
@@ -78,7 +97,7 @@ export async function GET(req: NextRequest) {
         console.error(`Error fetching user ${itemObj.userId}:`, err);
         itemObj.userEmail = `user_${itemObj.userId}@yourdomain.com`; // Fallback
       }
-      
+
       return itemObj;
     }));
     

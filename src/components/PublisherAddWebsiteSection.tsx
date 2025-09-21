@@ -84,10 +84,10 @@ export default function PublisherAddWebsiteSection({
     DR: string;
     RD: string;
     primaryCountry?: string;
-    trafficValue?: string;        // <-- Add this
-    locationTraffic?: string;     // <-- Add this
-    greyNicheAccepted?: string;   // <-- Add this
-    specialNotes?: string;        // <-- Add this
+    trafficValue?: string;        
+    locationTraffic?: string;     
+    greyNicheAccepted?: string;   
+    specialNotes?: string;        
     primeTrafficCountries?: string | string[]; // Add prime traffic countries field
   };
   handleFormChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
@@ -475,7 +475,7 @@ export default function PublisherAddWebsiteSection({
             </div>
             <div className="space-y-2">
               <label htmlFor="RD" className="block text-sm font-semibold text-gray-700">
-                RD Link *
+                RD*
               </label>
               <input
                 type="url"

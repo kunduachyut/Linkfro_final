@@ -112,6 +112,7 @@ type UserAccessRequest = {
   traffic: string;
   numberOfWebsites: string;
   message?: string;
+  role?: "advertiser" | "publisher"; // added to match request-access schema
   status: "pending" | "approved" | "rejected";
   createdAt: string;
   updatedAt?: string;
@@ -156,6 +157,30 @@ export default function SuperAdminDashboardPage() {
     }
     loadRole();
   }, []);
+
+  // expose a function to refresh current role and allowed tabs (used when roles change)
+  async function refreshCurrentRole() {
+    try {
+      const res = await fetch("/api/admin-roles/current");
+      const json = await res.json();
+      setCurrentUserRole(json.role ?? null);
+      setIsSuper(Boolean(json.isSuper));
+      if (json.isSuper) {
+        setAllowedTabs(["websites","userContent","purchases","contentRequests","priceConflicts","userRequests","roles"]);
+      } else if (json.role === "websites") {
+        setAllowedTabs(["websites"]);
+        setActiveTab((prev) => (prev === "websites" ? prev : "websites"));
+      } else if (json.role === "requests") {
+        setAllowedTabs(["purchases","contentRequests"]);
+        setActiveTab((prev) => ( ["purchases","contentRequests"].includes(prev) ? prev : "purchases" ));
+      } else {
+        setAllowedTabs([]);
+        setActiveTab("websites");
+      }
+    } catch (err) {
+      console.error("Failed to refresh admin role", err);
+    }
+  }
 
   const [selectedWebsites, setSelectedWebsites] = useState<string[]>([]);
   const [selectedPurchases, setSelectedPurchases] = useState<string[]>([]);
@@ -212,6 +237,8 @@ const [confirmationAction, setConfirmationAction] = useState<{
   // Add state for success messages
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  // store messages/payment links keyed by purchase or custom key
+  const [messages, setMessages] = useState<Record<string, string>>({});
 
   useEffect(() => {
     refresh();
@@ -620,14 +647,17 @@ const [confirmationAction, setConfirmationAction] = useState<{
 setPurchaseStats(stats);
   }
 
-  async function updateWebsiteStatus(id: string, status: "approved" | "rejected", reason?: string) {
+  async function updateWebsiteStatus(id: string, status: "approved" | "rejected", reason?: string, extraPriceCents?: number) {
+    const body: any = {
+      action: status === "approved" ? "approve" : "reject",
+      ...(reason && { reason })
+    };
+    if (typeof extraPriceCents === 'number' && !Number.isNaN(extraPriceCents)) body.extraPriceCents = extraPriceCents;
+
     const res = await fetch(`/api/websites/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: status === "approved" ? "approve" : "reject",
-        ...(reason && { reason })
-      }),
+      body: JSON.stringify(body),
     });
 
     if (res.ok) {
@@ -825,6 +855,8 @@ setPurchaseStats(stats);
             confirmationAction={confirmationAction}
             setConfirmationAction={setConfirmationAction}
             confirmPurchaseStatusUpdate={confirmPurchaseStatusUpdate}
+            messages={messages}
+            setMessages={(updater:any) => setMessages(updater)}
           />
         )}
 
@@ -863,7 +895,7 @@ setPurchaseStats(stats);
         )}
 
         {allowedTabs.includes("roles") && activeTab === "roles" && (
-          <SuperAdminRolesSection />
+          <SuperAdminRolesSection onRolesChange={refreshCurrentRole} />
         )}
 
         {/* Rejection Modal */}

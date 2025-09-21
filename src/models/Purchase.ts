@@ -5,6 +5,7 @@ export interface IPurchase extends Document {
   websiteId: Types.ObjectId | IWebsite;
   buyerId: string;
   amountCents: number;
+  paymentLink?: string;
   status: "pending" | "paid" | "rejected";
   stripeSessionId?: string;
   contentIds: Types.ObjectId[]; // Array of content IDs
@@ -17,7 +18,9 @@ const PurchaseSchema = new Schema<IPurchase>({
   websiteId: { type: Schema.Types.ObjectId, ref: "Website", required: true },
   buyerId: { type: String, required: true },
   amountCents: { type: Number, required: true },
-  status: { type: String, enum: ["pending", "paid", "rejected"], required: true },
+  paymentLink: { type: String, required: false },
+  // include frontend workflow statuses so server-side validation accepts them
+  status: { type: String, enum: ["pending", "ongoing", "pendingPayment", "approved", "paid", "rejected"], required: true },
   stripeSessionId: { type: String },
   contentIds: [{ type: Schema.Types.ObjectId, ref: "UserContent" }], // Array of content IDs
   contentSelection: { type: String, enum: ["content", "request"], default: null } // Store user's content selection

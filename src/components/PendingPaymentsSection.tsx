@@ -17,6 +17,7 @@ interface PendingPaymentsSectionProps {
   loading: boolean;
   error: string;
   refreshPendingPayments: () => void;
+  messages?: Record<string, string>; // optional map of purchaseId -> payment link
 }
 
 const getCountryFlagEmoji = (countryName?: string) => {
@@ -43,6 +44,7 @@ export default function PendingPaymentsSection({
   loading,
   error,
   refreshPendingPayments,
+  messages,
 }: PendingPaymentsSectionProps) {
   // keep a map of website details for purchases whose websiteId is a string
   const [websiteDetails, setWebsiteDetails] = useState<Record<string, any>>({});
@@ -89,8 +91,34 @@ export default function PendingPaymentsSection({
 
   const completePayment = async (purchaseId: string) => {
     try {
+      // First try to fetch any persisted paymentLink for this purchase from server
+      let paymentLink: string | null = null;
+      try {
+        const getRes = await fetch(`/api/purchases/${purchaseId}`);
+        if (getRes.ok) {
+          const json = await getRes.json();
+          paymentLink = json.paymentLink || null;
+        }
+      } catch (err) {
+        // ignore fetch error and fall back to any in-memory messages
+      }
+
+      // fallback to in-memory messages map if server didn't have link
+      if (!paymentLink && messages) paymentLink = messages[`paymentLink:${purchaseId}`] || messages[purchaseId] || null;
+
+      // If a payment link is provided, open it in a new tab for the admin to complete the payment flow
+      if (paymentLink) {
+        try {
+          window.open(paymentLink, "_blank");
+        } catch (err) {
+          console.warn("Could not open payment link in new tab:", err);
+        }
+      }
+
       const res = await fetch(`/api/purchases/${purchaseId}/complete-payment`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentLink }),
       });
       if (!res.ok) throw new Error("Failed to complete payment");
       refreshPendingPayments();

@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
       amountCents: purchase.amountCents,
       customerId: purchase.buyerId,
       customerEmail: '', // We'll populate this below
+      paymentLink: purchase.paymentLink || null,
       status: purchase.status,
       contentType: purchase.contentSelection, // Use stored content selection
       createdAt: purchase.createdAt.toISOString(),
@@ -126,6 +127,7 @@ export async function POST(req: NextRequest) {
         websiteId: purchase.websiteId.toString(),
         websiteTitle: item.title,
         priceCents: purchase.amountCents,
+        paymentLink: purchase.paymentLink || null,
         totalCents: purchase.amountCents,
         amountCents: purchase.amountCents,
         customerId: purchase.buyerId,
@@ -198,6 +200,7 @@ export async function PATCH(req: NextRequest) {
       _id: purchase._id.toString(),
       websiteId: purchase.websiteId.toString(),
       websiteTitle: '', // We don't have this information in this context
+      paymentLink: purchase.paymentLink || null,
       priceCents: purchase.amountCents,
       totalCents: purchase.amountCents,
       amountCents: purchase.amountCents,

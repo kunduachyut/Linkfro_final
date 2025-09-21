@@ -17,9 +17,9 @@ async function connectDB() {
 export async function POST(request) {
   try {
     await connectDB();
-    const { email, password } = await request.json();
-    
-    console.log("Login attempt:", { email, password });
+  const { email, password, role: requestedRole } = await request.json();
+
+  console.log("Login attempt:", { email, password, requestedRole });
 
     if (!email || !password) {
       return NextResponse.json(
@@ -88,6 +88,15 @@ export async function POST(request) {
       );
     }
 
+    // If the client provided a requested role at login, ensure it matches the stored role
+    if (requestedRole && user.role && requestedRole !== user.role) {
+      console.log(`Role mismatch: requested=${requestedRole} stored=${user.role}`);
+      return NextResponse.json(
+        { error: `Role mismatch: you signed up as '${user.role}', please login as that role` },
+        { status: 403 }
+      );
+    }
+
     // Successful login
     return NextResponse.json({ 
       message: "Login successful", 
@@ -95,7 +104,8 @@ export async function POST(request) {
       user: {
         email: user.email,
         phone: user.phone,
-        country: user.country
+        country: user.country,
+        role: user.role || null
       }
     });
   } catch (error) {

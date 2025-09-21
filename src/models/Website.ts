@@ -8,6 +8,7 @@ export interface IWebsite extends mongoose.Document {
   category: string[];
   price: number;
   priceCents: number;
+  // (originalPriceCents/adminExtraPriceCents were removed — priceCents is authoritative)
   image: string;
   userId: string;
   status: 'pending' | 'approved' | 'rejected' | 'priceConflict';
@@ -117,6 +118,16 @@ const WebsiteSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Price in cents is required'],
     min: [0, 'Price cannot be negative']
+  },
+  // Preserve the original publisher-visible price when admins add an extra amount
+  originalPriceCents: {
+    type: Number,
+    default: null
+  },
+  // Admin-applied extra (in cents) stored separately so publisher views can show the original price
+  adminExtraPriceCents: {
+    type: Number,
+    default: 0
   },
   image: {
     type: String,

@@ -615,6 +615,8 @@ export default function PurchasesSection({
                               </button>
                             </div>
                           )}
+                          {/* Payment link input - visible only when purchase is ongoing */}
+                          
                         </div>
                       </div>
                       

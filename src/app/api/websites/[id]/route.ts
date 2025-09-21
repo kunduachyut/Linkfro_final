@@ -65,6 +65,14 @@ export async function PATCH(req: Request, { params }: RouteParams) {
       website.status = "approved";
       website.rejectionReason = undefined;
       website.approvedAt = new Date();
+
+      // If an admin provided an extra price (in cents), apply it to the stored price
+      if (typeof body.extraPriceCents === 'number' && !Number.isNaN(body.extraPriceCents)) {
+        const currentCents = typeof website.priceCents === 'number' ? website.priceCents : (typeof website.price === 'number' ? Math.round(website.price * 100) : 0);
+        website.priceCents = currentCents + body.extraPriceCents;
+        // Keep 'price' in sync for any consumers that read it
+        website.price = website.priceCents / 100;
+      }
     } else if (body.action === "reject") {
       website.status = "rejected";
       website.rejectionReason = body.reason || "No reason provided";

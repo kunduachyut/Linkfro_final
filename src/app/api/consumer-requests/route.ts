@@ -11,9 +11,9 @@ const consumerRequestSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Prevent recompiling in dev
-const ConsumerRequest =
-  mongoose.models.ConsumerRequest ||
+// Prevent recompiling in dev - give a clear model type to avoid TS union-callable errors
+const ConsumerRequest: mongoose.Model<any> =
+  (mongoose.models.ConsumerRequest as mongoose.Model<any>) ||
   mongoose.model("ConsumerRequest", consumerRequestSchema);
 
 async function connectDB() {

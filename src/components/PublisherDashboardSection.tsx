@@ -165,7 +165,7 @@ export default function PublisherDashboardSection({
                 <div className="flex items-center gap-3">
                   {getStatusBadge(site.status, site.rejectionReason)}
                   <span className="text-sm font-medium text-green-600">
-                    {formatPrice(site.priceCents)}
+                    {formatPrice(((site as any).originalPriceCents != null) ? (site as any).originalPriceCents : site.priceCents)}
                   </span>
                 </div>
               </div>

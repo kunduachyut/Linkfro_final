@@ -14,6 +14,11 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [userType, setUserType] = useState<"advertiser" | "publisher" | null>(null);
+  const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState("");
+  const [traffic, setTraffic] = useState("");
+  const [numberOfWebsites, setNumberOfWebsites] = useState("");
+  const [message, setMessage] = useState("");
   const [showUserTypeSelection, setShowUserTypeSelection] = useState(true); // Default to showing user type selection
 
   if (!isOpen) return null;
@@ -25,10 +30,88 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log(isLogin ? "Login" : "Sign Up", { email, password, userType });
-    // Close modal after submission
-    onClose();
+    // Simple flow: if user is signing up (request access), POST to /api/request-access
+    if (!userType) {
+      alert('Please select Advertiser or Publisher');
+      return;
+    }
+
+    const payload = {
+      email: email.trim(),
+      password,
+      role: userType,
+      phone: phone.trim(),
+      country: country.trim(),
+      traffic: traffic.trim() || 'unknown',
+      numberOfWebsites: numberOfWebsites.trim() || '0',
+      message: message.trim()
+    };
+
+    if (!isLogin) {
+      // client-side validation for signup
+      if (!phone.trim() || !country.trim() || !traffic.trim() || !numberOfWebsites.trim()) {
+        alert('Please fill phone, country, traffic and number of websites');
+        return;
+      }
+      if (password !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+      }
+      // Request access / sign up
+      fetch('/api/request-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(async (res) => {
+          const json = await res.json();
+          if (json.success) {
+            alert('Request submitted. Your account will be activated after approval.');
+            resetForm();
+            onClose();
+          } else {
+            alert(json.error || 'Failed to submit request');
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          alert('Network error');
+        });
+      return;
+    }
+
+    // Login flow: call check-user to validate credentials and approval
+    fetch('/api/check-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim(), password, role: userType })
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}));
+          alert(j.error || 'Login failed');
+          return;
+        }
+        const j = await res.json();
+        if (j.approved) {
+          // Redirect based on role
+          const role = j.user?.role;
+          if (role === 'publisher') {
+            window.location.href = '/dashboard/publisher';
+          } else if (role === 'advertiser') {
+            window.location.href = '/dashboard/consumer';
+          } else {
+            // Fallback
+            window.location.href = '/dashboard';
+          }
+        } else {
+          alert(j.error || 'Account pending approval');
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        alert('Network error');
+      });
   };
 
   const resetForm = () => {
@@ -37,6 +120,11 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     setConfirmPassword("");
     setUserType(null);
     setShowUserTypeSelection(true);
+    setPhone("");
+    setCountry("");
+    setTraffic("");
+    setNumberOfWebsites("");
+    setMessage("");
   };
 
   const handleClose = () => {
@@ -231,6 +319,60 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   required
                 />
               </div>
+            )}
+            {!isLogin && (
+              <>
+                <div>
+                  <input
+                    type="tel"
+                    placeholder="Phone number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Country"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Traffic (e.g. 10k/mo)"
+                    value={traffic}
+                    onChange={(e) => setTraffic(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="Number of websites"
+                    value={numberOfWebsites}
+                    onChange={(e) => setNumberOfWebsites(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <textarea
+                    placeholder="Message (optional)"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 h-24"
+                  />
+                </div>
+              </>
             )}
             
             <button

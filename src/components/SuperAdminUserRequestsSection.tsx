@@ -11,6 +11,7 @@ type UserAccessRequest = {
     country: string;
     traffic: string;
     numberOfWebsites: string;
+    role?: "advertiser" | "publisher";
     message?: string;
     status: "pending" | "approved" | "rejected";
     createdAt: string;
@@ -120,6 +121,7 @@ const SuperAdminUserRequestsSection: React.FC<Props> = ({
                                     )}
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Traffic</th>
@@ -143,6 +145,7 @@ const SuperAdminUserRequestsSection: React.FC<Props> = ({
                                         )}
                                     </td>
                                     <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{request.email}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 capitalize">{request.role}</td>
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{request.phone}</td>
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{request.country}</td>
                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{request.traffic}</td>

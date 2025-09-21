@@ -279,7 +279,7 @@ type SuperAdminWebsitesSectionProps = {
   toggleSelectAllWebsites: () => void;
   toggleWebsiteSelection: (id: string) => void;
   approveSelectedWebsites: () => void;
-  updateWebsiteStatus: (id: string, status: "approved" | "rejected", reason?: string) => void;
+  updateWebsiteStatus: (id: string, status: "approved" | "rejected", reason?: string, extraPriceCents?: number) => void;
   openRejectModal: (website: Website) => void;
   refresh: () => void;
 };
@@ -299,6 +299,7 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
   openRejectModal,
   refresh
 }) => {
+  const [extraPrices, setExtraPrices] = useState<Record<string, string>>({});
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
   // State for country flags
   const [countryFlags, setCountryFlags] = useState<Record<string, string>>({});
@@ -600,7 +601,12 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                               {(website.status || 'pending') === 'pending' && (
                                 <>
                                   <button
-                                    onClick={() => updateWebsiteStatus(website.id, "approved")}
+                                    onClick={() => {
+                                      const raw = extraPrices[website.id] || '';
+                                      const parsed = parseFloat(raw);
+                                      const extraCents = Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed * 100) : undefined;
+                                      updateWebsiteStatus(website.id, "approved", undefined, extraCents);
+                                    }}
                                     className="flex items-center justify-center px-2 py-1 bg-green-100 text-green-800 border border-green-300 rounded-full text-xs hover:bg-green-200 transition-colors font-medium shadow-sm"
                                     title="Approve website"
                                   >
@@ -609,6 +615,18 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                                     </svg>
                                     Approve
                                   </button>
+                                  <div className="ml-2">
+                                    <input
+                                      type="number"
+                                      step="0.01"
+                                      min="0"
+                                      value={extraPrices[website.id] || ''}
+                                      onChange={(e) => setExtraPrices((prev) => ({ ...prev, [website.id]: e.target.value }))}
+                                      placeholder="Extra $"
+                                      className="w-20 text-xs px-2 py-1 border rounded"
+                                      title="Optional extra price to add when approving (USD)"
+                                    />
+                                  </div>
                                   <button
                                     onClick={() => openRejectModal(website)}
                                     className="flex items-center justify-center px-2 py-1 bg-red-100 text-red-800 border border-red-300 rounded-full text-xs hover:bg-red-200 transition-colors font-medium shadow-sm"
