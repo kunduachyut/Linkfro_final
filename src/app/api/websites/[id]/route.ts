@@ -70,11 +70,18 @@ export async function PATCH(req: Request, context: any) {
       website.rejectionReason = undefined;
       website.approvedAt = new Date();
 
-      // If an admin provided an extra price (in cents), apply it to the stored price
-      if (typeof body.extraPriceCents === 'number' && !Number.isNaN(body.extraPriceCents)) {
+      // If an admin provided an extra price (in cents), persist the original publisher price
+      // and store the admin-applied extra separately so publisher views can continue to show the original.
+      if (typeof body.extraPriceCents === 'number' && !Number.isNaN(body.extraPriceCents) && body.extraPriceCents !== 0) {
         const currentCents = typeof website.priceCents === 'number' ? website.priceCents : (typeof website.price === 'number' ? Math.round(website.price * 100) : 0);
-        website.priceCents = currentCents + body.extraPriceCents;
-        // Keep 'price' in sync for any consumers that read it
+        // If originalPriceCents is not already set, preserve the current publisher-submitted price
+        if ((website as any).originalPriceCents == null) {
+          (website as any).originalPriceCents = currentCents;
+        }
+        // Record the admin extra amount separately
+        (website as any).adminExtraPriceCents = ((website as any).adminExtraPriceCents || 0) + body.extraPriceCents;
+        // Update the authoritative priceCents for consumers (includes admin extra)
+        website.priceCents = ((website as any).originalPriceCents ?? currentCents) + (website as any).adminExtraPriceCents;
         website.price = website.priceCents / 100;
       }
     } else if (body.action === "reject") {

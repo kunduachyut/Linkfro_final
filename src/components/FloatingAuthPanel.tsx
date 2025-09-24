@@ -1,25 +1,55 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser, SignInButton, SignUpButton, SignOutButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 const FloatingAuthPanel = () => {
   const { isSignedIn, user } = useUser();
+  const [allowed, setAllowed] = useState<boolean>(false);
+  const [checking, setChecking] = useState<boolean>(true);
   const [isOpen, setIsOpen] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    let mounted = true;
+    async function checkRole() {
+      try {
+        const res = await fetch('/api/admin-roles/current');
+        if (!mounted) return;
+        if (!res.ok) {
+          setAllowed(false);
+          return;
+        }
+        const j = await res.json();
+        // j: { role: 'websites'|'requests'|null, isSuper: boolean }
+        const isAllowed = !!(j?.isSuper) || (j?.role === 'websites') || (j?.role === 'requests');
+        setAllowed(Boolean(isAllowed));
+      } catch (e) {
+        setAllowed(false);
+      } finally {
+        if (mounted) setChecking(false);
+      }
+    }
+
+    // Only check if the user is signed in. If not, skip and hide.
+    if (isSignedIn) checkRole();
+    else setChecking(false);
+
+    return () => { mounted = false; };
+  }, [isSignedIn]);
 
   const navigateToRole = (role: string) => {
     switch (role) {
       case 'consumer':
-        router.push('/dashboard/consumer');
+        router.push('/dashboard/consumer?via=panel');
         break;
       case 'publisher':
-        router.push('/dashboard/publisher');
+        router.push('/dashboard/publisher?via=panel');
         break;
       case 'superadmin':
-        router.push('/dashboard/superadmin');
+        router.push('/dashboard/superadmin?via=panel');
         break;
       default:
         router.push('/');
@@ -27,6 +57,10 @@ const FloatingAuthPanel = () => {
   };
 
   if (!isOpen) {
+    // If we're still checking permissions, don't render anything yet.
+    if (checking) return null;
+    // Don't show the panel to users who are not signed in or not allowed.
+    if (!isSignedIn || !allowed) return null;
     return (
       <button
         onClick={() => setIsOpen(true)}
@@ -47,6 +81,11 @@ const FloatingAuthPanel = () => {
       </button>
     );
   }
+
+  // If still checking permissions, render nothing to avoid flicker.
+  if (checking) return null;
+  // Only allow signed-in users with the appropriate admin roles to see this panel.
+  if (!isSignedIn || !allowed) return null;
 
   return (
     <div 

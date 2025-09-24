@@ -1,5 +1,5 @@
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import MarketplaceSection from "@/components/MarketplaceSection";
 
 type Purchase = {
   _id: string;
@@ -49,6 +49,7 @@ export default function PendingPaymentsSection({
   // keep a map of website details for purchases whose websiteId is a string
   const [websiteDetails, setWebsiteDetails] = useState<Record<string, any>>({});
   const [loadingWebsites, setLoadingWebsites] = useState<Record<string, boolean>>({});
+  const [showMarketplace, setShowMarketplace] = useState(false);
 
   // Filter to only include purchases with status "pendingPayment"
   const filtered = (pendingPayments || []).filter((p) => p?.status === "pendingPayment");
@@ -159,21 +160,22 @@ export default function PendingPaymentsSection({
           No pending payments
         </h3>
         <p style={{ color: "var(--secondary-lighter)" }}>You don't have any purchases waiting for payment.</p>
-        <Link
-          href="/MarketplaceSection"
+        <button
+          onClick={() => setShowMarketplace(true)}
           className="inline-block mt-4 px-6 py-2 rounded-lg text-white transition-colors"
           style={{ backgroundColor: "var(--accent-primary)" }}
           onMouseEnter={(e) => ((e.target as HTMLElement).style.backgroundColor = "var(--accent-hover)")}
           onMouseLeave={(e) => ((e.target as HTMLElement).style.backgroundColor = "var(--accent-primary)")}
         >
           Browse Marketplace
-        </Link>
+        </button>
       </div>
     );
   }
 
   return (
-    <div>
+    <>
+      <div>
       <div className="mb-6 flex justify-between items-center">
         <p className="text-sm" style={{ color: "var(--secondary-lighter)" }}>
           You have {filtered.length} pending payment{filtered.length !== 1 ? "s" : ""}
@@ -284,6 +286,26 @@ export default function PendingPaymentsSection({
           );
         })}
       </div>
-    </div>
+      </div>
+      {showMarketplace && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-6">
+          <div className="absolute inset-0 bg-black opacity-40" onClick={() => setShowMarketplace(false)} />
+          <div className="relative z-10 w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden max-h-[90vh]">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-medium">Marketplace</h3>
+              <button
+                onClick={() => setShowMarketplace(false)}
+                className="px-3 py-1 rounded text-sm border"
+              >
+                Close
+              </button>
+            </div>
+            <div className="w-full h-[80vh]">
+              <iframe src="/MarketplaceSection" title="Marketplace" className="w-full h-full border-0" />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

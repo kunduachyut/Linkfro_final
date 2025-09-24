@@ -305,6 +305,8 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
   const [countryFlags, setCountryFlags] = useState<Record<string, string>>({});
   const [loadingFlags, setLoadingFlags] = useState(false);
   const [failedFlags, setFailedFlags] = useState<Record<string, boolean>>({});
+  // State to hold website pending approve-confirmation when no extra price was entered
+  const [confirmApproveWebsite, setConfirmApproveWebsite] = useState<{ id: string; title?: string } | null>(null);
 
   // Load country flags from REST Countries API
   useEffect(() => {
@@ -350,6 +352,28 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
     <section className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/5 via-purple-600/5 to-violet-600/5"></div>
       <div className="relative z-10">
+        {/* Confirm approve modal (shown when admin attempts to approve without extra price) */}
+        {confirmApproveWebsite && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{backgroundColor: 'rgba(0,0,0,0.4)'}}>
+            <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg">
+              <h3 className="text-lg font-semibold mb-2">Confirm Approve</h3>
+              <p className="text-sm text-gray-700 mb-4">You didn't add any extra price. Are you sure you want to approve "{confirmApproveWebsite.title || 'this website'}" without adding an extra price?</p>
+              <div className="flex justify-end gap-3">
+                <button onClick={() => setConfirmApproveWebsite(null)} className="px-3 py-1 bg-gray-100 rounded">Cancel</button>
+                <button
+                  onClick={() => {
+                    // Call approve with undefined extra price
+                    updateWebsiteStatus(confirmApproveWebsite.id, "approved");
+                    setConfirmApproveWebsite(null);
+                  }}
+                  className="px-3 py-1 bg-green-600 text-white rounded"
+                >
+                  Approve
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <h2 className="text-xl font-bold text-gray-800 mb-5 flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -489,7 +513,7 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
             ) : (
               <div>
                 {/* Table Header */}
-                <div className="grid grid-cols-14 gap-0.5 px-1 py-1.5 bg-gray-50 border-b border-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <div className="grid grid-cols-16 gap-0.5 px-1 py-1.5 bg-gray-50 border-b border-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                   <div className="col-span-1 flex justify-center items-center">
                     {filter === "pending" && (
                       <input 
@@ -502,6 +526,8 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                   </div>
                   <div className="col-span-2 flex items-center truncate text-sm">Website</div>
                   <div className="col-span-1 flex justify-center text-sm">Price</div>
+                  <div className="col-span-1 flex justify-center text-sm">Publisher Price</div>
+                  <div className="col-span-1 flex justify-center text-sm">Extra Price</div>
                   <div className="col-span-1 flex justify-center text-xs">DA</div>
                   <div className="col-span-1 flex justify-center text-xs">DR</div>
                   <div className="col-span-1 flex justify-center text-xs">PA</div>
@@ -518,7 +544,7 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                 <div className="divide-y divide-gray-100">
                   {(websites || []).map((website, idx) => {
                     return (
-                      <div key={website.id || idx} className="grid grid-cols-14 gap-0.5 px-1 py-1.5 hover:bg-gray-50 transition-colors items-center">
+                      <div key={website.id || idx} className="grid grid-cols-16 gap-0.5 px-1 py-1.5 hover:bg-gray-50 transition-colors items-center">
                         {/* Checkbox */}
                         <div className="col-span-1 flex justify-center">
                           {(website.status || 'pending') === 'pending' && (
@@ -605,7 +631,12 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                                       const raw = extraPrices[website.id] || '';
                                       const parsed = parseFloat(raw);
                                       const extraCents = Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed * 100) : undefined;
-                                      updateWebsiteStatus(website.id, "approved", undefined, extraCents);
+                                      // If admin didn't add an extra price (or it's zero/invalid) ask for confirmation
+                                      if (!extraCents) {
+                                        setConfirmApproveWebsite({ id: website.id, title: website.title });
+                                      } else {
+                                        updateWebsiteStatus(website.id, "approved", undefined, extraCents);
+                                      }
                                     }}
                                     className="flex items-center justify-center px-2 py-1 bg-green-100 text-green-800 border border-green-300 rounded-full text-xs hover:bg-green-200 transition-colors font-medium shadow-sm"
                                     title="Approve website"
@@ -672,6 +703,39 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                           <div className="font-semibold text-green-700 text-base">
                             {website.priceCents ? `$${(website.priceCents / 100).toFixed(2)}` : 
                              website.price ? `$${website.price.toFixed(2)}` : '$0.00'}
+                          </div>
+                        </div>
+
+                        {/* Publisher Price (originalPriceCents or derived) */}
+                        <div className="col-span-1 flex justify-center">
+                          <div className="text-sm font-semibold text-gray-800">
+                            {(() => {
+                              const orig = (website as any).originalPriceCents;
+                              const adminExtra = (website as any).adminExtraPriceCents;
+                              if (typeof orig === 'number') return `$${(orig / 100).toFixed(2)}`;
+                              if (typeof website.priceCents === 'number' && typeof adminExtra === 'number') {
+                                const derived = website.priceCents - adminExtra;
+                                return `$${(derived / 100).toFixed(2)}`;
+                              }
+                              if (website.price) return `$${website.price.toFixed(2)}`;
+                              return '$0.00';
+                            })()}
+                          </div>
+                        </div>
+
+                        {/* Extra Price (adminExtraPriceCents or derived) */}
+                        <div className="col-span-1 flex justify-center">
+                          <div className="text-sm font-semibold text-indigo-700">
+                            {(() => {
+                              const adminExtra = (website as any).adminExtraPriceCents;
+                              const orig = (website as any).originalPriceCents;
+                              if (typeof adminExtra === 'number' && adminExtra !== 0) return `$${(adminExtra / 100).toFixed(2)}`;
+                              if (typeof website.priceCents === 'number' && typeof orig === 'number') {
+                                const derived = website.priceCents - orig;
+                                if (derived && derived !== 0) return `$${(derived / 100).toFixed(2)}`;
+                              }
+                              return '-';
+                            })()}
                           </div>
                         </div>
                         
