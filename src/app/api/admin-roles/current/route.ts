@@ -12,14 +12,29 @@ export async function GET(req: NextRequest) {
 
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
-    const email = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase() || null;
+    // Clerk may return multiple emailAddresses; pick the primary one if present, otherwise the first available.
+    const rawEmail = (user?.emailAddresses || []).find((e: any) => e?.primary === true)?.emailAddress
+      || (user?.emailAddresses || [])[0]?.emailAddress
+      || null;
+    const email = rawEmail ? String(rawEmail).toLowerCase().trim() : null;
 
-    const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL ||"santanu.digitalseo@gmail.com"||"kunduachyut19@gmail.com").toLowerCase();
+  const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || "santanu.digitalseo@gmail.com" || "kunduachyut19@gmail.com").toLowerCase();
     const superAdminIds = (process.env.SUPER_ADMIN_USER_IDS || "").split(",").map(s => s.trim()).filter(Boolean);
     
-    const isSuper =
+    let isSuper =
       !!(superAdminEmail && email && email === superAdminEmail) ||
       superAdminIds.includes(userId);
+
+    // Also consider any AdminRole documents with role 'super' for this email
+    if (!isSuper && email) {
+      try {
+        const dbSuper = await AdminRole.findOne({ email, role: 'super', active: true }).lean().exec();
+        if (dbSuper) isSuper = true;
+      } catch (e) {
+        // ignore DB errors here and fall back to existing isSuper value
+        console.error('Error checking DB for super admin role', e);
+      }
+    }
 
     if (isSuper) {
       return NextResponse.json({ role: null, isSuper: true });
@@ -27,8 +42,9 @@ export async function GET(req: NextRequest) {
 
     if (!email) return NextResponse.json({ role: null, isSuper: false });
 
-    const roleDoc = await AdminRole.findOne({ email }).lean().exec();
-    return NextResponse.json({ role: roleDoc?.role || null, isSuper: false });
+    // Only return a non-super role if the assignment is active. Paused roles should not grant access.
+    const roleDoc = await AdminRole.findOne({ email, active: true }).lean().exec();
+  return NextResponse.json({ role: roleDoc?.role || null, isSuper: false });
   } catch (err) {
     console.error("GET /api/admin-roles/current error", err);
     return NextResponse.json({ role: null, isSuper: false });

@@ -127,6 +127,47 @@ export default function SuperAdminDashboardPage() {
   const [isSuper, setIsSuper] = useState(false);
   const [allowedTabs, setAllowedTabs] = useState<Tab[]>(["websites","userContent","purchases","contentRequests","priceConflicts","userRequests","roles"]);
 
+  // Track last-seen counts per tab to detect new items since last view.
+  const LS_KEY = 'adminLastSeenCounts_v1';
+  const initialCounts = (): Record<Tab, number> => ({
+    websites: 0,
+    userContent: 0,
+    purchases: 0,
+    contentRequests: 0,
+    priceConflicts: 0,
+    userRequests: 0,
+    roles: 0,
+  });
+
+  const [lastSeenCounts, setLastSeenCounts] = useState<Record<Tab, number>>(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem(LS_KEY) : null;
+      return raw ? JSON.parse(raw) : initialCounts();
+    } catch (e) {
+      return initialCounts();
+    }
+  });
+
+  // New-item flags derived from comparing current counts vs lastSeenCounts
+  const [newItems, setNewItems] = useState<Record<Tab, boolean>>({
+    websites: false,
+    userContent: false,
+    purchases: false,
+    contentRequests: false,
+    priceConflicts: false,
+    userRequests: false,
+    roles: false,
+  });
+
+  // helper to persist lastSeenCounts
+  const persistLastSeen = (counts: Record<Tab, number>) => {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(counts));
+    } catch (e) {
+      // ignore
+    }
+  };
+
   useEffect(() => {
     // fetch current role for logged-in user
     async function loadRole() {
@@ -134,21 +175,23 @@ export default function SuperAdminDashboardPage() {
         const res = await fetch("/api/admin-roles/current");
         const json = await res.json();
         // { role: 'websites' | 'requests' | null, isSuper: boolean }
-        setCurrentUserRole(json.role ?? null);
-        setIsSuper(Boolean(json.isSuper));
-        if (json.isSuper) {
-          setAllowedTabs(["websites","userContent","purchases","contentRequests","priceConflicts","userRequests","roles"]);
-        } else if (json.role === "websites") {
-          setAllowedTabs(["websites"]);
-          setActiveTab((prev) => (prev === "websites" ? prev : "websites"));
-        } else if (json.role === "requests") {
-          setAllowedTabs(["purchases","contentRequests"]);
-          setActiveTab((prev) => (["purchases","contentRequests"].includes(prev) ? prev : "purchases"));
-        } else {
-          // no role -> block or show only websites by default (adjust as needed)
-          setAllowedTabs([]);
-          setActiveTab("websites");
-        }
+            setCurrentUserRole(json.role ?? null);
+            setIsSuper(Boolean(json.isSuper));
+            if (json.isSuper) {
+              setAllowedTabs(["websites","userContent","purchases","contentRequests","priceConflicts","userRequests","roles"]);
+            } else if (json.role === "websites") {
+              // Websites Analyst: only Websites tab but with full moderation features
+              setAllowedTabs(["websites"]);
+              setActiveTab((prev) => (prev === "websites" ? prev : "websites"));
+            } else if (json.role === "requests") {
+              // Content Manager / Requests role: allow Purchases and User Content tabs
+              setAllowedTabs(["purchases","userContent"]);
+              setActiveTab((prev) => (["purchases","userContent"].includes(prev) ? prev : "purchases"));
+            } else {
+              // no role -> no admin tabs
+              setAllowedTabs([]);
+              setActiveTab("websites");
+            }
       } catch (err) {
         console.error("Failed to load admin role", err);
         // fallback: super admin view
@@ -171,8 +214,8 @@ export default function SuperAdminDashboardPage() {
         setAllowedTabs(["websites"]);
         setActiveTab((prev) => (prev === "websites" ? prev : "websites"));
       } else if (json.role === "requests") {
-        setAllowedTabs(["purchases","contentRequests"]);
-        setActiveTab((prev) => ( ["purchases","contentRequests"].includes(prev) ? prev : "purchases" ));
+        setAllowedTabs(["purchases","userContent"]);
+        setActiveTab((prev) => (["purchases","userContent"].includes(prev) ? prev : "purchases"));
       } else {
         setAllowedTabs([]);
         setActiveTab("websites");
@@ -181,6 +224,8 @@ export default function SuperAdminDashboardPage() {
       console.error("Failed to refresh admin role", err);
     }
   }
+
+  
 
   const [selectedWebsites, setSelectedWebsites] = useState<string[]>([]);
   const [selectedPurchases, setSelectedPurchases] = useState<string[]>([]);
@@ -239,6 +284,31 @@ const [confirmationAction, setConfirmationAction] = useState<{
   const [successMessage, setSuccessMessage] = useState("");
   // store messages/payment links keyed by purchase or custom key
   const [messages, setMessages] = useState<Record<string, string>>({});
+
+  // When user opens a tab (activeTab), clear its new-item badge and persist the current count as last seen
+  useEffect(() => {
+    try {
+      const counts = { ...lastSeenCounts };
+      // compute current counts snapshot
+      counts.websites = websites.length || 0;
+      counts.priceConflicts = priceConflicts.length || 0;
+      counts.purchases = purchaseRequests.length || 0;
+      counts.userContent = userContent.length || 0;
+      counts.contentRequests = requests.length || 0;
+      counts.userRequests = userRequests.length || 0;
+      // roles count intentionally left as 0 (could be from admin roles list)
+
+      // if the active tab had new items, clear the badge and persist the updated count
+      if (newItems[activeTab]) {
+        setNewItems(prev => ({ ...prev, [activeTab]: false }));
+        const updated = { ...counts };
+        setLastSeenCounts(updated);
+        persistLastSeen(updated);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [activeTab, websites, priceConflicts, purchaseRequests, userContent, requests, userRequests]);
 
   useEffect(() => {
     refresh();
@@ -430,12 +500,24 @@ const [confirmationAction, setConfirmationAction] = useState<{
 
   function refresh() {
     setLoading(prev => ({ ...prev, websites: true }));
-    fetch(`/api/websites?status=${filter}&role=superadmin`)
+  // Send role param according to the current user's privileges. If super, request superadmin view; if websites role, request websites view
+  const roleParam = isSuper ? 'superadmin' : (currentUserRole === 'websites' ? 'websites' : undefined);
+  const roleQuery = roleParam ? `&role=${encodeURIComponent(roleParam)}` : '';
+  fetch(`/api/websites?status=${filter}${roleQuery}`)
       .then(r => r.json())
       .then(data => {
         const websitesData = data.websites || data || [];
         setWebsites(Array.isArray(websitesData) ? websitesData : []);
         calculateStats(Array.isArray(websitesData) ? websitesData : []);
+
+        // update new-items detection for websites
+        try {
+          const currentCount = Array.isArray(websitesData) ? websitesData.length : 0;
+          const prev = lastSeenCounts.websites || 0;
+          if (currentCount > prev) {
+            setNewItems(prevState => ({ ...prevState, websites: true }));
+          }
+        } catch (e) { /* ignore */ }
 
         // Reset selection when filter changes
         if (filter !== "pending") {
@@ -537,11 +619,25 @@ const [confirmationAction, setConfirmationAction] = useState<{
       if (response.ok) {
         const data = await response.json();
         setPriceConflicts(data.conflicts || []);
+        // update new-items detection for priceConflicts
+        try {
+          const count = (data.conflicts || []).length || 0;
+          const prev = lastSeenCounts.priceConflicts || 0;
+          if (count > prev) {
+            setNewItems(prevState => ({ ...prevState, priceConflicts: true }));
+          }
+        } catch (e) { /* ignore */ }
+      } else if (response.status === 403) {
+        // Unauthorized - no need to spam the console in dev overlay, just show empty list
+        console.warn('Not authorized to fetch price conflicts (403)');
+        setPriceConflicts([]);
       } else {
-        console.error('Failed to fetch price conflicts');
+        // Non-OK response: warn with status for debugging
+        console.warn('Failed to fetch price conflicts', response.status, response.statusText);
         setPriceConflicts([]);
       }
     } catch (error) {
+      // Unexpected network or parsing error - log for debugging but don't throw
       console.error('Error fetching price conflicts:', error);
       setPriceConflicts([]);
     } finally {
@@ -758,6 +854,7 @@ setPurchaseStats(stats);
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         allowedTabs={allowedTabs} // <-- ensure allowedTabs is passed to match Sidebar props
+        newItems={newItems}
       />
 
       <main className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto overflow-x-hidden min-w-0 max-w-none w-full">

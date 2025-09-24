@@ -160,7 +160,7 @@ export default function PendingPaymentsSection({
         </h3>
         <p style={{ color: "var(--secondary-lighter)" }}>You don't have any purchases waiting for payment.</p>
         <Link
-          href="/marketplace"
+          href="/MarketplaceSection"
           className="inline-block mt-4 px-6 py-2 rounded-lg text-white transition-colors"
           style={{ backgroundColor: "var(--accent-primary)" }}
           onMouseEnter={(e) => ((e.target as HTMLElement).style.backgroundColor = "var(--accent-hover)")}

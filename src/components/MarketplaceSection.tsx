@@ -1258,19 +1258,24 @@ export default function MarketplaceSection({
                           ),
                           'specialNotes': (
                             <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              {w.specialNotes ? (
-                                <div className="relative group">
-                                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-800 font-bold cursor-help">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                  </div>
-                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 z-10 max-w-xs">
-                                    <div className="max-h-20 overflow-y-auto">
-                                      {w.specialNotes}
+                              {/* Do not show special notes to consumers if grey niche is not accepted */}
+                              {w.greyNicheAccepted ? (
+                                w.specialNotes ? (
+                                  <div className="relative group">
+                                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-800 font-bold cursor-help">
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                    </div>
+                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 z-10 max-w-xs">
+                                      <div className="max-h-20 overflow-y-auto">
+                                        {w.specialNotes}
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
+                                ) : (
+                                  <span className="text-sm font-medium text-gray-400">-</span>
+                                )
                               ) : (
                                 <span className="text-sm font-medium text-gray-400">-</span>
                               )}

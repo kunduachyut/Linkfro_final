@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import useCountries from "../hooks/useCountries";
 
 type Website = {
   _id: string;
@@ -86,7 +87,7 @@ export default function PublisherAddWebsiteSection({
     primaryCountry?: string;
     trafficValue?: string;        
     locationTraffic?: string;     
-    greyNicheAccepted?: string;   
+  greyNicheAccepted?: boolean;   
     specialNotes?: string;        
     primeTrafficCountries?: string | string[]; // Add prime traffic countries field
   };
@@ -122,6 +123,9 @@ export default function PublisherAddWebsiteSection({
     return [];
   });
 
+  // Search term for category modal
+  const [categorySearch, setCategorySearch] = useState('');
+
   // State for prime traffic countries
   const [primeTrafficCountries, setPrimeTrafficCountries] = useState<string[]>(() => {
     // Initialize from formData.primeTrafficCountries - handle different possible data types
@@ -141,33 +145,14 @@ export default function PublisherAddWebsiteSection({
     return [];
   });
   
-  const [allCountries, setAllCountries] = useState<{name: string, flag: string}[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
-  const [loadingCountries, setLoadingCountries] = useState(false);
-  
-  // Load countries from REST Countries API
-  useEffect(() => {
-    const loadCountries = async () => {
-      setLoadingCountries(true);
-      try {
-        const response = await fetch('https://restcountries.com/v3.1/all?fields=name,flags');
-        const data = await response.json();
-        const countries = data.map((country: any) => ({
-          name: country.name.common,
-          flag: country.flags?.svg || country.flags?.png || ''
-        })).sort((a: any, b: any) => a.name.localeCompare(b.name));
-        setAllCountries(countries);
-      } catch (error) {
-        console.error('Error loading countries:', error);
-      } finally {
-        setLoadingCountries(false);
-      }
-    };
-    
-    loadCountries();
-  }, []);
-  
+
+  // useCountries hook provides cached countries + loading flag
+  // this avoids multiple components fetching the same resource repeatedly
+  // and speeds up subsequent navigations by using sessionStorage
+  const { countries: allCountries, loading: loadingCountries } = useCountries();
+
   // Filter countries based on search term
   const filteredCountries = allCountries.filter(country => 
     country.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -291,14 +276,14 @@ export default function PublisherAddWebsiteSection({
               Website URL *
             </label>
             <input
-              type="url"
+              type="text"
               id="url"
               name="url"
               value={formData.url}
               onChange={handleFormChange}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
-              placeholder="https://example.com"
+              placeholder="example.com or https://example.com or http://example.com"
             />
           </div>
 
@@ -539,7 +524,13 @@ export default function PublisherAddWebsiteSection({
             <select
               id="greyNicheAccepted"
               name="greyNicheAccepted"
-              value={formData.greyNicheAccepted || ''}
+              value={
+                formData.greyNicheAccepted === true
+                  ? 'true'
+                  : formData.greyNicheAccepted === false
+                  ? 'false'
+                  : ''
+              }
               onChange={handleFormChange}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md appearance-none bg-white"
@@ -700,8 +691,19 @@ export default function PublisherAddWebsiteSection({
             </div>
             
             <div className="overflow-y-auto flex-1 p-6">
+              <div className="mb-4">
+                <input
+                  type="text"
+                  value={categorySearch}
+                  onChange={(e) => setCategorySearch(e.target.value)}
+                  placeholder="Search categories..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md mb-3 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {CATEGORIES.map((category) => (
+                {CATEGORIES.filter(cat =>
+                  cat.name.toLowerCase().includes(categorySearch.toLowerCase())
+                ).map((category) => (
                   <div
                     key={category.id}
                     onClick={() => toggleCategory(category.id)}

@@ -3,6 +3,8 @@ import { dbConnect } from "@/lib/db";
 import Website from "@/models/Website";
 import { requireAuth } from "@/lib/auth";
 import mongoose from "mongoose";
+import { clerkClient } from "@clerk/nextjs/server";
+import AdminRole from "@/models/AdminRole";
 
 // Correctly typed params (never a Promise)
 type RouteParams = {
@@ -41,7 +43,8 @@ export async function GET(req: Request, context: any) {
     const userRole = await getUserRole(userId);
 
     if (website.userId.toString() !== userId && website.status !== "approved") {
-      if (userRole !== "superadmin") {
+      // allow superadmin and 'websites' analysts to access for moderation
+      if (!(userRole === "superadmin" || userRole === "websites")) {
         return NextResponse.json({ error: "Access denied" }, { status: 403 });
       }
     }
@@ -175,10 +178,36 @@ export async function DELETE(req: Request, context: any) {
 
 // Helper function
 async function getUserRole(userId: string): Promise<string> {
-  if (
-    userId === "user_31H9OiuHhU5R5ITj5AlP4aJBosn" ||
-    userId === "user_31XHCLTOeZ74gf9COPnuyjHpQY6"
-  )
-    return "superadmin";
-  return "consumer";
+  try {
+    const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || "").toLowerCase() || null;
+    const superAdminIds = (process.env.SUPER_ADMIN_USER_IDS || "").split(",").map(s => s.trim()).filter(Boolean);
+    if (superAdminIds.includes(userId)) return "superadmin";
+
+    try {
+      const client = await clerkClient();
+      const user = await client.users.getUser(userId);
+      const rawEmail = (user?.emailAddresses || []).find((e: any) => e?.primary === true)?.emailAddress
+        || (user?.emailAddresses || [])[0]?.emailAddress
+        || null;
+      const email = rawEmail ? String(rawEmail).toLowerCase().trim() : null;
+
+      if (email && superAdminEmail && email === superAdminEmail) return "superadmin";
+
+      if (email) {
+        const roleDoc = await AdminRole.findOne({ email, active: true }).lean().exec();
+        if (roleDoc) {
+          if (roleDoc.role === 'super') return 'superadmin';
+          if (roleDoc.role === 'websites') return 'websites';
+          if (roleDoc.role === 'requests') return 'requests';
+        }
+      }
+    } catch (e) {
+      console.error('getUserRole clerk/AdminRole lookup failed', e);
+    }
+
+    return 'consumer';
+  } catch (e) {
+    console.error('getUserRole unexpected error', e);
+    return 'consumer';
+  }
 }

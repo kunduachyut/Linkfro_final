@@ -97,6 +97,19 @@ export default function PublisherWebsitesSection({
     ))
   ).filter(Boolean) as string[];
 
+  // Helper to compute the publisher-visible price:
+  // Prefer explicit originalPriceCents when set. If missing but adminExtraPriceCents exists,
+  // derive original price as priceCents - adminExtraPriceCents. Fallback to priceCents.
+  const computePublisherVisiblePrice = (s: any) => {
+    if (s && typeof s.originalPriceCents === 'number' && s.originalPriceCents != null) return s.originalPriceCents;
+    const extra = (s && typeof s.adminExtraPriceCents === 'number') ? s.adminExtraPriceCents : 0;
+    if (extra > 0 && s && typeof s.priceCents === 'number') {
+      const derived = s.priceCents - extra;
+      return derived >= 0 ? derived : s.priceCents;
+    }
+    return s && typeof s.priceCents === 'number' ? s.priceCents : 0;
+  };
+
   // Apply all filters
   const filteredSites = mySites.filter(site => {
     // Status filter (existing)
@@ -130,10 +143,8 @@ export default function PublisherWebsitesSection({
       if (!siteCategories.includes(categoryFilter)) return false;
     }
     
-    // Price filters - use originalPriceCents when present so publisher sees their listed price
-    const priceToUse = typeof (site as any).originalPriceCents === 'number' && (site as any).originalPriceCents != null
-      ? (site as any).originalPriceCents
-      : site.priceCents;
+    // Price filters - use the publisher-visible price so publisher sees their listed price
+    const priceToUse = computePublisherVisiblePrice(site as any);
     if (minPrice && priceToUse < parseFloat(minPrice) * 100) return false;
     if (maxPrice && priceToUse > parseFloat(maxPrice) * 100) return false;
     
@@ -504,7 +515,7 @@ export default function PublisherWebsitesSection({
                     }
                   </div>
                   <div className="text-green-600 font-bold text-lg">
-                    {formatPrice(((site as any).originalPriceCents != null) ? (site as any).originalPriceCents : site.priceCents)}
+                    {formatPrice(computePublisherVisiblePrice(site as any))}
                   </div>
                 </div>
               </div>

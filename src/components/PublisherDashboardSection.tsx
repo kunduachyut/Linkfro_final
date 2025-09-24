@@ -42,6 +42,15 @@ export default function PublisherDashboardSection({
   getStatusBadge: (status: string, rejectionReason?: string) => React.ReactElement;
   formatPrice: (cents?: number) => string;
 }) {
+  const computePublisherVisiblePrice = (s: any) => {
+    if (s && typeof s.originalPriceCents === 'number' && s.originalPriceCents != null) return s.originalPriceCents;
+    const extra = (s && typeof s.adminExtraPriceCents === 'number') ? s.adminExtraPriceCents : 0;
+    if (extra > 0 && s && typeof s.priceCents === 'number') {
+      const derived = s.priceCents - extra;
+      return derived >= 0 ? derived : s.priceCents;
+    }
+    return s && typeof s.priceCents === 'number' ? s.priceCents : 0;
+  };
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -165,7 +174,7 @@ export default function PublisherDashboardSection({
                 <div className="flex items-center gap-3">
                   {getStatusBadge(site.status, site.rejectionReason)}
                   <span className="text-sm font-medium text-green-600">
-                    {formatPrice(((site as any).originalPriceCents != null) ? (site as any).originalPriceCents : site.priceCents)}
+                    {formatPrice(computePublisherVisiblePrice(site as any))}
                   </span>
                 </div>
               </div>

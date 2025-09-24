@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Website from "@/models/Website";
 import { requireAuth } from "@/lib/auth";
+import { clerkClient } from "@clerk/nextjs/server";
+import AdminRole from "@/models/AdminRole";
 import { WebsiteCreateSchema } from "@/utils/types";
 import type { Model } from "mongoose";
 import type { IUser } from "@/models/User"; // Adjust path if needed
@@ -100,7 +102,8 @@ export async function GET(req: Request) {
     const userId = authCheck;
     const userRole = await getUserRole(userId);
 
-    if (userRole === "superadmin" || role === "superadmin") {
+  // Allow both superadmins and 'websites' analysts to access the full websites view
+  if (userRole === "superadmin" || userRole === "websites" || role === "superadmin") {
       // For super admin, populate user email information
       const websites = await Website.find(filter)
         .sort({ createdAt: -1 })
@@ -141,7 +144,7 @@ export async function GET(req: Request) {
           pages: Math.ceil(total / limit),
         },
       });
-    } else if (userRole === "consumer") {
+  } else if (userRole === "consumer") {
       filter.status = "approved";
       filter.available = true; // Only show available websites
 
@@ -223,7 +226,7 @@ export async function POST(req: Request) {
 
   try {
     const json = await req.json();
-    const { title, url, description, priceCents, category, tags, DA, PA, Spam, OrganicTraffic, DR, RD, primaryCountry, primeTrafficCountries, trafficValue, locationTraffic, greyNicheAccepted, specialNotes } = json;
+  const { title, url, description, priceCents, category, tags, DA, PA, Spam, OrganicTraffic, DR, RD, primaryCountry, primeTrafficCountries, trafficValue, locationTraffic, greyNicheAccepted, specialNotes } = json;
 
     if (!title || !url || !description || priceCents === undefined) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -325,7 +328,7 @@ export async function POST(req: Request) {
         RD: RD || undefined,
         trafficValue: trafficValue ? Number(trafficValue) : undefined,
         locationTraffic: locationTraffic ? Number(locationTraffic) : undefined,
-        greyNicheAccepted: greyNicheAccepted ? Boolean(greyNicheAccepted) : undefined,
+  greyNicheAccepted: typeof greyNicheAccepted === 'string' ? (greyNicheAccepted === 'true') : (typeof greyNicheAccepted === 'boolean' ? greyNicheAccepted : undefined),
         specialNotes: specialNotes || undefined,
         userId: userId,
         image: "/default-website-image.png",
@@ -359,6 +362,72 @@ export async function POST(req: Request) {
       }, { status: 201 });
     }
 
+    // Check for existing website with same title/domain (case-insensitive)
+    // This mirrors the URL duplicate logic: same user -> error, different user -> create price conflict
+    // Escape title for safe regex use (avoid regex injection) and match exact title case-insensitive
+    const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const existingByTitle = await Website.findOne({
+      title: { $regex: `^${escapeRegex(title)}$`, $options: 'i' },
+      status: { $in: ['pending', 'approved'] }
+    });
+
+    if (existingByTitle) {
+      console.log('🔍 Title/domain conflict check:', {
+        title,
+        existingFound: !!existingByTitle,
+        existingStatus: existingByTitle?.status,
+        existingUserId: existingByTitle?.userId,
+        newUserId: userId
+      });
+
+      // If same user submitted the same domain before
+      if (existingByTitle.userId === userId) {
+        console.log('❌ Same user attempting duplicate submission by title/domain');
+        return NextResponse.json({
+          error: "This domain has already been published by you. You cannot submit the same domain twice."
+        }, { status: 400 });
+      }
+
+      console.log('⚔️ Different users - creating price conflict for title/domain');
+      // Different user - create price conflict for title
+      const newSiteByTitle = await Website.create({
+        title,
+        url,
+        description,
+        priceCents: Number(priceCents),
+        price: Number(priceCents) / 100,
+        category: normalizedCategories, // Use normalized categories
+        tags: normalizedTags,
+        primaryCountry: primaryCountry || undefined,
+        primeTrafficCountries: normalizedPrimeTrafficCountries,
+        DA: DA ? Number(DA) : undefined,
+        PA: PA ? Number(PA) : undefined,
+        Spam: Spam ? Number(Spam) : undefined,
+        OrganicTraffic: OrganicTraffic ? Number(OrganicTraffic) : undefined,
+        DR: DR ? Number(DR) : undefined,
+        RD: RD || undefined,
+        trafficValue: trafficValue ? Number(trafficValue) : undefined,
+        locationTraffic: locationTraffic ? Number(locationTraffic) : undefined,
+        greyNicheAccepted: typeof greyNicheAccepted === 'string' ? (greyNicheAccepted === 'true') : (typeof greyNicheAccepted === 'boolean' ? greyNicheAccepted : undefined),
+        specialNotes: specialNotes || undefined,
+        userId: userId,
+        image: "/default-website-image.png",
+        status: "pending",
+      });
+
+      try {
+        await newSiteByTitle.createPriceConflict(existingByTitle);
+        console.log('✅ Price conflict created successfully for title/domain');
+      } catch (conflictError) {
+        console.error('❌ Error creating price conflict for title/domain:', conflictError);
+      }
+
+      return NextResponse.json({
+        ...newSiteByTitle.toJSON(),
+        message: "Website submitted successfully! Since this domain already exists from another user, both submissions are now in price conflict review for admin decision."
+      }, { status: 201 });
+    }
+
     // No conflict - create normally
 
     const site = await Website.create({
@@ -379,7 +448,7 @@ export async function POST(req: Request) {
       RD: RD || undefined,
       trafficValue: trafficValue ? Number(trafficValue) : undefined,
       locationTraffic: locationTraffic ? Number(locationTraffic) : undefined,
-      greyNicheAccepted: greyNicheAccepted ? Boolean(greyNicheAccepted) : undefined,
+  greyNicheAccepted: typeof greyNicheAccepted === 'string' ? (greyNicheAccepted === 'true') : (typeof greyNicheAccepted === 'boolean' ? greyNicheAccepted : undefined),
       specialNotes: specialNotes || undefined,
       userId: userId,
       image: "/default-website-image.png",
@@ -405,10 +474,42 @@ export async function POST(req: Request) {
 }
 
 async function getUserRole(userId: string): Promise<string> {
-  if (
-    userId === "user_31H9OiuHhU5R5ITj5AlP4aJBosn" ||
-    userId === "user_31XHCLTOeZ74gf9COPnuyjHpQY6"
-  )
-    return "superadmin";
-  return "consumer";
+  try {
+    // default
+    let role = "consumer";
+
+    // env-configured super admins
+    const superAdminEmail = (process.env.SUPER_ADMIN_EMAIL || "").toLowerCase() || null;
+    const superAdminIds = (process.env.SUPER_ADMIN_USER_IDS || "").split(",").map(s => s.trim()).filter(Boolean);
+    if (superAdminIds.includes(userId)) return "superadmin";
+
+    // use Clerk to fetch user email
+    try {
+      const client = await clerkClient();
+      const user = await client.users.getUser(userId);
+      const rawEmail = (user?.emailAddresses || []).find((e: any) => e?.primary === true)?.emailAddress
+        || (user?.emailAddresses || [])[0]?.emailAddress
+        || null;
+      const email = rawEmail ? String(rawEmail).toLowerCase().trim() : null;
+
+      if (email && superAdminEmail && email === superAdminEmail) return "superadmin";
+
+      if (email) {
+        const roleDoc = await AdminRole.findOne({ email, active: true }).lean().exec();
+        if (roleDoc) {
+          if (roleDoc.role === 'super') return 'superadmin';
+          if (roleDoc.role === 'websites') return 'websites';
+          if (roleDoc.role === 'requests') return 'requests';
+        }
+      }
+    } catch (e) {
+      // ignore clerk/db errors and fall back to default
+      console.error('getUserRole clerk/AdminRole lookup failed', e);
+    }
+
+    return role;
+  } catch (e) {
+    console.error('getUserRole unexpected error', e);
+    return 'consumer';
+  }
 }

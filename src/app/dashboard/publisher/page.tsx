@@ -68,7 +68,7 @@ export default function PublisherDashboard() {
     primaryCountry: '', // Add primaryCountry field
     trafficValue: '',        // <-- Add this
     locationTraffic: '',     // <-- Add this
-    greyNicheAccepted: '',   // <-- Add this
+  greyNicheAccepted: false,   // <-- default to false so publisher sees No by default
     specialNotes: '',        // <-- Add this
     primeTrafficCountries: '' // Add prime traffic countries field
   });
@@ -249,7 +249,7 @@ export default function PublisherDashboard() {
       primaryCountry: '', // Add primaryCountry field
       trafficValue: '',        // <-- Add this
       locationTraffic: '',     // <-- Add this
-      greyNicheAccepted: '',   // <-- Add this
+  greyNicheAccepted: false,   // <-- default to false
       specialNotes: '',        // <-- Add this
       primeTrafficCountries: '' // Add prime traffic countries field
     });
@@ -257,7 +257,13 @@ export default function PublisherDashboard() {
   }
 
   function handleFormChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
-    const { name, value } = e.target;
+    const { name, value } = e.target as HTMLInputElement & { name: string; value: any };
+    // If this is the greyNicheAccepted select, convert 'true'/'false' strings to boolean
+    if (name === 'greyNicheAccepted') {
+      const boolVal = value === 'true' ? true : value === 'false' ? false : undefined;
+      setFormData(prev => ({ ...prev, [name]: boolVal }));
+      return;
+    }
     setFormData(prev => ({ ...prev, [name]: value }));
   }
 
@@ -307,7 +313,7 @@ export default function PublisherDashboard() {
       primaryCountry: website.primaryCountry || '', // Add primaryCountry field
       trafficValue: website.trafficValue?.toString() || '',        // <-- Add this
       locationTraffic: website.locationTraffic?.toString() || '',     // <-- Add this
-      greyNicheAccepted: website.greyNicheAccepted?.toString() || '',   // <-- Add this
+  greyNicheAccepted: website.greyNicheAccepted != null ? Boolean(website.greyNicheAccepted) : false,   // <-- Add this
       specialNotes: website.specialNotes || '',        // <-- Add this
       primeTrafficCountries: primeTrafficCountriesValue // Add prime traffic countries field
     });
@@ -329,8 +335,10 @@ export default function PublisherDashboard() {
         processedCategory = formData.category;
       }
 
+      // Ensure greyNicheAccepted is a boolean in submitted payload
       const submitData = {
         ...formData,
+        greyNicheAccepted: formData.greyNicheAccepted === true ? true : false,
         category: processedCategory,
         priceCents: Math.round(parseFloat(formData.price) * 100),
         DA: formData.DA ? parseInt(formData.DA) : undefined,
