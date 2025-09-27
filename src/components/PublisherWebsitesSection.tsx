@@ -1,5 +1,211 @@
 import { useState } from "react";
 import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Eye, Edit, Trash2, CheckCircle, Clock, XCircle } from "lucide-react";
+import { MinimalToggle } from "./ui/toggle";
+
+// Add the getCountryFlagEmoji function directly since we can't import it properly
+const getCountryFlagEmoji = (countryName: string): string => {
+  // This is a simplified mapping. In a real application, you might want to use a more comprehensive library
+  const flagMap: Record<string, string> = {
+    'Afghanistan': '🇦🇫',
+    'Albania': '🇦🇱',
+    'Algeria': '🇩🇿',
+    'Andorra': '🇦🇩',
+    'Angola': '🇦🇴',
+    'Antigua and Barbuda': '🇦🇬',
+    'Argentina': '🇦🇷',
+    'Armenia': '🇦🇲',
+    'Australia': '🇦🇺',
+    'Austria': '🇦🇹',
+    'Azerbaijan': '🇦🇿',
+    'Bahamas': '🇧🇸',
+    'Bahrain': '🇧🇭',
+    'Bangladesh': '🇧🇩',
+    'Barbados': '🇧🇧',
+    'Belarus': '🇧🇾',
+    'Belgium': '🇧🇪',
+    'Belize': '🇧🇿',
+    'Benin': '🇧🇯',
+    'Bhutan': '🇧🇹',
+    'Bolivia': '🇧🇴',
+    'Bosnia and Herzegovina': '🇧🇦',
+    'Botswana': '🇧🇼',
+    'Brazil': '🇧🇷',
+    'Brunei': '🇧🇳',
+    'Bulgaria': '🇧🇬',
+    'Burkina Faso': '🇧🇫',
+    'Burundi': '🇧🇮',
+    'Cabo Verde': '🇨🇻',
+    'Cambodia': '🇰🇭',
+    'Cameroon': '🇨🇲',
+    'Canada': '🇨🇦',
+    'Central African Republic': '🇨🇫',
+    'Chad': '🇹🇩',
+    'Chile': '🇨🇱',
+    'China': '🇨🇳',
+    'Colombia': '🇨🇴',
+    'Comoros': '🇰🇲',
+    'Congo (Congo-Brazzaville)': '🇨🇬',
+    'Costa Rica': '🇨🇷',
+    'Croatia': '🇭🇷',
+    'Cuba': '🇨🇺',
+    'Cyprus': '🇨🇾',
+    'Czechia (Czech Republic)': '🇨🇿',
+    'Democratic Republic of the Congo': '🇨🇩',
+    'Denmark': '🇩🇰',
+    'Djibouti': '🇩🇯',
+    'Dominica': '🇩🇲',
+    'Dominican Republic': '🇩🇴',
+    'Ecuador': '🇪🇨',
+    'Egypt': '🇪🇬',
+    'El Salvador': '🇸🇻',
+    'Equatorial Guinea': '🇬🇶',
+    'Eritrea': '🇪🇷',
+    'Estonia': '🇪🇪',
+    'Eswatini (fmr. "Swaziland")': '🇸🇿',
+    'Ethiopia': '🇪🇹',
+    'Fiji': '🇫🇯',
+    'Finland': '🇫🇮',
+    'France': '🇫🇷',
+    'Gabon': '🇬🇦',
+    'Gambia': '🇬🇲',
+    'Georgia': '🇬🇪',
+    'Germany': '🇩🇪',
+    'Ghana': '🇬🇭',
+    'Greece': '🇬🇷',
+    'Grenada': '🇬🇩',
+    'Guatemala': '🇬🇹',
+    'Guinea': '🇬🇳',
+    'Guinea-Bissau': '🇬🇼',
+    'Guyana': '🇬🇾',
+    'Haiti': '🇭🇹',
+    'Holy See': '🇻🇦',
+    'Honduras': '🇭🇳',
+    'Hungary': '🇭🇺',
+    'Iceland': '🇮🇸',
+    'India': '🇮🇳',
+    'Indonesia': '🇮🇩',
+    'Iran': '🇮🇷',
+    'Iraq': '🇮🇶',
+    'Ireland': '🇮🇪',
+    'Israel': '🇮🇱',
+    'Italy': '🇮🇹',
+    'Jamaica': '🇯🇲',
+    'Japan': '🇯🇵',
+    'Jordan': '🇯🇴',
+    'Kazakhstan': '🇰🇿',
+    'Kenya': '🇰🇪',
+    'Kiribati': '🇰🇮',
+    'Kuwait': '🇰🇼',
+    'Kyrgyzstan': '🇰🇬',
+    'Laos': '🇱🇦',
+    'Latvia': '🇱🇻',
+    'Lebanon': '🇱🇧',
+    'Lesotho': '🇱🇸',
+    'Liberia': '🇱🇷',
+    'Libya': '🇱🇾',
+    'Liechtenstein': '🇱🇮',
+    'Lithuania': '🇱🇹',
+    'Luxembourg': '🇱🇺',
+    'Madagascar': '🇲🇬',
+    'Malawi': '🇲🇼',
+    'Malaysia': '🇲🇾',
+    'Maldives': '🇲🇻',
+    'Mali': '🇲🇱',
+    'Malta': '🇲🇹',
+    'Marshall Islands': '🇲🇭',
+    'Mauritania': '🇲🇷',
+    'Mauritius': '🇲🇺',
+    'Mexico': '🇲🇽',
+    'Micronesia': '🇫🇲',
+    'Moldova': '🇲🇩',
+    'Monaco': '🇲🇨',
+    'Mongolia': '🇲🇳',
+    'Montenegro': '🇲🇪',
+    'Morocco': '🇲🇦',
+    'Mozambique': '🇲🇿',
+    'Myanmar (formerly Burma)': '🇲🇲',
+    'Namibia': '🇳🇦',
+    'Nauru': '🇳🇷',
+    'Nepal': '🇳🇵',
+    'Netherlands': '🇳🇱',
+    'New Zealand': '🇳🇿',
+    'Nicaragua': '🇳🇮',
+    'Niger': '🇳🇪',
+    'Nigeria': '🇳🇬',
+    'North Korea': '🇰🇵',
+    'North Macedonia': '🇲🇰',
+    'Norway': '🇳🇴',
+    'Oman': '🇴🇲',
+    'Pakistan': '🇵🇰',
+    'Palau': '🇵🇼',
+    'Palestine State': '🇵🇸',
+    'Panama': '🇵🇦',
+    'Papua New Guinea': '🇵🇬',
+    'Paraguay': '🇵🇾',
+    'Peru': '🇵🇪',
+    'Philippines': '🇵🇭',
+    'Poland': '🇵🇱',
+    'Portugal': '🇵🇹',
+    'Qatar': '🇶🇦',
+    'Romania': '🇷🇴',
+    'Russia': '🇷🇺',
+    'Rwanda': '🇷🇼',
+    'Saint Kitts and Nevis': '🇰🇳',
+    'Saint Lucia': '🇱🇨',
+    'Saint Vincent and the Grenadines': '🇻🇨',
+    'Samoa': '🇼🇸',
+    'San Marino': '🇸🇲',
+    'Sao Tome and Principe': '🇸🇹',
+    'Saudi Arabia': '🇸🇦',
+    'Senegal': '🇸🇳',
+    'Serbia': '🇷🇸',
+    'Seychelles': '🇸🇨',
+    'Sierra Leone': '🇸🇱',
+    'Singapore': '🇸🇬',
+    'Slovakia': '🇸🇰',
+    'Slovenia': '🇸🇮',
+    'Solomon Islands': '🇸🇧',
+    'Somalia': '🇸🇴',
+    'South Africa': '🇿🇦',
+    'South Korea': '🇰🇷',
+    'South Sudan': '🇸🇸',
+    'Spain': '🇪🇸',
+    'Sri Lanka': '🇱🇰',
+    'Sudan': '🇸🇩',
+    'Suriname': '🇸🇷',
+    'Sweden': '🇸🇪',
+    'Switzerland': '🇨🇭',
+    'Syria': '🇸🇾',
+    'Tajikistan': '🇹🇯',
+    'Tanzania': '🇹🇿',
+    'Thailand': '🇹🇭',
+    'Timor-Leste': '🇹🇱',
+    'Togo': '🇹🇬',
+    'Tonga': '🇹🇴',
+    'Trinidad and Tobago': '🇹🇹',
+    'Tunisia': '🇹🇳',
+    'Turkey': '🇹🇷',
+    'Turkmenistan': '🇹🇲',
+    'Tuvalu': '🇹🇻',
+    'Uganda': '🇺🇬',
+    'Ukraine': '🇺🇦',
+    'United Arab Emirates': '🇦🇪',
+    'United Kingdom': '🇬🇧',
+    'United States': '🇺🇸',
+    'Uruguay': '🇺🇾',
+    'Uzbekistan': '🇺🇿',
+    'Vanuatu': '🇻🇺',
+    'Venezuela': '🇻🇪',
+    'Vietnam': '🇻🇳',
+    'Yemen': '🇾🇪',
+    'Zambia': '🇿🇲',
+    'Zimbabwe': '🇿🇼'
+  };
+
+  return flagMap[countryName] || '🌐';
+};
 
 type Website = {
   _id: string;
@@ -8,11 +214,11 @@ type Website = {
   description: string;
   priceCents: number;
   status: "pending" | "approved" | "rejected";
-  available: boolean; // Add available field
+  available: boolean;
   rejectionReason?: string;
   createdAt: string;
   updatedAt: string;
-  approvedAt?: string; // Add approvedAt field
+  approvedAt?: string;
   views?: number;
   clicks?: number;
   DA?: number;
@@ -21,17 +227,16 @@ type Website = {
   OrganicTraffic?: number;
   DR?: number;
   RD?: string;
-  category?: string; // Updated to accept both string and array
+  category?: string;
   tags?: string;
-  primaryCountry?: string; // Add primaryCountry field
-  // New fields
+  primaryCountry?: string;
   trafficValue?: number;
   locationTraffic?: number;
   greyNicheAccepted?: boolean;
   specialNotes?: string;
+  primeTrafficCountries?: string[]; // Add this missing property
 };
 
-// Add a new prop for updating website availability
 export default function PublisherWebsitesSection({ 
   mySites,
   refresh,
@@ -48,7 +253,7 @@ export default function PublisherWebsitesSection({
   statusFilter: "all" | "pending" | "approved" | "rejected";
   setStatusFilter: (filter: "all" | "pending" | "approved" | "rejected") => void;
   editWebsite: (website: Website) => void;
-  removeSite: (id: string) => void; // This will now trigger the popup
+  removeSite: (id: string) => void;
   deleteLoading: string | null;
   getStatusBadge: (status: string, rejectionReason?: string) => React.ReactElement;
   formatPrice: (cents?: number) => string;
@@ -89,6 +294,8 @@ export default function PublisherWebsitesSection({
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedWebsite, setSelectedWebsite] = useState<Website | null>(null);
+  const [hoveredWebsite, setHoveredWebsite] = useState<string | null>(null);
 
   // Get unique categories from websites
   const uniqueCategories = Array.from(
@@ -190,19 +397,80 @@ export default function PublisherWebsitesSection({
     setEndDate("");
   };
 
+  const openWebsiteModal = (website: Website) => {
+    setSelectedWebsite(website);
+  };
+
+  const closeWebsiteModal = () => {
+    setSelectedWebsite(null);
+  };
+
+  const getStatusBadgeNew = (status: Website["status"], rejectionReason?: string) => {
+    switch (status) {
+      case "approved":
+        return (
+          <div className="px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/30 flex items-center justify-center">
+            <CheckCircle className="w-4 h-4 text-green-400 mr-1" />
+            <span className="text-green-400 text-sm font-medium">Approved</span>
+          </div>
+        );
+      case "pending":
+        return (
+          <div className="px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
+            <Clock className="w-4 h-4 text-yellow-400 mr-1" />
+            <span className="text-yellow-400 text-sm font-medium">Pending</span>
+          </div>
+        );
+      case "rejected":
+        return (
+          <div className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center">
+            <XCircle className="w-4 h-4 text-red-400 mr-1" />
+            <span className="text-red-400 text-sm font-medium">Rejected</span>
+          </div>
+        );
+      default:
+        return (
+          <div className="px-3 py-1.5 rounded-lg bg-gray-500/10 border border-gray-500/30 flex items-center justify-center">
+            <span className="text-gray-400 text-sm font-medium">Unknown</span>
+          </div>
+        );
+    }
+  };
+
+  const formatPriceNew = (cents?: number) => {
+    if (cents === undefined) return "$0.00";
+    return `$${(cents / 100).toFixed(2)}`;
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch {
+      return "Unknown";
+    }
+  };
+
   return (
-    <div>
+    <div className="rounded-xl border bg-card text-card-foreground shadow">
       {/* Search and Filter Controls */}
-      <div className="mb-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-          <div className="flex items-center gap-3">
+      <div className="p-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">My Websites</h3>
+          <div className="flex items-center gap-2">
             <button
               onClick={refresh}
               className="p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
               title="Refresh"
             >
-              <span className="material-symbols-outlined">refresh</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
             </button>
+          </div>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4">
+          <div className="flex items-center gap-3">
             <div>
               <span className="text-sm font-medium text-gray-700">{mySites.length} websites</span>
               {filteredSites.length !== mySites.length && (
@@ -250,7 +518,7 @@ export default function PublisherWebsitesSection({
         
         {/* Advanced Filters */}
         {showFilters && (
-          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-4">
+          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-4 mt-4">
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-md font-medium text-gray-900">Filters</h3>
               <button 
@@ -356,7 +624,118 @@ export default function PublisherWebsitesSection({
         )}
       </div>
 
-      {filteredSites.length === 0 ? (
+      <div className="border-t">
+        <div className="grid grid-cols-10 gap-4 p-4 text-sm font-medium text-muted-foreground border-b">
+          <div className="col-span-1">No.</div>
+          <div className="col-span-4">Website</div>
+          <div className="col-span-1">Price</div>
+          <div className="col-span-1">Status</div>
+          <div className="col-span-2">Available</div>
+          <div className="col-span-1">Actions</div>
+        </div>
+        <div className="divide-y">
+          {filteredSites.map((website, index) => (
+            <motion.div
+              key={website._id}
+              className="grid grid-cols-10 gap-4 p-4 items-center hover:bg-muted/50 transition-colors cursor-pointer"
+              onClick={() => openWebsiteModal(website)}
+              onHoverStart={() => setHoveredWebsite(website._id)}
+              onHoverEnd={() => setHoveredWebsite(null)}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="col-span-1">
+                <span className="font-mono">{String(index + 1).padStart(2, '0')}</span>
+              </div>
+              <div className="col-span-4">
+                <div className="font-medium">{website.title}</div>
+                <div className="text-sm text-muted-foreground truncate">
+                  <a 
+                    href={website.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-700 inline-flex items-center"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Visit Site
+                  </a>
+                </div>
+              </div>
+              <div className="col-span-1 font-medium">
+                {formatPriceNew(computePublisherVisiblePrice(website))}
+              </div>
+              <div className="col-span-1">
+                {getStatusBadgeNew(website.status, website.rejectionReason)}
+              </div>
+              <div className="col-span-2 flex items-center justify-center">
+                {/* Show availability toggle only for approved websites */}
+                {website.status === "approved" ? (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <MinimalToggle
+                      checked={website.available}
+                      onChange={(e) => {
+                        toggleAvailability(website._id, website.available);
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="text-muted-foreground text-sm">
+                    N/A
+                  </div>
+                )}
+              </div>
+              <div className="col-span-1 flex justify-end">
+                {hoveredWebsite === website._id ? (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        editWebsite(website);
+                      }}
+                      className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+                      aria-label="Edit website"
+                    >
+                      <Edit className="w-4 h-4 text-foreground" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeSite(website._id);
+                      }}
+                      className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+                      aria-label="Delete website"
+                      disabled={deleteLoading === website._id}
+                    >
+                      {deleteLoading === website._id ? (
+                        <div className="animate-spin h-4 w-4 border-2 border-foreground border-t-transparent rounded-full"></div>
+                      ) : (
+                        <Trash2 className="w-4 h-4 text-foreground" />
+                      )}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openWebsiteModal(website);
+                    }}
+                    className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+                    aria-label="View details"
+                  >
+                    <Eye className="w-4 h-4 text-foreground" />
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Empty State */}
+      {filteredSites.length === 0 && (
         <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-200 text-center">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="material-symbols-outlined text-blue-600 text-3xl">web</span>
@@ -380,212 +759,206 @@ export default function PublisherWebsitesSection({
             </button>
           )}
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
-          {filteredSites.map((site) => (
-            <div
-              key={site._id}
-              className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all bg-white flex flex-col"
+      )}
+
+      {/* Website Detail Modal */}
+      <AnimatePresence>
+        {selectedWebsite && (
+          <motion.div
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-card border rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-auto"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
             >
-              <div className="flex-grow">
-                <div className="flex justify-between items-start gap-3 mb-3">
-                  <h3 className="font-bold text-lg text-gray-900 line-clamp-1">{site.title}</h3>
-                  <div className="flex-shrink-0">
-                    {getStatusBadge(site.status, site.rejectionReason)}
+              <div className="p-6">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-2xl font-bold">{selectedWebsite.title}</h2>
+                    <p className="text-muted-foreground">Website Details</p>
                   </div>
+                  <button
+                    onClick={closeWebsiteModal}
+                    className="p-2 rounded-lg hover:bg-muted transition-colors"
+                    aria-label="Close"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
                 
-                <a
-                  href={site.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline text-sm inline-block mb-3 line-clamp-1"
-                >
-                  {site.url}
-                </a>
-                
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{site.description}</p>
-                
-                {/* Display categories */}
-                {site.category && (
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-2">
-                      {(Array.isArray(site.category) ? site.category : site.category.split(',')).map((cat, index) => (
-                        <span key={index} className="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full">
-                          {cat.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* SEO Metrics */}
-                <div className="mb-4">
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">SEO Metrics</h4>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                    {site.DA !== undefined && site.DA !== null && (
-                      <div className="bg-blue-50 rounded-lg p-2 text-center">
-                        <p className="text-xs text-blue-600 font-medium">DA</p>
-                        <p className="text-sm font-bold text-blue-800">{site.DA}</p>
-                      </div>
-                    )}
-                    {site.DR !== undefined && site.DR !== null && (
-                      <div className="bg-green-50 rounded-lg p-2 text-center">
-                        <p className="text-xs text-green-600 font-medium">DR</p>
-                        <p className="text-sm font-bold text-green-800">{site.DR}</p>
-                      </div>
-                    )}
-                    {site.PA !== undefined && site.PA !== null && (
-                      <div className="bg-purple-50 rounded-lg p-2 text-center">
-                        <p className="text-xs text-purple-600 font-medium">PA</p>
-                        <p className="text-sm font-bold text-purple-800">{site.PA}</p>
-                      </div>
-                    )}
-                    {site.Spam !== undefined && site.Spam !== null && (
-                      <div className="bg-red-50 rounded-lg p-2 text-center">
-                        <p className="text-xs text-red-600 font-medium">Spam</p>
-                        <p className="text-sm font-bold text-red-800">{site.Spam}</p>
-                      </div>
-                    )}
-                    {site.OrganicTraffic !== undefined && site.OrganicTraffic !== null && (
-                      <div className="bg-orange-50 rounded-lg p-2 text-center">
-                        <p className="text-xs text-orange-600 font-medium">Traffic</p>
-                        <p className="text-sm font-bold text-orange-800">{site.OrganicTraffic?.toLocaleString()}</p>
-                      </div>
-                    )}
-                    {site.RD && (
-                      <div className="bg-indigo-50 rounded-lg p-2 text-center">
-                        <p className="text-xs text-indigo-600 font-medium">RD</p>
-                       
-                         <p className="text-sm font-bold text-orange-800">{site.RD}</p>
-                      </div>
-                    )}
-                    {site.trafficValue !== undefined && site.trafficValue !== null && (
-                      <div className="bg-teal-50 rounded-lg p-2 text-center">
-                        <p className="text-xs text-teal-600 font-medium">Traffic Value</p>
-                        <p className="text-sm font-bold text-teal-800">{site.trafficValue?.toLocaleString()}</p>
-                      </div>
-                    )}
-                    {site.locationTraffic !== undefined && site.locationTraffic !== null && (
-                      <div className="bg-cyan-50 rounded-lg p-2 text-center">
-                        <p className="text-xs text-cyan-600 font-medium">Location Traffic</p>
-                        <p className="text-sm font-bold text-cyan-800">{site.locationTraffic?.toLocaleString()}</p>
-                      </div>
-                    )}
-                    {site.greyNicheAccepted !== undefined && site.greyNicheAccepted !== null && (
-                      <div className="bg-gray-50 rounded-lg p-2 text-center">
-                        <p className="text-xs text-gray-600 font-medium">Grey Niche</p>
-                        <p className="text-sm font-bold text-gray-800">
-                          {site.greyNicheAccepted ? 'Yes' : 'No'}
+                <div className="mt-6 grid grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Website Information</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">URL</p>
+                        <p className="font-mono text-blue-600 hover:underline cursor-pointer" onClick={() => window.open(selectedWebsite.url, '_blank')}>
+                          {selectedWebsite.url}
                         </p>
                       </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Description</p>
+                        <p>{selectedWebsite.description || "No description provided"}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Price</p>
+                        <p className="font-medium">{formatPriceNew(computePublisherVisiblePrice(selectedWebsite))}</p>
+                      </div>
+                      {selectedWebsite.primeTrafficCountries && selectedWebsite.primeTrafficCountries.length > 0 && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Prime Traffic Countries</p>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {selectedWebsite.primeTrafficCountries.map((country: string, index: number) => (
+                              <span key={index} className="px-2 py-1 bg-muted rounded-full text-sm flex items-center gap-1">
+                                <span>{getCountryFlagEmoji(country)}</span>
+                                <span>{country}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Status & Dates</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Status</p>
+                        <div className="mt-1">
+                          {getStatusBadgeNew(selectedWebsite.status, selectedWebsite.rejectionReason)}
+                        </div>
+                        {selectedWebsite.rejectionReason && (
+                          <p className="text-sm text-red-500 mt-1">Reason: {selectedWebsite.rejectionReason}</p>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Created</p>
+                        <p>{formatDate(selectedWebsite.createdAt)}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Last Updated</p>
+                        <p>{formatDate(selectedWebsite.updatedAt)}</p>
+                      </div>
+                      {selectedWebsite.approvedAt && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Approved</p>
+                          <p>{formatDate(selectedWebsite.approvedAt)}</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm text-muted-foreground">Availability</p>
+                        {selectedWebsite.status === "approved" ? (
+                          <div className="flex items-center gap-2">
+                            {/* Prevent click event from bubbling up to parent */}
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <MinimalToggle
+                                checked={selectedWebsite.available}
+                                onChange={(e) => {
+                                  toggleAvailability(selectedWebsite._id, selectedWebsite.available);
+                                }}
+                              />
+                            </div>
+                            <span>{selectedWebsite.available ? "Available" : "Not Available"}</span>
+                          </div>
+                        ) : (
+                          <div className="text-muted-foreground text-sm">
+                            Only available for approved websites
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="col-span-2">
+                    <h3 className="text-lg font-semibold mb-4">SEO Metrics</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="bg-muted p-3 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Domain Authority</p>
+                        <p className="text-lg font-bold">{selectedWebsite.DA || "N/A"}</p>
+                      </div>
+                      <div className="bg-muted p-3 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Page Authority</p>
+                        <p className="text-lg font-bold">{selectedWebsite.PA || "N/A"}</p>
+                      </div>
+                      <div className="bg-muted p-3 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Organic Traffic</p>
+                        <p className="text-lg font-bold">{selectedWebsite.OrganicTraffic || "N/A"}</p>
+                      </div>
+                      <div className="bg-muted p-3 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Spam Score</p>
+                        <p className="text-lg font-bold">{selectedWebsite.Spam || "N/A"}</p>
+                      </div>
+                      <div className="bg-muted p-3 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Domain Rating</p>
+                        <p className="text-lg font-bold">{selectedWebsite.DR || "N/A"}</p>
+                      </div>
+                      <div className="bg-muted p-3 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Referring Domains</p>
+                        <p className="text-lg font-bold">{selectedWebsite.RD || "N/A"}</p>
+                      </div>
+                      <div className="bg-muted p-3 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Traffic Value</p>
+                        <p className="text-lg font-bold">{selectedWebsite.trafficValue || "N/A"}</p>
+                      </div>
+                      <div className="bg-muted p-3 rounded-lg">
+                        <p className="text-sm text-muted-foreground">Location Traffic</p>
+                        <p className="text-lg font-bold">{selectedWebsite.locationTraffic || "N/A"}</p>
+                      </div>
+                    </div>
+                    {(selectedWebsite.greyNicheAccepted !== undefined || selectedWebsite.specialNotes) && (
+                      <div className="mt-4">
+                        <h4 className="font-medium mb-2">Additional Information</h4>
+                        {selectedWebsite.greyNicheAccepted !== undefined && (
+                          <p className="text-sm">
+                            <span className="text-muted-foreground">Grey Niche Accepted: </span>
+                            <span className={selectedWebsite.greyNicheAccepted ? "text-green-600" : "text-red-600"}>
+                              {selectedWebsite.greyNicheAccepted ? "Yes" : "No"}
+                            </span>
+                          </p>
+                        )}
+                        {selectedWebsite.specialNotes && (
+                          <p className="text-sm mt-1">
+                            <span className="text-muted-foreground">Special Notes: </span>
+                            <span>{selectedWebsite.specialNotes}</span>
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
-                </div>
-
-                {/* Primary Country */}
-                {site.primaryCountry && (
-                  <div className="mb-4">
-                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Primary Traffic Country</h4>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm bg-gray-100 px-2.5 py-1 rounded-full">
-                        {site.primaryCountry}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Special Notes */}
-                {site.specialNotes && (
-                  <div className="mb-4">
-                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Special Notes</h4>
-                    <div className="text-sm bg-gray-100 p-2 rounded">
-                      {site.specialNotes}
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                  <div className="text-sm text-gray-500">
-                    Added: {site.createdAt ? 
-                      new Date(site.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 
-                      (site.approvedAt ? 
-                        new Date(site.approvedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 
-                        'Not approved yet')
-                    }
-                  </div>
-                  <div className="text-green-600 font-bold text-lg">
-                    {formatPrice(computePublisherVisiblePrice(site as any))}
+                  
+                  <div className="col-span-2 flex justify-end gap-3 pt-4 border-t">
+                    <button
+                      onClick={closeWebsiteModal}
+                      className="px-4 py-2 rounded-lg border hover:bg-muted transition-colors"
+                    >
+                      Close
+                    </button>
+                    <button
+                      onClick={() => {
+                        editWebsite(selectedWebsite);
+                        closeWebsiteModal();
+                      }}
+                      className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center gap-2"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Edit
+                    </button>
                   </div>
                 </div>
               </div>
-
-              {/* Container for Availability Toggle and Edit/Delete Buttons */}
-              <div className="flex justify-between items-center mt-4 pt-2 border-t border-gray-100">
-                {/* Availability Toggle - Moved to bottom left */}
-                <div className="flex items-center gap-2">
-                  <span className={`text-sm ${site.available ? 'text-green-600' : 'text-red-600'}`}>
-                    {site.available ? 'Available' : 'Not Available'}
-                  </span>
-                  <button
-                    onClick={() => toggleAvailability(site._id, site.available)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                      site.available ? 'bg-green-500' : 'bg-gray-300'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        site.available ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
-                </div>
-
-                {/* Edit and Delete Buttons */}
-                <div className="flex justify-end space-x-2">
-                  <button
-                    onClick={() => editWebsite(site)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors flex items-center gap-1.5"
-                  >
-                    <span className="material-symbols-outlined text-base">edit</span>
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (!site._id) {
-                        // We'll handle this error in the removeSite function now
-                        removeSite('');
-                        return;
-                      }
-                      const siteId = String(site._id);
-                      if (siteId && siteId !== 'undefined') {
-                        removeSite(siteId);
-                      } else {
-                        // We'll handle this error in the removeSite function now
-                        removeSite('');
-                      }
-                    }}
-                    disabled={deleteLoading === site._id}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-300 text-sm font-medium transition-colors flex items-center gap-1.5"
-                  >
-                    {deleteLoading === site._id ? (
-                      <>
-                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                        Deleting...
-                      </>
-                    ) : (
-                      <>
-                        <span className="material-symbols-outlined text-base">delete</span>
-                        Delete
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

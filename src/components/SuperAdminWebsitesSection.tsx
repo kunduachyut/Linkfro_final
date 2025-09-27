@@ -2,6 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 
+// Import Tooltip components
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 // Country flag mapping function
 const getCountryFlagEmoji = (countryName: string): string => {
   // This is a simplified mapping. In a real application, you might want to use a more comprehensive library
@@ -348,25 +356,67 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
     }
   };
 
+  // Get status badge component
+  const getStatusBadge = (status: Website["status"]) => {
+    switch (status) {
+      case "pending":
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+            Pending
+          </span>
+        );
+      case "approved":
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            Approved
+          </span>
+        );
+      case "rejected":
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+            Rejected
+          </span>
+        );
+      case "priceConflict":
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+            Conflict
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            Unknown
+          </span>
+        );
+    }
+  };
+
   return (
-    <section className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/5 via-purple-600/5 to-violet-600/5"></div>
+    <section className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 relative overflow-hidden">
       <div className="relative z-10">
         {/* Confirm approve modal (shown when admin attempts to approve without extra price) */}
         {confirmApproveWebsite && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{backgroundColor: 'rgba(0,0,0,0.4)'}}>
-            <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg">
-              <h3 className="text-lg font-semibold mb-2">Confirm Approve</h3>
-              <p className="text-sm text-gray-700 mb-4">You didn't add any extra price. Are you sure you want to approve "{confirmApproveWebsite.title || 'this website'}" without adding an extra price?</p>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+              <h3 className="text-lg font-semibold mb-2">Confirm Approval</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                You didn't add any extra price. Are you sure you want to approve "{confirmApproveWebsite.title || 'this website'}" without adding an extra price?
+              </p>
               <div className="flex justify-end gap-3">
-                <button onClick={() => setConfirmApproveWebsite(null)} className="px-3 py-1 bg-gray-100 rounded">Cancel</button>
+                <button 
+                  onClick={() => setConfirmApproveWebsite(null)} 
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
                 <button
                   onClick={() => {
                     // Call approve with undefined extra price
                     updateWebsiteStatus(confirmApproveWebsite.id, "approved");
                     setConfirmApproveWebsite(null);
                   }}
-                  className="px-3 py-1 bg-green-600 text-white rounded"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
                   Approve
                 </button>
@@ -374,77 +424,80 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
             </div>
           </div>
         )}
-        <h2 className="text-xl font-bold text-gray-800 mb-5 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s1.343-9-3-9" />
+        
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Website Moderation</h2>
+          <button
+            onClick={refresh}
+            className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            title="Refresh"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-          </div>
-          <span className="bg-gradient-to-r from-gray-800 via-indigo-800 to-purple-800 bg-clip-text text-transparent">
-            Website Moderation
-          </span>
-        </h2>
+          </button>
+        </div>
         
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl p-4 border border-amber-200 shadow-sm">
+          <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
             <div className="flex items-center">
-              <div className="rounded-lg bg-amber-500 p-2">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="rounded-lg bg-amber-100 p-2">
+                <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-amber-800">Pending</h3>
-                <p className="text-2xl font-bold text-amber-900">
+                <p className="text-xl font-bold text-amber-900">
                   {filter === 'pending' ? (websites || []).length : stats.pending}
                 </p>
               </div>
             </div>
           </div>
           
-          <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-4 border border-green-200 shadow-sm">
+          <div className="bg-green-50 rounded-xl p-4 border border-green-100">
             <div className="flex items-center">
-              <div className="rounded-lg bg-green-500 p-2">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="rounded-lg bg-green-100 p-2">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-green-800">Approved</h3>
-                <p className="text-2xl font-bold text-green-900">
+                <p className="text-xl font-bold text-green-900">
                   {filter === 'approved' ? (websites || []).length : stats.approved}
                 </p>
               </div>
             </div>
           </div>
           
-          <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-xl p-4 border border-red-200 shadow-sm">
+          <div className="bg-red-50 rounded-xl p-4 border border-red-100">
             <div className="flex items-center">
-              <div className="rounded-lg bg-red-500 p-2">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="rounded-lg bg-red-100 p-2">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-red-800">Rejected</h3>
-                <p className="text-2xl font-bold text-red-900">
+                <p className="text-xl font-bold text-red-900">
                   {filter === 'rejected' ? (websites || []).length : stats.rejected}
                 </p>
               </div>
             </div>
           </div>
           
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200 shadow-sm">
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
             <div className="flex items-center">
-              <div className="rounded-lg bg-blue-500 p-2">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="rounded-lg bg-blue-100 p-2">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-blue-800">Total</h3>
-                <p className="text-2xl font-bold text-blue-900">
+                <p className="text-xl font-bold text-blue-900">
                   {filter === 'all' ? (websites || []).length : stats.total}
                 </p>
               </div>
@@ -453,25 +506,17 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
         </div>
         
         {/* Action Bar */}
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={refresh}
-              className="p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
-            <span className="text-sm font-medium text-gray-500">{(websites || []).length} websites found</span>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-600">{(websites || []).length} websites found</span>
           </div>
           <div className="flex items-center gap-3">
             {filter === "pending" && (websites || []).length > 0 && (selectedWebsites || []).length > 0 && (
               <button
                 onClick={approveSelectedWebsites}
-                className="px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium text-sm flex items-center shadow-sm"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm flex items-center"
               >
-                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 Approve Selected ({(selectedWebsites || []).length})
@@ -480,12 +525,12 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
             <select 
               value={filter} 
               onChange={(e) => setFilter(e.target.value as FilterType)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+              className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
+              <option value="all">All Websites</option>
               <option value="pending">Pending</option>
               <option value="approved">Approved</option>
               <option value="rejected">Rejected</option>
-              <option value="all">All</option>
             </select>
           </div>
         </div>
@@ -499,9 +544,9 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
             {(websites || []).length === 0 ? (
-              <div className="p-8 text-center">
+              <div className="p-12 text-center">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s1.343-9-3-9" />
@@ -511,420 +556,370 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                 <p className="text-gray-600">No websites found with status: {filter}</p>
               </div>
             ) : (
-              <div>
-                {/* Table Header */}
-                <div className="grid grid-cols-16 gap-0.5 px-1 py-1.5 bg-gray-50 border-b border-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  <div className="col-span-1 flex justify-center items-center">
-                    {filter === "pending" && (
-                      <input 
-                        type="checkbox" 
-                        checked={isAllWebsitesSelected}
-                        onChange={toggleSelectAllWebsites}
-                        className="h-3.5 w-3.5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
-                      />
-                    )}
-                  </div>
-                  <div className="col-span-2 flex items-center truncate text-sm">Website</div>
-                  <div className="col-span-1 flex justify-center text-sm">Price</div>
-                  <div className="col-span-1 flex justify-center text-sm">Publisher Price</div>
-                  <div className="col-span-1 flex justify-center text-sm">Extra Price</div>
-                  <div className="col-span-1 flex justify-center text-xs">DA</div>
-                  <div className="col-span-1 flex justify-center text-xs">DR</div>
-                  <div className="col-span-1 flex justify-center text-xs">PA</div>
-                  <div className="col-span-1 flex justify-center text-xs">Traffic</div>
-                  <div className="col-span-1 flex justify-center text-xs">Spam</div>
-                  <div className="col-span-1 flex justify-center text-xs">Value</div>
-                  <div className="col-span-1 flex justify-center text-xs">Location</div>
-                  <div className="col-span-1 flex justify-center text-xs">Niche</div>
-                  <div className="col-span-1 flex justify-center text-sm">Countries</div>
-                  <div className="col-span-1 flex justify-center text-sm">Details</div>
-                </div>
-                
-                {/* Table Body */}
-                <div className="divide-y divide-gray-100">
-                  {(websites || []).map((website, idx) => {
-                    return (
-                      <div key={website.id || idx} className="grid grid-cols-16 gap-0.5 px-1 py-1.5 hover:bg-gray-50 transition-colors items-center">
-                        {/* Checkbox */}
-                        <div className="col-span-1 flex justify-center">
-                          {(website.status || 'pending') === 'pending' && (
-                            <input 
-                              type="checkbox" 
-                              checked={(selectedWebsites || []).includes(website.id)}
-                              onChange={() => toggleWebsiteSelection(website.id)}
-                              className="h-3.5 w-3.5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" 
-                            />
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      {filter === "pending" && (
+                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                          <input 
+                            type="checkbox" 
+                            checked={isAllWebsitesSelected}
+                            onChange={toggleSelectAllWebsites}
+                            className="h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                          />
+                        </th>
+                      )}
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Website
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Price
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        SEO Metrics
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Traffic
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Countries
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {(websites || []).map((website, idx) => {
+                      return (
+                        <tr key={website.id || idx} className="hover:bg-gray-50">
+                          {filter === "pending" && (
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <input 
+                                type="checkbox" 
+                                checked={(selectedWebsites || []).includes(website.id)}
+                                onChange={() => toggleWebsiteSelection(website.id)}
+                                className="h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500" 
+                              />
+                            </td>
                           )}
-                        </div>
-                        
-                        {/* Website Info */}
-                        <div className="col-span-2">
-                          <div className="flex items-center">
-                            <div className="text-gray-900 truncate max-w-[120px] text-base">{website.title || 'Untitled'}</div>
-                            {/* Description Icon */}
-                            {website.description && (
-                              <div className="relative group ml-1">
-                                <div className="text-gray-400 hover:text-gray-600 cursor-help">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                  </svg>
-                                </div>
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 z-10 max-w-xs shadow-lg">
-                                  <div className="max-h-20 overflow-y-auto">
-                                    {website.description}
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                            {website.url && (
-                              <a
-                                href={website.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="ml-1 text-gray-500 hover:text-indigo-600"
-                                title="Visit website"
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                              </a>
-                            )}
-                            {/* Category Icon next to website name */}
-                            {website.category && (
-                              <div className="ml-1 relative group">
-                                <div 
-                                  className="text-gray-500 hover:text-indigo-600 cursor-pointer"
-                                  title={Array.isArray(website.category) ? website.category.join(', ') : website.category || ''}
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                  </svg>
-                                </div>
-                              </div>
-                            )}
-                            {/* Status Indicator Icons */}
-                            <div className="ml-1 flex space-x-1">
-                              {website.status === 'pending' && (
-                                <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-white text-[10px] font-bold" title="Pending">
-                                  P
-                                </div>
-                              )}
-                              {website.status === 'approved' && (
-                                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white text-[10px] font-bold" title="Approved">
-                                  A
-                                </div>
-                              )}
-                              {website.status === 'rejected' && (
-                                <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-white text-[10px] font-bold" title="Rejected">
-                                  R
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          {/* Status and Action buttons */}
-                          <div className="mt-1.5 flex items-center">
-                            <div className="ml-2 flex space-x-1">
-                              {(website.status || 'pending') === 'pending' && (
-                                <>
-                                  <button
-                                    onClick={() => {
-                                      const raw = extraPrices[website.id] || '';
-                                      const parsed = parseFloat(raw);
-                                      const extraCents = Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed * 100) : undefined;
-                                      // If admin didn't add an extra price (or it's zero/invalid) ask for confirmation
-                                      if (!extraCents) {
-                                        setConfirmApproveWebsite({ id: website.id, title: website.title });
-                                      } else {
-                                        updateWebsiteStatus(website.id, "approved", undefined, extraCents);
-                                      }
-                                    }}
-                                    className="flex items-center justify-center px-2 py-1 bg-green-100 text-green-800 border border-green-300 rounded-full text-xs hover:bg-green-200 transition-colors font-medium shadow-sm"
-                                    title="Approve website"
-                                  >
-                                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    Approve
-                                  </button>
-                                  <div className="ml-2">
-                                    <input
-                                      type="number"
-                                      step="0.01"
-                                      min="0"
-                                      value={extraPrices[website.id] || ''}
-                                      onChange={(e) => setExtraPrices((prev) => ({ ...prev, [website.id]: e.target.value }))}
-                                      placeholder="Extra $"
-                                      className="w-20 text-xs px-2 py-1 border rounded"
-                                      title="Optional extra price to add when approving (USD)"
-                                    />
-                                  </div>
-                                  <button
-                                    onClick={() => openRejectModal(website)}
-                                    className="flex items-center justify-center px-2 py-1 bg-red-100 text-red-800 border border-red-300 rounded-full text-xs hover:bg-red-200 transition-colors font-medium shadow-sm"
-                                    title="Reject website"
-                                  >
-                                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                    Reject
-                                  </button>
-                                </>
-                              )}
-                              {(website.status || 'pending') === 'approved' && (
-                                <button
-                                  onClick={() => openRejectModal(website)}
-                                  className="flex items-center justify-center px-2 py-1 bg-red-100 text-red-800 border border-red-300 rounded-full text-xs hover:bg-red-200 transition-colors font-medium shadow-sm"
-                                  title="Reject website"
-                                >
-                                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                  </svg>
-                                  Reject
-                                </button>
-                              )}
-                              {(website.status || 'pending') === 'rejected' && (
-                                <button
-                                  onClick={() => updateWebsiteStatus(website.id, "approved")}
-                                  className="flex items-center justify-center px-2 py-1 bg-green-100 text-green-800 border border-green-300 rounded-full text-xs hover:bg-green-200 transition-colors font-medium shadow-sm"
-                                  title="Approve website"
-                                >
-                                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                  </svg>
-                                  Approve
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Price */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="font-semibold text-green-700 text-base">
-                            {website.priceCents ? `$${(website.priceCents / 100).toFixed(2)}` : 
-                             website.price ? `$${website.price.toFixed(2)}` : '$0.00'}
-                          </div>
-                        </div>
-
-                        {/* Publisher Price (originalPriceCents or derived) */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="text-sm font-semibold text-gray-800">
-                            {(() => {
-                              const orig = (website as any).originalPriceCents;
-                              const adminExtra = (website as any).adminExtraPriceCents;
-                              if (typeof orig === 'number') return `$${(orig / 100).toFixed(2)}`;
-                              if (typeof website.priceCents === 'number' && typeof adminExtra === 'number') {
-                                const derived = website.priceCents - adminExtra;
-                                return `$${(derived / 100).toFixed(2)}`;
-                              }
-                              if (website.price) return `$${website.price.toFixed(2)}`;
-                              return '$0.00';
-                            })()}
-                          </div>
-                        </div>
-
-                        {/* Extra Price (adminExtraPriceCents or derived) */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="text-sm font-semibold text-indigo-700">
-                            {(() => {
-                              const adminExtra = (website as any).adminExtraPriceCents;
-                              const orig = (website as any).originalPriceCents;
-                              if (typeof adminExtra === 'number' && adminExtra !== 0) return `$${(adminExtra / 100).toFixed(2)}`;
-                              if (typeof website.priceCents === 'number' && typeof orig === 'number') {
-                                const derived = website.priceCents - orig;
-                                if (derived && derived !== 0) return `$${(derived / 100).toFixed(2)}`;
-                              }
-                              return '-';
-                            })()}
-                          </div>
-                        </div>
-                        
-                        {/* DA */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="bg-blue-100 rounded px-1 py-0.5 text-center min-w-[28px]">
-                            <div className="text-xs font-semibold text-blue-800">{website.DA || 0}</div>
-                          </div>
-                        </div>
-                        
-                        {/* DR */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="bg-green-100 rounded px-1 py-0.5 text-center min-w-[28px]">
-                            <div className="text-xs font-semibold text-green-800">{website.DR || 0}</div>
-                          </div>
-                        </div>
-                        
-                        {/* PA */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="bg-purple-100 rounded px-1 py-0.5 text-center min-w-[28px]">
-                            <div className="text-xs font-semibold text-purple-800">{website.PA || 0}</div>
-                          </div>
-                        </div>
-                        
-                        {/* Organic Traffic */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="bg-orange-100 rounded px-1 py-0.5 text-center min-w-[28px]">
-                            <div className="text-xs font-semibold text-orange-800">{website.OrganicTraffic || 0}</div>
-                          </div>
-                        </div>
-                        
-                        {/* Spam */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="bg-red-100 rounded px-1 py-0.5 text-center min-w-[28px]">
-                            <div className="text-xs font-semibold text-red-800">{website.Spam || 0}</div>
-                          </div>
-                        </div>
-                        
-                        {/* Traffic Value */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="bg-teal-100 rounded px-1 py-0.5 text-center min-w-[28px]">
-                            <div className="text-xs font-semibold text-teal-800">{website.trafficValue || 0}</div>
-                          </div>
-                        </div>
-                        
-                        {/* Location Traffic */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="bg-cyan-100 rounded px-1 py-0.5 text-center min-w-[28px]">
-                            <div className="text-xs font-semibold text-cyan-800">{website.locationTraffic || 0}</div>
-                          </div>
-                        </div>
-                        
-                        {/* Grey Niche */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="bg-gray-200 rounded px-1 py-0.5 text-center min-w-[28px]">
-                            <div className="text-xs font-semibold text-gray-800">{website.greyNicheAccepted ? 'Yes' : 'No'}</div>
-                          </div>
-                        </div>
-                        
-                        {/* Prime Traffic Countries */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="flex items-center">
-                            {website.primeTrafficCountries && website.primeTrafficCountries.length > 0 ? (
-                              <div className="flex items-center space-x-1">
-                                {/* First country flag */}
-                                {(() => {
-                                  const firstCountry = website.primeTrafficCountries[0];
-                                  const flagUrl = countryFlags[firstCountry];
-                                  const hasFailed = failedFlags[firstCountry];
-                                  
-                                  return (
-                                    <div className="relative group">
-                                      {flagUrl && !hasFailed ? (
-                                        <img 
-                                          src={flagUrl} 
-                                          alt={firstCountry} 
-                                          className="w-6 h-4 rounded-sm object-cover cursor-help shadow-sm"
-                                          onError={() => {
-                                            setFailedFlags(prev => ({ ...prev, [firstCountry]: true }));
-                                          }}
-                                        />
-                                      ) : (
-                                        <div className="w-6 h-4 rounded-sm bg-gray-100 flex items-center justify-center text-xs cursor-help overflow-hidden shadow-sm">
-                                          <span className="text-xs">{getCountryFlagEmoji(firstCountry)}</span>
-                                        </div>
-                                      )}
-                                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10 shadow-lg">
-                                        {firstCountry}
-                                      </div>
-                                    </div>
-                                  );
-                                })()}
-                                
-                                {/* Additional countries count */}
-                                {website.primeTrafficCountries.length > 1 && (
-                                  <div className="relative group">
-                                    <div className="w-6 h-4 rounded-sm bg-gray-200 flex items-center justify-center text-xs cursor-help shadow-sm">
-                                      +{website.primeTrafficCountries.length - 1}
-                                    </div>
-                                    {/* Tooltip showing all countries on hover */}
-                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10 shadow-lg">
-                                      {website.primeTrafficCountries.slice(1).join(', ')}
-                                    </div>
-                                    
-                                    {/* Expanded view of all flags on hover */}
-                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 hidden group-hover:flex flex-wrap gap-1 bg-white p-2 rounded-md shadow-lg border border-gray-200 z-10 w-36">
-                                      {website.primeTrafficCountries.slice(1).map((country, index) => {
-                                        const flagUrl = countryFlags[country];
-                                        const hasFailed = failedFlags[country];
-                                        
-                                        return (
-                                          <div key={index} className="relative">
-                                            {flagUrl && !hasFailed ? (
-                                              <img 
-                                                src={flagUrl} 
-                                                alt={country} 
-                                                className="w-6 h-4 rounded-sm object-cover shadow-sm"
+                          <td className="px-4 py-3">
+                            <div className="flex items-center">
+                              <div>
+                                <div className="text-sm font-medium text-gray-900 flex items-center">
+                                  {website.title || 'Untitled'}
+                                  {website.description && (
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className="ml-2 cursor-help">
+                                            <svg 
+                                              xmlns="http://www.w3.org/2000/svg" 
+                                              className="h-4 w-4 text-gray-400 hover:text-gray-600" 
+                                              fill="none" 
+                                              viewBox="0 0 24 24" 
+                                              stroke="currentColor"
+                                            >
+                                              <path 
+                                                strokeLinecap="round" 
+                                                strokeLinejoin="round" 
+                                                strokeWidth={2} 
+                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
                                               />
-                                            ) : (
-                                              <div className="w-6 h-4 rounded-sm bg-gray-100 flex items-center justify-center text-xs overflow-hidden shadow-sm">
-                                                <span className="text-xs">{getCountryFlagEmoji(country)}</span>
-                                              </div>
-                                            )}
-                                            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap shadow-lg">
-                                              {country}
-                                            </div>
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
+                                            </svg>
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent className="max-w-xs">
+                                          <p>{website.description}</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  )}
+                                  {website.url && (
+                                    <a 
+                                      href={website.url} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="ml-2 text-blue-500 hover:text-blue-700"
+                                      title="Visit website"
+                                    >
+                                      <svg 
+                                        xmlns="http://www.w3.org/2000/svg" 
+                                        className="h-4 w-4" 
+                                        fill="none" 
+                                        viewBox="0 0 24 24" 
+                                        stroke="currentColor"
+                                      >
+                                        <path 
+                                          strokeLinecap="round" 
+                                          strokeLinejoin="round" 
+                                          strokeWidth={2} 
+                                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" 
+                                        />
+                                      </svg>
+                                    </a>
+                                  )}
+                                </div>
+                                <div className="flex items-center mt-1 space-x-1">
+                                  {website.category && (
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 cursor-help">
+                                            <svg 
+                                              xmlns="http://www.w3.org/2000/svg" 
+                                              className="h-3 w-3 mr-1" 
+                                              fill="none" 
+                                              viewBox="0 0 24 24" 
+                                              stroke="currentColor"
+                                            >
+                                              <path 
+                                                strokeLinecap="round" 
+                                                strokeLinejoin="round" 
+                                                strokeWidth={2} 
+                                                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" 
+                                              />
+                                            </svg>
+                                            Category
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p>{Array.isArray(website.category) ? website.category.join(', ') : website.category}</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  )}
+                                  {website.greyNicheAccepted && (
+                                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                      <svg 
+                                        xmlns="http://www.w3.org/2000/svg" 
+                                        className="h-3 w-3 mr-1" 
+                                        fill="none" 
+                                        viewBox="0 0 24 24" 
+                                        stroke="currentColor"
+                                      >
+                                        <path 
+                                          strokeLinecap="round" 
+                                          strokeLinejoin="round" 
+                                          strokeWidth={2} 
+                                          d="M5 13l4 4L19 7" 
+                                        />
+                                      </svg>
+                                      Grey Niche
+                                    </span>
+                                  )}
+                                  {website.specialNotes && (
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800 cursor-help">
+                                            <svg 
+                                              xmlns="http://www.w3.org/2000/svg" 
+                                              className="h-3 w-3 mr-1" 
+                                              fill="none" 
+                                              viewBox="0 0 24 24" 
+                                              stroke="currentColor"
+                                            >
+                                              <path 
+                                                strokeLinecap="round" 
+                                                strokeLinejoin="round" 
+                                                strokeWidth={2} 
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+                                              />
+                                            </svg>
+                                            Notes
+                                          </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent className="max-w-xs">
+                                          <p>{website.specialNotes}</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            {getStatusBadge(website.status)}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {website.priceCents ? `$${(website.priceCents / 100).toFixed(2)}` : 
+                               website.price ? `$${website.price.toFixed(2)}` : '$0.00'}
+                            </div>
+                            {(() => {
+                              const orig = (website as any).originalPriceCents;
+                              const adminExtra = (website as any).adminExtraPriceCents;
+                              if (typeof adminExtra === 'number' && adminExtra !== 0) {
+                                return (
+                                  <div className="text-xs text-indigo-600">
+                                    +${(adminExtra / 100).toFixed(2)} extra
                                   </div>
+                                );
+                              }
+                              return null;
+                            })()}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex flex-wrap gap-1">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                DA: {website.DA || 0}
+                              </span>
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                DR: {website.DR || 0}
+                              </span>
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                PA: {website.PA || 0}
+                              </span>
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                Spam: {website.Spam || 0}
+                              </span>
+                              {website.RD && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                  RD: {website.RD}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="text-sm text-gray-900">
+                              {website.OrganicTraffic?.toLocaleString() || 0} visits
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              Value: ${website.trafficValue || 0}
+                            </div>
+                            {website.locationTraffic !== undefined && (
+                              <div className="text-xs text-gray-500">
+                                Location: {website.locationTraffic}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            {website.primeTrafficCountries && website.primeTrafficCountries.length > 0 ? (
+                              <div className="flex items-center">
+                                <div className="flex -space-x-2">
+                                  {website.primeTrafficCountries.slice(0, 3).map((country, index) => {
+                                    const flagUrl = countryFlags[country];
+                                    const hasFailed = failedFlags[country];
+                                    
+                                    return (
+                                      <div key={index} className="relative">
+                                        {flagUrl && !hasFailed ? (
+                                          <img 
+                                            src={flagUrl} 
+                                            alt={country} 
+                                            className="w-6 h-4 rounded-sm object-cover border border-white"
+                                            onError={() => {
+                                              setFailedFlags(prev => ({ ...prev, [country]: true }));
+                                            }}
+                                          />
+                                        ) : (
+                                          <div className="w-6 h-4 rounded-sm bg-gray-100 flex items-center justify-center text-xs border border-white">
+                                            <span className="text-xs">{getCountryFlagEmoji(country)}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                                {website.primeTrafficCountries.length > 3 && (
+                                  <span className="ml-2 text-xs text-gray-500">
+                                    +{website.primeTrafficCountries.length - 3} more
+                                  </span>
                                 )}
                               </div>
                             ) : (
-                              <span className="text-gray-400 text-xs">-</span>
+                              <span className="text-gray-400 text-sm">-</span>
                             )}
-                          </div>
-                        </div>
-                        
-                        {/* Notes & Owner */}
-                        <div className="col-span-1 flex justify-center">
-                          <div className="flex items-center space-x-2">
-                            {/* Special Notes */}
-                            <div className="flex items-center">
-                              {website.specialNotes ? (
-                                <div className="relative group">
-                                  <div 
-                                    className="text-gray-500 hover:text-indigo-600 cursor-pointer"
-                                    title={website.specialNotes || ''}
-                                  >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                  </div>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                            <div className="flex flex-col gap-2">
+                              {/* Extra Price Input for Pending Websites */}
+                              {(website.status || 'pending') === 'pending' && (
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={extraPrices[website.id] || ''}
+                                    onChange={(e) => setExtraPrices((prev) => ({ ...prev, [website.id]: e.target.value }))}
+                                    placeholder="Extra $"
+                                    className="w-24 text-sm px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                                    title="Optional extra price to add when approving (USD)"
+                                  />
+                                  <span className="text-xs text-gray-500">USD</span>
                                 </div>
-                              ) : (
-                                <span className="text-gray-300 text-xs">-</span>
                               )}
-                            </div>
-                            
-                            {/* Owner */}
-                            <div className="flex items-center">
-                              {website.userEmail || website.ownerId ? (
-                                <div className="relative">
+                              
+                              {/* Action Buttons */}
+                              <div className="flex items-center space-x-2">
+                                {(website.status || 'pending') === 'pending' && (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        const raw = extraPrices[website.id] || '';
+                                        const parsed = parseFloat(raw);
+                                        const extraCents = Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed * 100) : undefined;
+                                        // If admin didn't add an extra price (or it's zero/invalid) ask for confirmation
+                                        if (!extraCents) {
+                                          setConfirmApproveWebsite({ id: website.id, title: website.title });
+                                        } else {
+                                          updateWebsiteStatus(website.id, "approved", undefined, extraCents);
+                                        }
+                                      }}
+                                      className="text-green-600 hover:text-green-900"
+                                      title="Approve website"
+                                    >
+                                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    </button>
+                                    <button
+                                      onClick={() => openRejectModal(website)}
+                                      className="text-red-600 hover:text-red-900"
+                                      title="Reject website"
+                                    >
+                                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                      </svg>
+                                    </button>
+                                  </>
+                                )}
+                                {(website.status || 'pending') === 'approved' && (
                                   <button
-                                    onClick={() => handleCopyEmail(website.userEmail || website.ownerId || '')}
-                                    className="text-gray-500 hover:text-indigo-600 focus:outline-none"
-                                    title={`Copy email: ${website.userEmail || website.ownerId || 'N/A'}`}
+                                    onClick={() => openRejectModal(website)}
+                                    className="text-red-600 hover:text-red-900"
+                                    title="Reject website"
                                   >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                   </button>
-                                  {copiedEmail === (website.userEmail || website.ownerId || '') && (
-                                    <div className="absolute -top-7 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap shadow-lg">
-                                      Email copied!
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <span className="text-gray-300 text-xs">-</span>
-                              )}
+                                )}
+                                {(website.status || 'pending') === 'rejected' && (
+                                  <button
+                                    onClick={() => updateWebsiteStatus(website.id, "approved")}
+                                    className="text-green-600 hover:text-green-900"
+                                    title="Approve website"
+                                  >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  </button>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

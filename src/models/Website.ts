@@ -259,6 +259,7 @@ WebsiteSchema.pre('save', function(this: IWebsite, next) {
 // Methods
 WebsiteSchema.methods.approve = function(this: IWebsite, reason?: string) {
   this.status = 'approved';
+  this.available = true; // Explicitly set available to true when approving
   this.approvedAt = new Date();
   this.rejectionReason = '';
   return this.save();

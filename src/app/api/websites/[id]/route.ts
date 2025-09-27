@@ -67,6 +67,7 @@ export async function PATCH(req: Request, context: any) {
     // --- Super Admin actions ---
     if (body.action === "approve") {
       website.status = "approved";
+      website.available = true; // Explicitly set available to true when approving
       website.rejectionReason = undefined;
       website.approvedAt = new Date();
 

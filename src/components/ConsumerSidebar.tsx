@@ -3,20 +3,21 @@
 import React, { useState, useEffect } from "react";
 import { motion, Transition } from "framer-motion";
 import { 
-  Globe, 
+  Store, 
   ShoppingBag, 
-  FileText, 
-  Upload, 
-  AlertTriangle, 
-  Users, 
-  Shield,
-  LogOut,
+  Clock, 
+  Megaphone, 
+  Edit, 
+  BarChart, 
+  ShoppingCart, 
   User,
+  Home,
   ChevronLeft,
   ChevronRight,
   Pin,
-  Home
+  LogOut
 } from "lucide-react";
+import { useCart } from "../app/context/CartContext";
 
 const sidebarVariants = {
   open: {
@@ -52,41 +53,35 @@ const transitionProps: Transition = {
   duration: 0.2,
 };
 
-type Tab =
-  | "websites"
-  | "userContent"
-  | "purchases"
-  | "contentRequests"
-  | "priceConflicts"
-  | "userRequests"
-  | "roles";
-
-interface SuperAdminSidebarProps {
-  activeTab: Tab;
-  setActiveTab: (tab: Tab) => void;
-  // new prop: list of tabs the current user is allowed to see
-  allowedTabs: Tab[];
-  // new prop: flags indicating whether a tab has new items since last view
-  newItems?: Record<Tab, boolean>;
+interface ConsumerSidebarProps {
+  activeTab: "marketplace" | "purchases" | "pendingPayments" | "adRequests" | "contentRequests" | "analytics";
+  setActiveTab: (tab: "marketplace" | "purchases" | "pendingPayments" | "adRequests" | "contentRequests" | "analytics") => void;
+  stats: {
+    total: number;
+    purchases: number;
+    pendingPayments: number;
+    adRequests: number;
+    contentRequests: number;
+  };
   onCollapseChange?: (collapsed: boolean) => void;
 }
 
-export default function SuperAdminSidebar({
-  activeTab,
+export function ConsumerSidebar({ 
+  activeTab, 
   setActiveTab,
-  allowedTabs,
-  newItems: propNewItems,
+  stats,
   onCollapseChange
-}: SuperAdminSidebarProps) {
+}: ConsumerSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isPinned, setIsPinned] = useState(false);
+  const { itemCount } = useCart();
   
   // Notify parent component when collapse state changes
   useEffect(() => {
     if (onCollapseChange) {
-      onCollapseChange(isCollapsed);
+      onCollapseChange(isCollapsed && !isPinned);
     }
-  }, [isCollapsed, onCollapseChange]);
+  }, [isCollapsed, isPinned, onCollapseChange]);
   
   const togglePin = () => {
     setIsPinned(!isPinned);
@@ -95,77 +90,48 @@ export default function SuperAdminSidebar({
       setIsCollapsed(false);
     }
   };
-
-  const newItems = propNewItems || {
-    websites: false,
-    userContent: false,
-    purchases: false,
-    contentRequests: false,
-    priceConflicts: false,
-    userRequests: false,
-    roles: false,
-  };
-
-  const show = (tab: Tab) => allowedTabs.includes(tab);
-
+  
   const navItems = [
     {
-      id: "websites" as Tab,
-      label: "Websites",
-      icon: Globe,
-      onClick: () => setActiveTab("websites"),
-      show: show("websites"),
-      hasNew: newItems.websites,
+      id: "marketplace",
+      label: "Marketplace",
+      icon: Store,
+      onClick: () => setActiveTab("marketplace"),
+      badge: stats.total > 0 ? stats.total : undefined,
     },
     {
-      id: "purchases" as Tab,
-      label: "Purchases",
+      id: "purchases",
+      label: "My Purchases",
       icon: ShoppingBag,
       onClick: () => setActiveTab("purchases"),
-      show: show("purchases"),
-      hasNew: newItems.purchases,
+      badge: stats.purchases > 0 ? stats.purchases : undefined,
     },
     {
-      id: "contentRequests" as Tab,
+      id: "pendingPayments",
+      label: "Pending Payments",
+      icon: Clock,
+      onClick: () => setActiveTab("pendingPayments"),
+      badge: stats.pendingPayments > 0 ? stats.pendingPayments : undefined,
+    },
+    {
+      id: "adRequests",
+      label: "Ad Requests",
+      icon: Megaphone,
+      onClick: () => setActiveTab("adRequests"),
+    },
+    {
+      id: "contentRequests",
       label: "Content Requests",
-      icon: FileText,
+      icon: Edit,
       onClick: () => setActiveTab("contentRequests"),
-      show: show("contentRequests"),
-      hasNew: newItems.contentRequests,
     },
     {
-      id: "userContent" as Tab,
-      label: "User Uploads",
-      icon: Upload,
-      onClick: () => setActiveTab("userContent"),
-      show: show("userContent"),
-      hasNew: newItems.userContent,
+      id: "analytics",
+      label: "Analytics",
+      icon: BarChart,
+      onClick: () => setActiveTab("analytics"),
     },
-    {
-      id: "priceConflicts" as Tab,
-      label: "Price Conflicts",
-      icon: AlertTriangle,
-      onClick: () => setActiveTab("priceConflicts"),
-      show: show("priceConflicts"),
-      hasNew: newItems.priceConflicts,
-    },
-    {
-      id: "userRequests" as Tab,
-      label: "User Requests",
-      icon: Users,
-      onClick: () => setActiveTab("userRequests"),
-      show: show("userRequests"),
-      hasNew: newItems.userRequests,
-    },
-    {
-      id: "roles" as Tab,
-      label: "Roles",
-      icon: Shield,
-      onClick: () => setActiveTab("roles"),
-      show: show("roles"),
-      hasNew: newItems.roles,
-    },
-  ].filter(item => item.show);
+  ];
 
   return (
     <motion.div
@@ -185,7 +151,7 @@ export default function SuperAdminSidebar({
             variants={textVariants}
           >
             <p className="text-sm font-bold text-blue-600">
-              Admin Dashboard
+              Advertiser
             </p>
           </motion.div>
           {/* Removed the toggle button at the top */}
@@ -216,8 +182,10 @@ export default function SuperAdminSidebar({
                       variants={textVariants}
                     >
                       <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>
-                      {item.hasNew && (
-                        <span className="ml-auto flex h-2 w-2 rounded-full bg-red-500"></span>
+                      {item.badge && (
+                        <span className="ml-auto flex h-5 items-center justify-center rounded-full bg-green-500 px-2 text-xs font-medium text-white">
+                          {item.badge}
+                        </span>
                       )}
                     </motion.div>
                   </button>
@@ -227,8 +195,28 @@ export default function SuperAdminSidebar({
             
             <div className="mt-auto pt-4 border-t border-gray-200">
               <button
-                onClick={togglePin}
+                onClick={() => window.location.href = "/cart"}
                 className="w-full flex items-center rounded-lg px-2 py-1.5 text-gray-600 hover:bg-gray-100 transition-colors"
+              >
+                <ShoppingCart className="w-4 h-4 flex-shrink-0" />
+                <motion.div
+                  className="ml-2 flex items-center gap-2 overflow-hidden"
+                  initial={isCollapsed && !isPinned ? "closed" : "open"}
+                  animate={isCollapsed && !isPinned ? "closed" : "open"}
+                  variants={textVariants}
+                >
+                  <span className="text-sm font-medium whitespace-nowrap">View Cart</span>
+                  {itemCount > 0 && (
+                    <span className="ml-auto flex h-5 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
+                      {itemCount}
+                    </span>
+                  )}
+                </motion.div>
+              </button>
+              
+              <button
+                onClick={togglePin}
+                className="w-full flex items-center rounded-lg px-2 py-1.5 text-gray-600 hover:bg-gray-100 transition-colors mt-1"
               >
                 <Pin className={`w-4 h-4 flex-shrink-0 ${isPinned ? "text-blue-600" : ""}`} />
                 <motion.div
@@ -244,20 +232,17 @@ export default function SuperAdminSidebar({
               </button>
               
               <button
-                onClick={() => {
-                  // Handle logout
-                  window.location.href = "/logout";
-                }}
+                onClick={() => window.location.href = "/"}
                 className="w-full flex items-center rounded-lg px-2 py-1.5 text-gray-600 hover:bg-gray-100 transition-colors mt-1"
               >
-                <LogOut className="w-4 h-4 flex-shrink-0" />
+                <Home className="w-4 h-4 flex-shrink-0" />
                 <motion.div
                   className="ml-2 overflow-hidden"
                   initial={isCollapsed && !isPinned ? "closed" : "open"}
                   animate={isCollapsed && !isPinned ? "closed" : "open"}
                   variants={textVariants}
                 >
-                  <span className="text-sm font-medium whitespace-nowrap">Logout</span>
+                  <span className="text-sm font-medium whitespace-nowrap">Home</span>
                 </motion.div>
               </button>
             </div>
@@ -276,33 +261,14 @@ export default function SuperAdminSidebar({
               animate={isCollapsed && !isPinned ? "closed" : "open"}
               variants={textVariants}
             >
-              <p className="text-xs font-semibold text-gray-900 whitespace-nowrap">Admin</p>
+              <p className="text-xs font-semibold text-gray-900 whitespace-nowrap">Advertiser</p>
               <p className="text-xs text-gray-500 whitespace-nowrap">View profile</p>
             </motion.div>
           </div>
         </div>
-        
-        {/* Toggle button at the bottom of the sidebar */}
-        <button
-          className="absolute top-1/2 -right-3 transform -translate-y-1/2 bg-white border border-gray-300 rounded-full p-1 shadow-sm hover:bg-gray-100 transition-colors z-50"
-          onClick={() => {
-            if (isPinned) {
-              // If pinned, unpin and collapse
-              setIsPinned(false);
-              setIsCollapsed(true);
-            } else {
-              // Toggle collapse state
-              setIsCollapsed(!isCollapsed);
-            }
-          }}
-        >
-          {isCollapsed && !isPinned ? (
-            <ChevronRight className="h-4 w-4 text-gray-500" />
-          ) : (
-            <ChevronLeft className="h-4 w-4 text-gray-500" />
-          )}
-        </button>
       </div>
     </motion.div>
   );
 }
+
+export default ConsumerSidebar;

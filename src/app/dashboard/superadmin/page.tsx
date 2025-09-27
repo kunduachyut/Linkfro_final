@@ -123,6 +123,9 @@ type FilterType = "all" | "pending" | "approved" | "rejected";
 export default function SuperAdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>("websites");
 
+  // Add state for sidebar collapse status
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  
   const [currentUserRole, setCurrentUserRole] = useState<"websites" | "requests" | null>(null);
   const [isSuper, setIsSuper] = useState(false);
   const [allowedTabs, setAllowedTabs] = useState<Tab[]>(["websites","userContent","purchases","contentRequests","priceConflicts","userRequests","roles"]);
@@ -855,9 +858,16 @@ setPurchaseStats(stats);
         setActiveTab={setActiveTab}
         allowedTabs={allowedTabs} // <-- ensure allowedTabs is passed to match Sidebar props
         newItems={newItems}
+        onCollapseChange={setIsSidebarCollapsed} // Add this prop
       />
 
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto overflow-x-hidden min-w-0 max-w-none w-full">
+      <main 
+        className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto overflow-x-hidden min-w-0 max-w-none w-full transition-all duration-200"
+        style={{ 
+          marginLeft: isSidebarCollapsed ? '3.05rem' : '15rem',
+          transition: 'margin-left 0.2s ease-out'
+        }}
+      >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 lg:mb-8 w-full">
           <div>
             <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold" style={{ color: 'var(--secondary-primary)' }}>

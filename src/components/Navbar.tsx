@@ -3,14 +3,19 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isSignedIn, user } = useUser();
-  const [allowed, setAllowed] = useState<boolean>(false);
-  const [checking, setChecking] = useState<boolean>(true);
+  const { user } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,32 +25,6 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    let mounted = true;
-    async function checkRole() {
-      try {
-        const res = await fetch('/api/admin-roles/current');
-        if (!mounted) return;
-        if (!res.ok) {
-          setAllowed(false);
-          return;
-        }
-        const j = await res.json();
-        const isAllowed = !!(j?.isSuper) || (j?.role === 'websites') || (j?.role === 'requests');
-        setAllowed(Boolean(isAllowed));
-      } catch (e) {
-        setAllowed(false);
-      } finally {
-        if (mounted) setChecking(false);
-      }
-    }
-
-    if (isSignedIn) checkRole();
-    else setChecking(false);
-
-    return () => { mounted = false; };
-  }, [isSignedIn]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -93,57 +72,57 @@ const Navbar = () => {
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
-          <div className="flex space-x-8">
-            <a 
-              href="#" 
-              className="nav-link"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToTop();
-              }}
-            >
-              Home
-            </a>
-            <a href="#features" className="nav-link">About</a>
-            <a href="#details" className="nav-link">Contact</a>
-          </div>
-
-          {/* If the floating panel wouldn't appear, show auth controls in the navbar */}
-          {!checking && (!isSignedIn || !allowed) && (
-            <div className="flex items-center space-x-3">
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="rounded-full font-medium text-xs sm:text-sm lg:text-base h-8 sm:h-10 lg:h-12 px-3 sm:px-4 lg:px-5 cursor-pointer transition-colors bg-transparent border border-gray-200 text-gray-700 hover:bg-gray-100" onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = 'var(--accent-hover)'} onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = 'transparent'}>
-                    Sign In
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="rounded-full font-medium text-xs sm:text-sm lg:text-base h-8 sm:h-10 lg:h-12 px-3 sm:px-4 lg:px-5 cursor-pointer transition-colors" style={{backgroundColor: 'var(--accent-primary)', color: 'white'}} onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = 'var(--accent-hover)'} onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = 'var(--accent-primary)'}>
-                    Sign Up
-                  </button>
-                </SignUpButton>
-              </SignedOut>
-              <SignedIn>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-700 hidden sm:inline">{user?.fullName || user?.primaryEmailAddress?.emailAddress || ''}</span>
-                  <UserButton 
-                    appearance={{
-                      elements: {
-                        avatarBox: {
-                          width: '36px',
-                          height: '36px',
-                          borderRadius: '50%',
-                          border: '2px solid var(--accent-primary)',
-                        }
-                      }
-                    }}
-                  />
-                </div>
-              </SignedIn>
-            </div>
-          )}
+        <nav className="hidden md:flex space-x-8">
+          <a 
+            href="#" 
+            className="nav-link"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollToTop();
+            }}
+          >
+            Home
+          </a>
+          <a href="/about" className="nav-link">About</a>
+          <a href="#details" className="nav-link">Contact</a>
         </nav>
+
+        {/* Auth Buttons */}
+        <div className="hidden md:flex items-center gap-2 sm:gap-4">
+          <SignedOut>
+            <SignInButton>
+              <button className="button-secondary text-xs sm:text-sm font-medium h-6 sm:h-8 px-3 sm:px-4 flex items-center justify-center">
+                Login
+              </button>
+            </SignInButton>
+            <SignUpButton>
+              <button className="button-primary text-xs sm:text-sm font-medium h-6 sm:h-8 px-3 sm:px-4 flex items-center justify-center">
+                Sign Up
+              </button>
+            </SignUpButton>
+          </SignedOut>
+          <SignedIn>
+            <div className="flex items-center gap-2">
+              {user && (
+                <span className="text-sm font-medium text-gray-700">
+                  {user.firstName || user.username || 'User'}
+                </span>
+              )}
+              <UserButton 
+                appearance={{
+                  elements: {
+                    avatarBox: {
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      border: '2px solid #f97316',
+                    }
+                  }
+                }}
+              />
+            </div>
+          </SignedIn>
+        </div>
 
         {/* Mobile menu button - increased touch target */}
         <button 
@@ -162,7 +141,7 @@ const Navbar = () => {
       )}>
         <nav className="flex flex-col space-y-8 items-center mt-8">
           <a 
-            href="#" 
+            href="/" 
             className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" 
             onClick={(e) => {
               e.preventDefault();
@@ -174,7 +153,7 @@ const Navbar = () => {
             Home
           </a>
           <a 
-            href="#features" 
+            href="/about" 
             className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" 
             onClick={() => {
               setIsMenuOpen(false);
@@ -193,6 +172,43 @@ const Navbar = () => {
           >
             Contact
           </a>
+          
+          {/* Mobile Auth Buttons */}
+          <div className="flex flex-col items-center gap-4 mt-4 w-full">
+            <SignedOut>
+              <SignInButton>
+                <button className="button-secondary text-base font-medium h-10 px-6 w-full flex items-center justify-center">
+                  Login
+                </button>
+              </SignInButton>
+              <SignUpButton>
+                <button className="button-primary text-base font-medium h-10 px-6 w-full flex items-center justify-center">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <div className="flex items-center gap-2">
+                {user && (
+                  <span className="text-base font-medium text-gray-700">
+                    {user.firstName || user.username || 'User'}
+                  </span>
+                )}
+                <UserButton 
+                  appearance={{
+                    elements: {
+                      avatarBox: {
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        border: '2px solid #f97316',
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </SignedIn>
+          </div>
         </nav>
       </div>
     </header>

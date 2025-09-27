@@ -161,7 +161,16 @@ export default function PendingPaymentsSection({
         </h3>
         <p style={{ color: "var(--secondary-lighter)" }}>You don't have any purchases waiting for payment.</p>
         <button
-          onClick={() => setShowMarketplace(true)}
+          onClick={() => {
+            // Use the existing tab switching mechanism
+            const event = new CustomEvent('switchTab', { detail: 'marketplace' });
+            window.dispatchEvent(event);
+            
+            // Also update the URL to reflect the marketplace tab
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', 'marketplace');
+            window.history.pushState({}, '', url);
+          }}
           className="inline-block mt-4 px-6 py-2 rounded-lg text-white transition-colors"
           style={{ backgroundColor: "var(--accent-primary)" }}
           onMouseEnter={(e) => ((e.target as HTMLElement).style.backgroundColor = "var(--accent-hover)")}
@@ -293,12 +302,32 @@ export default function PendingPaymentsSection({
           <div className="relative z-10 w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden max-h-[90vh]">
             <div className="flex items-center justify-between p-4 border-b">
               <h3 className="text-lg font-medium">Marketplace</h3>
-              <button
-                onClick={() => setShowMarketplace(false)}
-                className="px-3 py-1 rounded text-sm border"
-              >
-                Close
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowMarketplace(false)}
+                  className="px-3 py-1 rounded text-sm border"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    // Close the modal and switch to the marketplace tab
+                    setShowMarketplace(false);
+                    
+                    // Use the existing tab switching mechanism
+                    const event = new CustomEvent('switchTab', { detail: 'marketplace' });
+                    window.dispatchEvent(event);
+                    
+                    // Also update the URL to reflect the marketplace tab
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('tab', 'marketplace');
+                    window.history.pushState({}, '', url);
+                  }}
+                  className="px-3 py-1 rounded text-sm border bg-blue-500 text-white border-blue-500"
+                >
+                  Browse Full Marketplace
+                </button>
+              </div>
             </div>
             <div className="w-full h-[80vh]">
               <iframe src="/MarketplaceSection" title="Marketplace" className="w-full h-full border-0" />

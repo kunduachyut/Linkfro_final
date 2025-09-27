@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import PublisherSidebar from "@/components/PublisherSidebar";
+import { PublisherSidebar } from "@/components/PublisherSidebar";
 import PublisherDashboardSection from "@/components/PublisherDashboardSection";
 import PublisherWebsitesSection from "@/components/PublisherWebsitesSection";
 import PublisherAddWebsiteSection from "@/components/PublisherAddWebsiteSection";
 import PublisherComingSoonSection from "@/components/PublisherComingSoonSection";
+import { AnimatedPageTransition } from "@/components/AnimatedPageTransition";
+import { motion } from "framer-motion";
 
 // Define the categories as requested with mapping to backend enum values
 const CATEGORIES = [
@@ -56,7 +58,7 @@ export default function PublisherDashboard() {
     title: '',
     url: '',
     description: '',
-    category: '', // Keep as string for form submission
+    category: '',
     price: '',
     DA: '',
     PA: '',
@@ -65,12 +67,12 @@ export default function PublisherDashboard() {
     DR: '',
     RD: '',
     tags: '',
-    primaryCountry: '', // Add primaryCountry field
-    trafficValue: '',        // <-- Add this
-    locationTraffic: '',     // <-- Add this
-  greyNicheAccepted: false,   // <-- default to false so publisher sees No by default
-    specialNotes: '',        // <-- Add this
-    primeTrafficCountries: '' // Add prime traffic countries field
+    primaryCountry: '',
+    trafficValue: '',
+    locationTraffic: '',
+    greyNicheAccepted: false,
+    specialNotes: '',
+    primeTrafficCountries: ''
   });
   const [formLoading, setFormLoading] = useState(false);
   const [stats, setStats] = useState({
@@ -79,6 +81,8 @@ export default function PublisherDashboard() {
     approved: 0,
     rejected: 0
   });
+  // Add state for sidebar collapse status
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   // Add state for success message
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   // Add state for delete confirmation popup
@@ -246,12 +250,12 @@ export default function PublisherDashboard() {
       DR: '',
       RD: '',
       tags: '',
-      primaryCountry: '', // Add primaryCountry field
-      trafficValue: '',        // <-- Add this
-      locationTraffic: '',     // <-- Add this
-  greyNicheAccepted: false,   // <-- default to false
-      specialNotes: '',        // <-- Add this
-      primeTrafficCountries: '' // Add prime traffic countries field
+      primaryCountry: '',
+      trafficValue: '',
+      locationTraffic: '',
+      greyNicheAccepted: false,
+      specialNotes: '',
+      primeTrafficCountries: ''
     });
     setEditingWebsite(null);
   }
@@ -345,7 +349,9 @@ export default function PublisherDashboard() {
         PA: formData.PA ? parseInt(formData.PA) : undefined,
         Spam: formData.Spam ? parseInt(formData.Spam) : undefined,
         OrganicTraffic: formData.OrganicTraffic ? parseInt(formData.OrganicTraffic) : undefined,
-        DR: formData.DR ? parseInt(formData.DR) : undefined
+        DR: formData.DR ? parseInt(formData.DR) : undefined,
+        // Ensure status is set to pending for new submissions
+        ...(editingWebsite ? {} : { status: "pending" })
       };
 
       let res;
@@ -423,9 +429,20 @@ export default function PublisherDashboard() {
 
   return (
     <div className="flex w-full min-h-screen" style={{backgroundColor: 'var(--base-primary)'}}>
-      <PublisherSidebar activeTab={activeTab} setActiveTab={setActiveTab} stats={stats} />
+      <PublisherSidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        stats={stats} 
+        onCollapseChange={setIsSidebarCollapsed}
+      />
       
-      <main className="flex-1 overflow-x-hidden">
+      <main 
+        className="flex-1 overflow-x-hidden transition-all duration-200"
+        style={{ 
+          marginLeft: isSidebarCollapsed ? '3.05rem' : '15rem',
+          transition: 'margin-left 0.2s ease-out'
+        }}
+      >
         <div className="p-6">
           {/* Success Message Popup */}
           {successMessage && (
@@ -479,7 +496,14 @@ export default function PublisherDashboard() {
             </div>
           )}
           
-          <div className="mb-8">
+          {/* Animated Header */}
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mb-8"
+          >
             <h1 className="text-2xl lg:text-3xl font-bold" style={{color: 'var(--secondary-primary)'}}>
               {activeTab === "dashboard" && "Publisher Dashboard"}
               {activeTab === "websites" && "My Websites"}
@@ -491,50 +515,58 @@ export default function PublisherDashboard() {
             {activeTab === "websites" && (
               <p className="mt-1" style={{color: 'var(--secondary-lighter)'}}>Manage your websites and track their approval status</p>
             )}
-          </div>
+          </motion.div>
 
           {/* Dashboard Tab */}
           {activeTab === "dashboard" && (
-            <PublisherDashboardSection 
-              stats={stats}
-              mySites={mySites}
-              setActiveTab={setActiveTab}
-              getStatusBadge={getStatusBadge}
-              formatPrice={formatPrice}
-            />
+            <AnimatedPageTransition keyName="dashboard">
+              <PublisherDashboardSection 
+                stats={stats}
+                mySites={mySites}
+                setActiveTab={setActiveTab}
+                getStatusBadge={getStatusBadge}
+                formatPrice={formatPrice}
+              />
+            </AnimatedPageTransition>
           )}
 
           {/* Websites Tab */}
           {activeTab === "websites" && (
-            <PublisherWebsitesSection
-              mySites={mySites}
-              refresh={refresh}
-              statusFilter={statusFilter}
-              setStatusFilter={setStatusFilter}
-              editWebsite={editWebsite}
-              removeSite={removeSite}
-              deleteLoading={deleteLoading}
-              getStatusBadge={getStatusBadge}
-              formatPrice={formatPrice}
-            />
+            <AnimatedPageTransition keyName="websites">
+              <PublisherWebsitesSection
+                mySites={mySites}
+                refresh={refresh}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                editWebsite={editWebsite}
+                removeSite={removeSite}
+                deleteLoading={deleteLoading}
+                getStatusBadge={getStatusBadge}
+                formatPrice={formatPrice}
+              />
+            </AnimatedPageTransition>
           )}
 
           {/* Add Website Tab */}
           {activeTab === "add-website" && (
-            <PublisherAddWebsiteSection
-              editingWebsite={editingWebsite}
-              formData={formData}
-              handleFormChange={handleFormChange}
-              handleSubmit={handleSubmit}
-              formLoading={formLoading}
-              resetForm={resetForm}
-              setActiveTab={setActiveTab}
-            />
+            <AnimatedPageTransition keyName="add-website">
+              <PublisherAddWebsiteSection
+                editingWebsite={editingWebsite}
+                formData={formData}
+                handleFormChange={handleFormChange}
+                handleSubmit={handleSubmit}
+                formLoading={formLoading}
+                resetForm={resetForm}
+                setActiveTab={setActiveTab}
+              />
+            </AnimatedPageTransition>
           )}
 
           {/* Other tabs with coming soon messages */}
           {(activeTab === "analytics" || activeTab === "earnings" || activeTab === "settings") && (
-            <PublisherComingSoonSection activeTab={activeTab} />
+            <AnimatedPageTransition keyName={activeTab}>
+              <PublisherComingSoonSection activeTab={activeTab} />
+            </AnimatedPageTransition>
           )}
         </div>
       </main>

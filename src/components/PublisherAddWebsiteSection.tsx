@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import useCountries from "../hooks/useCountries";
+import { motion, AnimatePresence } from "framer-motion";
+import { AddWebsiteForm } from "@/components/ui/add-website-form";
 
 type Website = {
   _id: string;
@@ -83,13 +85,14 @@ export default function PublisherAddWebsiteSection({
     Spam: string;
     OrganicTraffic: string;
     DR: string;
-  RD: number | string;
+    RD: number | string;
     primaryCountry?: string;
     trafficValue?: string;        
     locationTraffic?: string;     
-  greyNicheAccepted?: boolean;   
+    greyNicheAccepted?: boolean;   
     specialNotes?: string;        
     primeTrafficCountries?: string | string[]; // Add prime traffic countries field
+    status?: "pending" | "approved" | "rejected"; // Add status field
   };
   handleFormChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
@@ -97,6 +100,109 @@ export default function PublisherAddWebsiteSection({
   resetForm: () => void;
   setActiveTab: (tab: "dashboard" | "websites" | "add-website" | "analytics" | "earnings" | "settings") => void;
 }) {
+  // State for showing the multi-step form or the original form
+  const [useMultiStepForm, setUseMultiStepForm] = useState(true);
+
+  // Handle form submission from the multi-step form
+  const handleMultiStepSubmit = (data: any) => {
+    // Map the multi-step form data back to the original form structure
+    const eventMock = {
+      target: {
+        name: "title",
+        value: data.domainName
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    // Update each field using the existing handleFormChange function
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "title", value: data.domainName } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "url", value: data.websiteUrl } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "description", value: data.description } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "category", value: data.category } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "price", value: data.price } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "DA", value: data.DA } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "PA", value: data.PA } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "Spam", value: data.spam } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "OrganicTraffic", value: data.organicTraffic } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "DR", value: data.DR } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "RD", value: data.rdLink } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "trafficValue", value: data.trafficValue } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "locationTraffic", value: data.locationTraffic } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "greyNicheAccepted", value: data.greyNicheAccepted === "true" ? "true" : "false" } });
+    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "specialNotes", value: data.specialNotes } });
+    
+    // Handle primeTrafficCountries as array
+    handleFormChange({ 
+      ...eventMock, 
+      target: { 
+        ...eventMock.target, 
+        name: "primeTrafficCountries", 
+        value: Array.isArray(data.primeTrafficCountries) 
+          ? data.primeTrafficCountries.join(',') 
+          : data.primeTrafficCountries 
+      } 
+    });
+    
+    // Set status to pending for new submissions
+    if (!editingWebsite) {
+      handleFormChange({ 
+        ...eventMock, 
+        target: { 
+          ...eventMock.target, 
+          name: "status", 
+          value: "pending" 
+        } 
+      });
+    }
+    
+    // Submit the form
+    handleSubmit({ preventDefault: () => {} } as React.FormEvent);
+  };
+
+  // If we're using the multi-step form, we can hide the original form
+  if (useMultiStepForm) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:p-8"
+      >
+        <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
+          <h2 className="text-2xl font-bold text-gray-900">
+            {editingWebsite ? 'Edit Website' : 'Add New Website'}
+          </h2>
+          <div className="flex gap-2">
+            {editingWebsite && (
+              <button
+                onClick={resetForm}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition-colors duration-200"
+              >
+                Cancel Edit
+              </button>
+            )}
+            <button
+              onClick={() => setUseMultiStepForm(false)}
+              className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm font-medium transition-colors duration-200"
+            >
+              Use Original Form
+            </button>
+          </div>
+        </div>
+        
+        {/* Multi-step form component */}
+        <AddWebsiteForm 
+          editingWebsite={editingWebsite}
+          onSubmit={handleMultiStepSubmit}
+          onCancel={() => {
+            resetForm();
+            setActiveTab('websites');
+          }}
+        />
+      </motion.div>
+    );
+  }
+
+  // Original form implementation
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<number[]>(() => {
     // Initialize from formData.category - handle different possible data types
@@ -241,14 +347,22 @@ export default function PublisherAddWebsiteSection({
         <h2 className="text-2xl font-bold text-gray-900">
           {editingWebsite ? 'Edit Website' : 'Add New Website'}
         </h2>
-        {editingWebsite && (
+        <div className="flex gap-2">
+          {editingWebsite && (
+            <button
+              onClick={resetForm}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition-colors duration-200"
+            >
+              Cancel Edit
+            </button>
+          )}
           <button
-            onClick={resetForm}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition-colors duration-200"
+            onClick={() => setUseMultiStepForm(true)}
+            className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm font-medium transition-colors duration-200"
           >
-            Cancel Edit
+            Use Multi-Step Form
           </button>
-        )}
+        </div>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-8">

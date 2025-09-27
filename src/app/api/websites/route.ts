@@ -226,20 +226,27 @@ export async function POST(req: Request) {
 
   try {
     const json = await req.json();
-  const { title, url, description, priceCents, category, tags, DA, PA, Spam, OrganicTraffic, DR, RD, primaryCountry, primeTrafficCountries, trafficValue, locationTraffic, greyNicheAccepted, specialNotes } = json;
+    const { title, url, description, priceCents, category, tags, DA, PA, Spam, OrganicTraffic, DR, RD, primaryCountry, primeTrafficCountries, trafficValue, locationTraffic, greyNicheAccepted, specialNotes } = json;
 
-    if (!title || !url || !description || priceCents === undefined) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    // Instead of returning an error, we'll set default values for missing required fields
+    const processedTitle = title || "Untitled Website";
+    const processedUrl = url || "";
+    const processedDescription = description || "No description provided";
+    const processedPriceCents = priceCents !== undefined ? priceCents : 0;
+
+    // Check if URL is provided and valid
+    if (!processedUrl) {
+      return NextResponse.json({ error: "Website URL is required" }, { status: 400 });
     }
 
     // Check for existing website with same URL (excluding rejected and priceConflict ones)
     const existingWebsite = await Website.findOne({ 
-      url, 
+      url: processedUrl, 
       status: { $in: ['pending', 'approved'] } // Only check active submissions
     });
 
     console.log('🔍 URL conflict check:', {
-      url,
+      url: processedUrl,
       existingFound: !!existingWebsite,
       existingStatus: existingWebsite?.status,
       existingUserId: existingWebsite?.userId,
@@ -311,11 +318,11 @@ export async function POST(req: Request) {
       // Different user - create price conflict
       // Create new website first
       const newSite = await Website.create({
-        title,
-        url,
-        description,
-        priceCents: Number(priceCents),
-        price: Number(priceCents) / 100,
+        title: processedTitle,
+        url: processedUrl,
+        description: processedDescription,
+        priceCents: Number(processedPriceCents),
+        price: Number(processedPriceCents) / 100,
         category: normalizedCategories, // Use normalized categories
         tags: normalizedTags,
         primaryCountry: primaryCountry || undefined, // Add primaryCountry field
@@ -328,7 +335,7 @@ export async function POST(req: Request) {
         RD: RD || undefined,
         trafficValue: trafficValue ? Number(trafficValue) : undefined,
         locationTraffic: locationTraffic ? Number(locationTraffic) : undefined,
-  greyNicheAccepted: typeof greyNicheAccepted === 'string' ? (greyNicheAccepted === 'true') : (typeof greyNicheAccepted === 'boolean' ? greyNicheAccepted : undefined),
+        greyNicheAccepted: typeof greyNicheAccepted === 'string' ? (greyNicheAccepted === 'true') : (typeof greyNicheAccepted === 'boolean' ? greyNicheAccepted : undefined),
         specialNotes: specialNotes || undefined,
         userId: userId,
         image: "/default-website-image.png",
@@ -367,13 +374,13 @@ export async function POST(req: Request) {
     // Escape title for safe regex use (avoid regex injection) and match exact title case-insensitive
     const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const existingByTitle = await Website.findOne({
-      title: { $regex: `^${escapeRegex(title)}$`, $options: 'i' },
+      title: { $regex: `^${escapeRegex(processedTitle)}$`, $options: 'i' },
       status: { $in: ['pending', 'approved'] }
     });
 
     if (existingByTitle) {
       console.log('🔍 Title/domain conflict check:', {
-        title,
+        title: processedTitle,
         existingFound: !!existingByTitle,
         existingStatus: existingByTitle?.status,
         existingUserId: existingByTitle?.userId,
@@ -391,11 +398,11 @@ export async function POST(req: Request) {
       console.log('⚔️ Different users - creating price conflict for title/domain');
       // Different user - create price conflict for title
       const newSiteByTitle = await Website.create({
-        title,
-        url,
-        description,
-        priceCents: Number(priceCents),
-        price: Number(priceCents) / 100,
+        title: processedTitle,
+        url: processedUrl,
+        description: processedDescription,
+        priceCents: Number(processedPriceCents),
+        price: Number(processedPriceCents) / 100,
         category: normalizedCategories, // Use normalized categories
         tags: normalizedTags,
         primaryCountry: primaryCountry || undefined,
@@ -429,13 +436,12 @@ export async function POST(req: Request) {
     }
 
     // No conflict - create normally
-
     const site = await Website.create({
-      title,
-      url,
-      description,
-      priceCents: Number(priceCents),
-      price: Number(priceCents) / 100,
+      title: processedTitle,
+      url: processedUrl,
+      description: processedDescription,
+      priceCents: Number(processedPriceCents),
+      price: Number(processedPriceCents) / 100,
       category: normalizedCategories, // Use normalized categories
       tags: normalizedTags,
       primaryCountry: primaryCountry || undefined, // Add primaryCountry field
@@ -448,7 +454,7 @@ export async function POST(req: Request) {
       RD: RD || undefined,
       trafficValue: trafficValue ? Number(trafficValue) : undefined,
       locationTraffic: locationTraffic ? Number(locationTraffic) : undefined,
-  greyNicheAccepted: typeof greyNicheAccepted === 'string' ? (greyNicheAccepted === 'true') : (typeof greyNicheAccepted === 'boolean' ? greyNicheAccepted : undefined),
+      greyNicheAccepted: typeof greyNicheAccepted === 'string' ? (greyNicheAccepted === 'true') : (typeof greyNicheAccepted === 'boolean' ? greyNicheAccepted : undefined),
       specialNotes: specialNotes || undefined,
       userId: userId,
       image: "/default-website-image.png",
@@ -469,7 +475,7 @@ export async function POST(req: Request) {
     //   return NextResponse.json({ error: "Website with this URL already exists" }, { status: 400 });
     // }
 
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to create website" }, { status: 500 });
   }
 }
 

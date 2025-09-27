@@ -8,243 +8,9 @@ import AdRequestsSection from "@/components/AdRequestsSection";
 import ContentRequestsSection from "@/components/ContentRequestsSection";
 import AnalyticsSection from "@/components/AnalyticsSection";
 import PendingPaymentsSection from "@/components/PendingPaymentsSection";
+import ConsumerSidebar from "@/components/ConsumerSidebar";
 
-// Sidebar component
-function Sidebar({ activeTab, setActiveTab, stats }: {
-  activeTab: string;
-  setActiveTab: (tab: "marketplace" | "purchases" | "pendingPayments" | "adRequests" | "contentRequests" | "analytics") => void;
-  stats: any;
-}) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const { itemCount } = useCart();
 
-  return (
-    <aside className={`${sidebarOpen ? 'w-56 lg:w-64' : 'w-14 lg:w-16'} flex-shrink-0 flex flex-col transition-all duration-300 min-h-screen shadow-lg sticky top-0 h-screen overflow-y-auto`} style={{backgroundColor: 'var(--base-primary)', borderRight: '1px solid var(--base-tertiary)'}}>
-      <div className="flex items-center justify-between p-3 sm:p-4 h-14 sm:h-16 lg:h-[6.25rem] flex-shrink-0" style={{borderBottom: '1px solid var(--base-tertiary)'}}>
-        <div className={`${sidebarOpen ? 'block' : 'hidden'} text-xl lg:text-2xl font-bold`} style={{color: 'var(--secondary-primary)'}}>
-          Advertiser
-        </div>
-        <button 
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-lg transition-colors"
-          onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = 'var(--base-tertiary)'}
-          onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = 'transparent'}
-        >
-          <span className="material-symbols-outlined">
-            menu
-          </span>
-        </button>
-      </div>
-
-      <nav className="flex-1 px-3 lg:px-4 py-4 lg:py-6 space-y-1 lg:space-y-2">
-        <div className="pt-3 lg:pt-4 mt-3 lg:mt-4 space-y-1 lg:space-y-2" style={{borderTop: '1px solid var(--base-tertiary)'}}>
-          <button
-            onClick={() => setActiveTab("marketplace")}
-            className={`w-full flex items-center px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg transition-colors text-sm lg:text-base ${
-              activeTab === "marketplace"
-                ? '' 
-                : ''
-            }`}
-            style={{
-              backgroundColor: activeTab === "marketplace" ? 'var(--accent-light)' : 'transparent',
-              color: activeTab === "marketplace" ? 'var(--accent-primary)' : 'var(--secondary-lighter)'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== "marketplace") {
-                (e.target as HTMLElement).style.backgroundColor = 'var(--base-tertiary)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== "marketplace") {
-                (e.target as HTMLElement).style.backgroundColor = 'transparent';
-              }
-            }}
-          >
-            <span className="material-symbols-outlined mr-2 lg:mr-3 text-lg lg:text-xl">storefront</span>
-            <span className={`${sidebarOpen ? 'block' : 'hidden'}`}>Marketplace</span>
-            {sidebarOpen && stats.total > 0 && (
-              <span className="ml-auto px-2 py-0.5 rounded-full text-xs font-medium" style={{backgroundColor: 'var(--accent-primary)', color: 'white'}}>
-                {stats.total}
-              </span>
-            )}
-          </button>
-          
-          <button
-            onClick={() => setActiveTab("purchases")}
-            className={`w-full flex items-center px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg transition-colors text-sm lg:text-base ${
-              activeTab === "purchases"
-                ? '' 
-                : ''
-            }`}
-            style={{
-              backgroundColor: activeTab === "purchases" ? 'var(--accent-light)' : 'transparent',
-              color: activeTab === "purchases" ? 'var(--accent-primary)' : 'var(--secondary-lighter)'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== "purchases") {
-                (e.target as HTMLElement).style.backgroundColor = 'var(--base-tertiary)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== "purchases") {
-                (e.target as HTMLElement).style.backgroundColor = 'transparent';
-              }
-            }}
-          >
-            <span className="material-symbols-outlined mr-2 lg:mr-3 text-lg lg:text-xl">shopping_bag</span>
-            <span className={`${sidebarOpen ? 'block' : 'hidden'}`}>My Purchases</span>
-            {sidebarOpen && stats.purchases > 0 && (
-              <span className="ml-auto px-2 py-0.5 rounded-full text-xs font-medium" style={{backgroundColor: 'var(--success)', color: 'white'}}>
-                {stats.purchases}
-              </span>
-            )}
-          </button>
-          
-          {/* New Pending Payments Button */}
-          <button
-            onClick={() => setActiveTab("pendingPayments")}
-            className={`w-full flex items-center px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg transition-colors text-sm lg:text-base ${
-              activeTab === "pendingPayments"
-                ? '' 
-                : ''
-            }`}
-            style={{
-              backgroundColor: activeTab === "pendingPayments" ? 'var(--accent-light)' : 'transparent',
-              color: activeTab === "pendingPayments" ? 'var(--accent-primary)' : 'var(--secondary-lighter)'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== "pendingPayments") {
-                (e.target as HTMLElement).style.backgroundColor = 'var(--base-tertiary)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== "pendingPayments") {
-                (e.target as HTMLElement).style.backgroundColor = 'transparent';
-              }
-            }}
-          >
-            <span className="material-symbols-outlined mr-2 lg:mr-3 text-lg lg:text-xl">pending_actions</span>
-            <span className={`${sidebarOpen ? 'block' : 'hidden'}`}>Pending Payments</span>
-            {sidebarOpen && stats.pendingPayments > 0 && (
-              <span className="ml-auto px-2 py-0.5 rounded-full text-xs font-medium" style={{backgroundColor: 'var(--warning)', color: 'white'}}>
-                {stats.pendingPayments}
-              </span>
-            )}
-          </button>
-          
-          <button
-            onClick={() => setActiveTab("adRequests")}
-            className={`w-full flex items-center px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg transition-colors text-sm lg:text-base ${
-              activeTab === "adRequests"
-                ? '' 
-                : ''
-            }`}
-            style={{
-              backgroundColor: activeTab === "adRequests" ? 'var(--accent-light)' : 'transparent',
-              color: activeTab === "adRequests" ? 'var(--accent-primary)' : 'var(--secondary-lighter)'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== "adRequests") {
-                (e.target as HTMLElement).style.backgroundColor = 'var(--base-tertiary)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== "adRequests") {
-                (e.target as HTMLElement).style.backgroundColor = 'transparent';
-              }
-            }}
-          >
-            <span className="material-symbols-outlined mr-2 lg:mr-3 text-lg lg:text-xl">campaign</span>
-            <span className={`${sidebarOpen ? 'block' : 'hidden'}`}>Ad Requests</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab("contentRequests")}
-            className={`w-full flex items-center px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg transition-colors text-sm lg:text-base ${
-              activeTab === "contentRequests"
-                ? '' 
-                : ''
-            }`}
-            style={{
-              backgroundColor: activeTab === "contentRequests" ? 'var(--accent-light)' : 'transparent',
-              color: activeTab === "contentRequests" ? 'var(--accent-primary)' : 'var(--secondary-lighter)'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== "contentRequests") {
-                (e.target as HTMLElement).style.backgroundColor = 'var(--base-tertiary)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== "contentRequests") {
-                (e.target as HTMLElement).style.backgroundColor = 'transparent';
-              }
-            }}
-          >
-            <span className="material-symbols-outlined mr-2 lg:mr-3 text-lg lg:text-xl">edit_note</span>
-            <span className={`${sidebarOpen ? 'block' : 'hidden'}`}>Content Requests</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab("analytics")}
-            className={`w-full flex items-center px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg transition-colors text-sm lg:text-base ${
-              activeTab === "analytics"
-                ? '' 
-                : ''
-            }`}
-            style={{
-              backgroundColor: activeTab === "analytics" ? 'var(--accent-light)' : 'transparent',
-              color: activeTab === "analytics" ? 'var(--accent-primary)' : 'var(--secondary-lighter)'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== "analytics") {
-                (e.target as HTMLElement).style.backgroundColor = 'var(--base-tertiary)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== "analytics") {
-                (e.target as HTMLElement).style.backgroundColor = 'transparent';
-              }
-            }}
-          >
-            <span className="material-symbols-outlined mr-2 lg:mr-3 text-lg lg:text-xl">analytics</span>
-            <span className={`${sidebarOpen ? 'block' : 'hidden'}`}>Analytics</span>
-          </button>
-        </div>
-        
-        {/* Quick Actions */}
-        <div className="pt-4 mt-4" style={{borderTop: '1px solid var(--base-tertiary)'}}>
-          <Link
-            href="/cart"
-            className={`w-full flex items-center px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg transition-colors text-sm lg:text-base text-white`}
-            style={{backgroundColor: 'var(--accent-primary)'}}
-            onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = 'var(--accent-hover)'}
-            onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = 'var(--accent-primary)'}
-          >
-            <span className="material-symbols-outlined mr-2 lg:mr-3 text-lg lg:text-xl">shopping_cart</span>
-            <span className={`${sidebarOpen ? 'block' : 'hidden'}`}>View Cart</span>
-            {itemCount > 0 && (
-              <span className="ml-auto px-2 py-1 rounded-full text-xs font-bold" style={{backgroundColor: 'var(--error)', color: 'white'}}>
-                {itemCount}
-              </span>
-            )}
-          </Link>
-        </div>
-      </nav>
-
-      <div className="p-3 lg:p-4" style={{borderTop: '1px solid var(--base-tertiary)'}}>
-        <div className="flex items-center">
-          <div className="w-8 lg:w-10 h-8 lg:h-10 rounded-full flex items-center justify-center font-bold text-sm lg:text-base" style={{backgroundColor: 'var(--accent-light)', color: 'var(--accent-primary)'}}>
-            A
-          </div>
-          <div className={`${sidebarOpen ? 'block' : 'hidden'} ml-2 lg:ml-3`}>
-            <p className="text-xs lg:text-sm font-semibold" style={{color: 'var(--secondary-primary)'}}>Advertiser</p>
-            <a className="text-xs lg:text-sm transition-colors" style={{color: 'var(--secondary-lighter)'}} onMouseEnter={(e) => (e.target as HTMLElement).style.color = 'var(--accent-primary)'} onMouseLeave={(e) => (e.target as HTMLElement).style.color = 'var(--secondary-lighter)'} href="#">View profile</a>
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}
 
 type Website = {
   _id?: string;
@@ -313,6 +79,8 @@ export default function ConsumerDashboard() {
     adRequests: 0,
     contentRequests: 0
   });
+  
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
   const { addToCart, itemCount } = useCart();
 
@@ -555,13 +323,14 @@ export default function ConsumerDashboard() {
 
   return (
     <div className="flex min-h-screen w-screen overflow-x-hidden" style={{backgroundColor: 'var(--base-primary)'}}>
-      <Sidebar 
+      <ConsumerSidebar 
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         stats={stats}
+        onCollapseChange={setSidebarCollapsed}
       />
       
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto overflow-x-hidden min-w-0 max-w-none w-full">
+      <main className={`flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto overflow-x-hidden min-w-0 max-w-none w-full transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 lg:mb-8 w-full">
           <div>
             <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold" style={{color: 'var(--secondary-primary)'}}>

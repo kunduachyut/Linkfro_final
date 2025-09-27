@@ -6,9 +6,12 @@ import {
   SignInButton,
   SignUpButton,
   UserButton,
+  useUser,
 } from "@clerk/nextjs";
 
 export default function Header() {
+  const { user } = useUser();
+
   return (
     <header className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-4 shadow w-full" style={{backgroundColor: 'var(--base-primary)', borderBottom: '1px solid var(--base-tertiary)'}}>
       {/* Nav */}
@@ -30,26 +33,37 @@ export default function Header() {
       {/* Auth Buttons */}
       <div className="flex items-center gap-2 sm:gap-4">
         <SignedOut>
-          <SignInButton />
+          <SignInButton>
+            <button className="button-secondary text-xs sm:text-sm font-medium h-6 sm:h-8 px-3 sm:px-4 flex items-center justify-center">
+              Login
+            </button>
+          </SignInButton>
           <SignUpButton>
-            <button className="rounded-full font-medium text-xs sm:text-sm lg:text-base h-8 sm:h-10 lg:h-12 px-3 sm:px-4 lg:px-5 cursor-pointer transition-colors" style={{backgroundColor: 'var(--accent-primary)', color: 'white'}} onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = 'var(--accent-hover)'} onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = 'var(--accent-primary)'}>
+            <button className="button-primary text-xs sm:text-sm font-medium h-6 sm:h-8 px-3 sm:px-4 flex items-center justify-center">
               Sign Up
             </button>
           </SignUpButton>
         </SignedOut>
         <SignedIn>
-          <UserButton 
-            appearance={{
-              elements: {
-                avatarBox: {
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
-                  border: '2px solid var(--accent-primary)',
+          <div className="flex items-center gap-2">
+            {user && (
+              <span className="text-sm font-medium" style={{color: 'var(--secondary-lighter)'}}>
+                {user.firstName || user.username || 'User'}
+              </span>
+            )}
+            <UserButton 
+              appearance={{
+                elements: {
+                  avatarBox: {
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    border: '2px solid #f97316',
+                  }
                 }
-              }
-            }}
-          />
+              }}
+            />
+          </div>
         </SignedIn>
       </div>
     </header>
