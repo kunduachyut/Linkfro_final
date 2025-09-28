@@ -32,19 +32,6 @@ const Navbar = () => {
     document.body.style.overflow = !isMenuOpen ? 'hidden' : '';
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-    
-    // Close mobile menu if open
-    if (isMenuOpen) {
-      setIsMenuOpen(false);
-      document.body.style.overflow = '';
-    }
-  };
-
   return (
     <header
       className={cn(
@@ -56,35 +43,27 @@ const Navbar = () => {
     >
       <div className="container flex items-center justify-between px-4 sm:px-6 lg:px-8">
         <a 
-          href="#" 
+          href="/" 
           className="flex items-center space-x-2"
-          onClick={(e) => {
-            e.preventDefault();
-            scrollToTop();
-          }}
           aria-label="Pulse Robot"
         >
           <img 
             src="/logo.svg" 
             alt="Pulse Robot Logo" 
-            className="h-10 sm:h-12" 
+            className="h-10 sm:h-12 border-0" 
           />
         </a>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-8">
           <a 
-            href="#" 
+            href="/" 
             className="nav-link"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToTop();
-            }}
           >
             Home
           </a>
           <a href="/about" className="nav-link">About</a>
-          <a href="#details" className="nav-link">Contact</a>
+          <a href="/contact" className="nav-link">Contact</a>
         </nav>
 
         {/* Auth Buttons */}
@@ -143,9 +122,7 @@ const Navbar = () => {
           <a 
             href="/" 
             className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" 
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToTop();
+            onClick={() => {
               setIsMenuOpen(false);
               document.body.style.overflow = '';
             }}
@@ -163,7 +140,7 @@ const Navbar = () => {
             About
           </a>
           <a 
-            href="#details" 
+            href="/contact" 
             className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" 
             onClick={() => {
               setIsMenuOpen(false);

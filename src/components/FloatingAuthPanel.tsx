@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useUser, SignInButton, SignUpButton, SignOutButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -9,8 +9,11 @@ const FloatingAuthPanel = () => {
   const { isSignedIn, user } = useUser();
   const [allowed, setAllowed] = useState<boolean>(false);
   const [checking, setChecking] = useState<boolean>(true);
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const openButtonRef = useRef<HTMLButtonElement>(null);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -37,8 +40,34 @@ const FloatingAuthPanel = () => {
     if (isSignedIn) checkRole();
     else setChecking(false);
 
-    return () => { mounted = false; };
+    return () => { 
+      mounted = false;
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
   }, [isSignedIn]);
+
+  const handleMouseEnter = () => {
+    // Clear any existing close timeout
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    // Open the panel
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    // Set a timeout to close the panel after a short delay
+    // This prevents flickering when moving between the open button and the panel
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+    closeTimeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 300);
+  };
 
   const navigateToRole = (role: string) => {
     switch (role) {
@@ -63,6 +92,8 @@ const FloatingAuthPanel = () => {
     if (!isSignedIn || !allowed) return null;
     return (
       <button
+        ref={openButtonRef}
+        onMouseEnter={handleMouseEnter}
         onClick={() => setIsOpen(true)}
         className="fixed top-4 right-4 z-50 text-gray-700 p-3 rounded-full shadow-lg hover:scale-105 transition-all duration-300 hover:text-gray-800"
         style={{
@@ -89,6 +120,9 @@ const FloatingAuthPanel = () => {
 
   return (
     <div 
+      ref={panelRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className="fixed top-4 right-4 z-50 p-6 w-80 rounded-2xl border shadow-2xl"
       style={{
         background: "rgba(255, 255, 255, 0.15)",
