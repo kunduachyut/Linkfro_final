@@ -977,10 +977,10 @@ setPurchaseStats(stats);
 
         {allowedTabs.includes("purchases") && activeTab === "purchases" && (
           <SuperAdminPurchasesSection
-            purchaseRequests={purchaseRequests}
-            filteredPurchaseRequests={filteredPurchaseRequests}
-            purchaseFilter={purchaseFilter}
-            setPurchaseFilter={setPurchaseFilter as (filter: FilterType) => void}
+            purchaseRequests={purchaseRequests}                 
+            filteredPurchaseRequests={filteredPurchaseRequests} 
+            purchaseFilter={purchaseFilter as any}
+            setPurchaseFilter={setPurchaseFilter as any}
             purchaseStats={purchaseStats}
             selectedPurchases={selectedPurchases}
             isAllPurchasesSelected={isAllPurchasesSelected}
@@ -1006,8 +1006,8 @@ setPurchaseStats(stats);
           <SuperAdminWebsitesSection
             websites={websites}
             loading={loading}
-            filter={filter}
-            setFilter={setFilter}
+            filter={filter as any}
+            setFilter={setFilter as any}
             stats={stats}
             selectedWebsites={selectedWebsites}
             isAllWebsitesSelected={isAllWebsitesSelected}
