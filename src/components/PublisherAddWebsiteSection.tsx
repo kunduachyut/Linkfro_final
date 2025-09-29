@@ -341,6 +341,33 @@ export default function PublisherAddWebsiteSection({
 
   const [showSEOModal, setShowSEOModal] = useState(false);
 
+  // Local submit handler: allow either title or url (title priority), require description
+  const onLocalSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const desc = (formData.description || '').trim();
+    if (!desc) {
+      window.alert('Description is required. Please add a description before submitting.');
+      return;
+    }
+
+    if ((!formData.title || formData.title.trim() === '') && formData.url) {
+      try {
+        let host = formData.url;
+        if (!/^https?:\/\//i.test(host)) {
+          host = 'https://' + host;
+        }
+        const parsed = new URL(host);
+        const derivedTitle = parsed.hostname.replace(/^www\./i, '');
+        handleFormChange({ target: { name: 'title', value: derivedTitle } } as unknown as React.ChangeEvent<HTMLInputElement>);
+      } catch (err) {
+        // ignore
+      }
+    }
+
+    setTimeout(() => handleSubmit(e), 0);
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:p-8">
       <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
@@ -365,12 +392,12 @@ export default function PublisherAddWebsiteSection({
         </div>
       </div>
       
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={onLocalSubmit} className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Title */}
           <div>
             <label htmlFor="title" className="block text-sm font-semibold text-gray-700">
-              Domain Name *
+              Domain Name
             </label>
             <input
               type="text"
@@ -378,16 +405,16 @@ export default function PublisherAddWebsiteSection({
               name="title"
               value={formData.title}
               onChange={handleFormChange}
-              required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
-              placeholder="Enter domain name"
+              placeholder="Enter domain name (preferred)"
             />
+            <p className="mt-1 text-xs text-gray-500">You can provide either Domain Name or Website URL. Domain Name has priority and will be used if present.</p>
           </div>
 
           {/* URL */}
           <div>
             <label htmlFor="url" className="block text-sm font-semibold text-gray-700">
-              Website URL *
+              Website URL
             </label>
             <input
               type="text"
@@ -395,10 +422,10 @@ export default function PublisherAddWebsiteSection({
               name="url"
               value={formData.url}
               onChange={handleFormChange}
-              required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
               placeholder="example.com or https://example.com or http://example.com"
             />
+            <p className="mt-1 text-xs text-gray-500">If Domain Name is empty, Website URL will be used to derive the domain name.</p>
           </div>
 
           {/* Category */}
@@ -472,8 +499,8 @@ export default function PublisherAddWebsiteSection({
             name="description"
             value={formData.description}
             onChange={handleFormChange}
-            required
             rows={4}
+            required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
             placeholder="Describe your website..."
           />
@@ -767,7 +794,12 @@ export default function PublisherAddWebsiteSection({
           </button>
           <button
             type="submit"
-            disabled={formLoading || selectedCategories.length === 0 || primeTrafficCountries.length === 0}
+            disabled={
+              formLoading ||
+              selectedCategories.length === 0 ||
+              primeTrafficCountries.length === 0 ||
+              !(formData.description && formData.description.trim() !== '')
+            }
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 font-medium transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
           >
             {formLoading ? (
