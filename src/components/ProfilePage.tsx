@@ -31,7 +31,7 @@ interface SelectFieldProps {
 }
 
 interface UserProfileSectionProps {
-  user: any; // Clerk user object type can be more specific with @clerk/types
+  user: any;
   joinDate: string;
 }
 
@@ -69,20 +69,18 @@ const ProfilePage: React.FC = () => {
   };
 
   const formatJoinDate = (): string => {
-    if (!user?.createdAt) return 'Joined on 01 August 2025';
+    if (!user?.createdAt) return '01 August 2025';
     
     const joinDate = new Date(user.createdAt);
-    return `Joined on ${joinDate.toLocaleDateString('en-US', {
+    return joinDate.toLocaleDateString('en-US', {
       day: '2-digit',
       month: 'long',
       year: 'numeric'
-    })}`;
+    });
   };
 
   const handleSaveChanges = (): void => {
-    // Handle save logic here
     console.log('Saving changes:', userData);
-    // You can add API call here to save the data
   };
 
   if (!user) {
@@ -126,101 +124,149 @@ const ProfilePage: React.FC = () => {
 };
 
 // Sub-components
-const UserProfileSection: React.FC<UserProfileSectionProps> = ({ user, joinDate }) => (
-  <div className="profile-section">
-    <div className="user-info-card">
-      <div className="user-avatar">
-        <img 
-          src={user.imageUrl} 
-          alt={user.fullName || 'User'} 
-          className="avatar-image"
-        />
-      </div>
-      <div className="user-details">
-        <h2>{user.fullName || 'Santanu Rakshit'}</h2>
-        <p className="user-role">Publisher</p>
-        <div className="status-balance">
-          <div className="status">
-            <span className="status-indicator"></span>
-            Active Status
-          </div>
-          <div className="balance">
-            <span className="balance-amount">$0</span>
-            Balance
+const UserProfileSection: React.FC<UserProfileSectionProps> = ({ user, joinDate }) => {
+  const accountStatus = (user?.publicMetadata?.status as string) || (user?.privateMetadata?.status as string) || 'Active';
+  const role = (user?.publicMetadata?.role as string) || (user?.privateMetadata?.role as string) || 'Publisher';
+  const lastLogin = user?.lastSignInAt || user?.last_sign_in_at || user?.lastActiveAt || user?.last_active_at;
+
+  const formattedLastLogin = lastLogin ? new Date(lastLogin).toLocaleString() : 'Never logged in';
+
+  return (
+    <div className="profile-section">
+      <div className="user-info-card">
+        <div className="user-avatar">
+          <img 
+            src={user.imageUrl} 
+            alt={user.fullName || 'User'} 
+            className="avatar-image"
+          />
+        </div>
+
+        <div className="user-details">
+          <h2>{user.fullName || 'Santanu Rakshit'}</h2>
+          <p className="user-role">{role}</p>
+          
+          <div className="user-meta-grid">
+            <div className="meta-item">
+              <span className="meta-label">Account Status</span>
+              <div className="status-with-indicator">
+                <span className="status-indicator active"></span>
+                <span className="meta-value">{accountStatus}</span>
+              </div>
+            </div>
+            
+            <div className="meta-item">
+              <span className="meta-label">Last Sign In</span>
+              <span className="meta-value">{formattedLastLogin}</span>
+            </div>
+            
+            <div className="meta-item">
+              <span className="meta-label">Date Joined</span>
+              <span className="meta-value">{joinDate}</span>
+            </div>
+            
+            <div className="meta-item">
+              <span className="meta-label">User ID</span>
+              <span className="meta-value">{user.id}</span>
+            </div>
           </div>
         </div>
-        <p className="join-date">{joinDate}</p>
       </div>
-    </div>
 
-    <button className="password-change-btn">
-      Password Change
-    </button>
-  </div>
-);
+      <button className="password-change-btn">
+        Password Change
+      </button>
+    </div>
+  );
+};
 
 const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({ 
   user, 
   userData, 
   onInputChange 
-}) => (
-  <div className="info-section">
-    <h3>Basic Information</h3>
-    <div className="form-grid">
-      <FormField 
-        label="Name"
-        type="text"
-        value={user.fullName || 'Santanu Rakshit'}
-        readOnly={true}
-        managedBy="Clerk"
-      />
-      
-      <FormField 
-        label="Email Address"
-        type="email"
-        value={user.primaryEmailAddress?.emailAddress || 'santanu.digitalseo@gmail.com'}
-        readOnly={true}
-        managedBy="Clerk"
-      />
-      
-      <FormField 
-        label="Country"
-        type="text"
-        value="India"
-        readOnly={true}
-        managedBy="Clerk"
-      />
-      
-      <FormField 
-        label="Phone Number"
-        type="text"
-        value={userData.phoneNumber}
-        onChange={(value: string) => onInputChange('phoneNumber', value)}
-        placeholder="+91"
-      />
-      
-      <FormField 
-        label="Company Website"
-        type="url"
-        value={userData.companyWebsite}
-        onChange={(value: string) => onInputChange('companyWebsite', value)}
-        placeholder="https://"
-      />
-      
-      <SelectField 
-        label="Identity"
-        value={userData.identity}
-        onChange={(value: string) => onInputChange('identity', value)}
-        options={[
-          { value: '', label: 'Select Identity' },
-          { value: 'individual', label: 'Individual' },
-          { value: 'company', label: 'Company' },
-          { value: 'agency', label: 'Agency' }
-        ]}
-      />
+}) => {
+  const linkedin = user?.publicMetadata?.social?.linkedin || user?.privateMetadata?.social?.linkedin || '';
+  const twitter = user?.publicMetadata?.social?.twitter || user?.privateMetadata?.social?.twitter || '';
+  const facebook = user?.publicMetadata?.social?.facebook || user?.privateMetadata?.social?.facebook || '';
+
+  return (
+    <div className="info-section">
+      <h3>Basic Information</h3>
+      <div className="form-grid">
+        <FormField 
+          label="Full Name"
+          type="text"
+          value={user.fullName || 'Santanu Rakshit'}
+          readOnly={true}
+          managedBy="Clerk"
+        />
+        
+        <FormField 
+          label="Email Address"
+          type="email"
+          value={user.primaryEmailAddress?.emailAddress || 'santanu.digitalseo@gmail.com'}
+          readOnly={true}
+          managedBy="Clerk"
+        />
+        
+        <FormField 
+          label="Country"
+          type="text"
+          value={userData.paymentCountry || 'India'}
+          readOnly={true}
+          managedBy="Clerk"
+        />
+        
+        <FormField 
+          label="Phone Number"
+          type="text"
+          value={userData.phoneNumber}
+          onChange={(value: string) => onInputChange('phoneNumber', value)}
+          placeholder="+91"
+        />
+        
+        <FormField 
+          label="Company Website"
+          type="url"
+          value={userData.companyWebsite}
+          onChange={(value: string) => onInputChange('companyWebsite', value)}
+          placeholder="https://"
+        />
+        
+        <SelectField 
+          label="Identity"
+          value={userData.identity}
+          onChange={(value: string) => onInputChange('identity', value)}
+          options={[
+            { value: '', label: 'Select Identity' },
+            { value: 'individual', label: 'Individual' },
+            { value: 'company', label: 'Company' },
+            { value: 'agency', label: 'Agency' }
+          ]}
+        />
+
+        {/* Social profiles */}
+        <div className="social-profiles">
+          <label className="social-label">Social Media Profiles</label>
+          <div className="social-links">
+            <a href={linkedin || '#'} target="_blank" rel="noreferrer" className="social-link">
+              <span className="social-icon linkedin">in</span>
+              LinkedIn
+            </a>
+            <a href={twitter || '#'} target="_blank" rel="noreferrer" className="social-link">
+              <span className="social-icon twitter">𝕏</span>
+              Twitter
+            </a>
+            <a href={facebook || '#'} target="_blank" rel="noreferrer" className="social-link">
+              <span className="social-icon facebook">f</span>
+              Facebook
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const PaymentInformationSection: React.FC<PaymentInformationSectionProps> = ({ 
   userData, 

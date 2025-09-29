@@ -1185,7 +1185,7 @@ export default function MarketplaceSection({
                           ),
                           'trafficValue': (
                             <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              <div className="text-sm font-medium text-gray-900">{w.trafficValue || 0}</div>
+                              <div className="text-sm font-medium text-gray-900">$ {w.trafficValue || 0}</div>
                             </div>
                           ),
                           'locationTraffic': (
