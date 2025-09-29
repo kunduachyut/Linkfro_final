@@ -3,7 +3,7 @@
 import React from 'react';
 
 // Type definitions
-type FilterType = "all" | "pending" | "approved" | "rejected";
+type FilterType = "all" | "pending" | "approved" | "rejected" | "paused";
 type UserAccessRequest = {
     _id: string;
     email: string;
@@ -13,7 +13,7 @@ type UserAccessRequest = {
     numberOfWebsites: string;
     role?: "advertiser" | "publisher";
     message?: string;
-    status: "pending" | "approved" | "rejected";
+    status: "pending" | "approved" | "rejected" | "paused";
     createdAt: string;
 };
 
@@ -27,8 +27,9 @@ type Props = {
     toggleSelectAllRequests: () => void;
     toggleRequestSelection: (id: string) => void;
     approveSelectedRequests: () => void;
-    updateRequestStatus: (id: string, status: "approved" | "rejected") => Promise<void>;
+    updateRequestStatus: (id: string, status: "approved" | "rejected" | "paused") => Promise<void>;
     formatDate: (dateString?: string) => string;
+    deleteRequest: (id: string) => Promise<void>; // Add delete function
 };
 
 const SuperAdminUserRequestsSection: React.FC<Props> = ({
@@ -43,7 +44,14 @@ const SuperAdminUserRequestsSection: React.FC<Props> = ({
     approveSelectedRequests,
     updateRequestStatus,
     formatDate,
+    deleteRequest, // Add delete function
 }) => {
+    // Function to toggle user status between approved and paused
+    const toggleUserStatus = async (requestId: string, currentStatus: "approved" | "paused") => {
+        const newStatus = currentStatus === "approved" ? "paused" : "approved";
+        await updateRequestStatus(requestId, newStatus);
+    };
+
     return (
         <div className="bg-white rounded-xl shadow-sm p-4 lg:p-6 border border-gray-200">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -70,6 +78,12 @@ const SuperAdminUserRequestsSection: React.FC<Props> = ({
                         className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${userRequestFilter === 'rejected' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
                     >
                         Rejected
+                    </button>
+                    <button
+                        onClick={() => setUserRequestFilter("paused")}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${userRequestFilter === 'paused' ? 'bg-yellow-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                        Paused
                     </button>
                     <button
                         onClick={() => setUserRequestFilter("all")}
@@ -154,7 +168,8 @@ const SuperAdminUserRequestsSection: React.FC<Props> = ({
                                         <span className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold ${
                                             request.status === 'approved' ? 'bg-green-100 text-green-800' :
                                             request.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                                            'bg-yellow-100 text-yellow-800'
+                                            request.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
+                                            'bg-blue-100 text-blue-800'
                                         }`}>
                                             {request.status.toUpperCase()}
                                         </span>
@@ -163,22 +178,64 @@ const SuperAdminUserRequestsSection: React.FC<Props> = ({
                                         {formatDate(request.createdAt)}
                                     </td>
                                     <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                                        {request.status === "pending" && (
-                                            <div className="flex space-x-2">
-                                                <button
-                                                    onClick={() => updateRequestStatus(request._id, "approved")}
-                                                    className="text-green-600 hover:text-green-900"
-                                                >
-                                                    Approve
-                                                </button>
+                                        <div className="flex flex-col sm:flex-row gap-2">
+                                            {request.status === "pending" && (
+                                                <>
+                                                    <button
+                                                        onClick={() => updateRequestStatus(request._id, "approved")}
+                                                        className="text-green-600 hover:text-green-900"
+                                                    >
+                                                        Approve
+                                                    </button>
+                                                    <button
+                                                        onClick={() => updateRequestStatus(request._id, "rejected")}
+                                                        className="text-red-600 hover:text-red-900"
+                                                    >
+                                                        Reject
+                                                    </button>
+                                                </>
+                                            )}
+                                            {request.status === "approved" && (
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="text-sm text-gray-600">Active</span>
+                                                    <button
+                                                        onClick={() => toggleUserStatus(request._id, "approved")}
+                                                        className="relative inline-flex h-6 w-11 items-center rounded-full bg-green-500 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                                    >
+                                                        <span className="sr-only">Pause user</span>
+                                                        <span
+                                                            className={`${
+                                                                'translate-x-6'
+                                                            } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                                                        />
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {request.status === "paused" && (
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="text-sm text-gray-600">Paused</span>
+                                                    <button
+                                                        onClick={() => toggleUserStatus(request._id, "paused")}
+                                                        className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                                    >
+                                                        <span className="sr-only">Resume user</span>
+                                                        <span
+                                                            className={`${
+                                                                'translate-x-1'
+                                                            } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                                                        />
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {(request.status === "approved" || request.status === "paused") && (
                                                 <button
                                                     onClick={() => updateRequestStatus(request._id, "rejected")}
                                                     className="text-red-600 hover:text-red-900"
                                                 >
                                                     Reject
                                                 </button>
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

@@ -159,9 +159,9 @@ export async function PATCH(request) {
       );
     }
 
-    if (!['pending', 'approved', 'rejected'].includes(status)) {
+    if (!['pending', 'approved', 'rejected', 'paused'].includes(status)) {
       return NextResponse.json(
-        { error: "Status must be either 'pending', 'approved' or 'rejected'" },
+        { error: "Status must be either 'pending', 'approved', 'rejected', or 'paused'" },
         { status: 400 }
       );
     }
@@ -189,6 +189,42 @@ export async function PATCH(request) {
     console.error("Error updating request:", error);
     return NextResponse.json(
       { error: "Failed to update request" },
+      { status: 500 }
+    );
+  }
+}
+
+// --- DELETE Handler (Delete a request) ---
+export async function DELETE(request) {
+  try {
+    await connectDB();
+    const { id } = await request.json();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Request ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Delete the request
+    const deletedRequest = await RequestModel.findByIdAndDelete(id);
+
+    if (!deletedRequest) {
+      return NextResponse.json(
+        { error: "Request not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      message: "Request deleted successfully"
+    });
+  } catch (error) {
+    console.error("Error deleting request:", error);
+    return NextResponse.json(
+      { error: "Failed to delete request" },
       { status: 500 }
     );
   }

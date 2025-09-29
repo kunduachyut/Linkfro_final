@@ -113,12 +113,12 @@ type UserAccessRequest = {
   numberOfWebsites: string;
   message?: string;
   role?: "advertiser" | "publisher"; // added to match request-access schema
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "paused"; // Add "paused" status
   createdAt: string;
   updatedAt?: string;
 };
 
-type FilterType = "all" | "pending" | "approved" | "rejected";
+type FilterType = "all" | "pending" | "approved" | "rejected" | "paused";
 
 export default function SuperAdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>("websites");
@@ -349,7 +349,7 @@ const [confirmationAction, setConfirmationAction] = useState<{
     }
   };
 
-  const updateRequestStatus = async (requestId: string, status: "approved" | "rejected") => {
+  const updateRequestStatus = async (requestId: string, status: "approved" | "rejected" | "paused") => {
     try {
       const res = await fetch("/api/request-access", {
         method: "PATCH",
@@ -367,6 +367,33 @@ const [confirmationAction, setConfirmationAction] = useState<{
       }
     } catch (error) {
       console.error("Error updating request status:", error);
+      alert("Network error. Please try again.");
+    }
+  };
+
+  // Add delete request function
+  const deleteRequest = async (requestId: string) => {
+    try {
+      if (!confirm("Are you sure you want to delete this user request? This action cannot be undone.")) {
+        return;
+      }
+
+      const res = await fetch("/api/request-access", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: requestId }),
+      });
+
+      if (res.ok) {
+        fetchUserRequests();
+        alert("User request deleted successfully");
+      } else {
+        const err = await res.json();
+        console.error("Failed to delete request:", err);
+        alert("Failed to delete request: " + JSON.stringify(err));
+      }
+    } catch (error) {
+      console.error("Error deleting request:", error);
       alert("Network error. Please try again.");
     }
   };
@@ -828,6 +855,14 @@ setPurchaseStats(stats);
 
   const filteredUserRequests = userRequests.filter((req) => {
     if (userRequestFilter === "all") return true;
+    // When filtering by "approved", exclude "paused" users
+    if (userRequestFilter === "approved") {
+      return req.status === "approved";
+    }
+    // When filtering by "paused", only show paused users
+    if (userRequestFilter === "paused") {
+      return req.status === "paused";
+    }
     return req.status === userRequestFilter;
   });
 
@@ -998,6 +1033,7 @@ setPurchaseStats(stats);
             approveSelectedRequests={approveSelectedRequests}
             updateRequestStatus={updateRequestStatus}
             formatDate={formatDate}
+            deleteRequest={deleteRequest} // Add delete function
           />
         )}
 
