@@ -15,7 +15,12 @@ import {
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -69,16 +74,21 @@ const Navbar = () => {
         {/* Auth Buttons */}
         <div className="hidden md:flex items-center gap-2 sm:gap-4">
           <SignedOut>
-            <SignInButton>
-              <button className="button-secondary text-xs sm:text-sm font-medium h-6 sm:h-8 px-3 sm:px-4 flex items-center justify-center">
-                Login
-              </button>
-            </SignInButton>
-            <SignUpButton>
-              <button className="button-primary text-xs sm:text-sm font-medium h-6 sm:h-8 px-3 sm:px-4 flex items-center justify-center">
-                Sign Up
-              </button>
-            </SignUpButton>
+            {/* Only render Clerk modal buttons after mount and when not signed-in to avoid Clerk runtime errors */}
+            {mounted && !isSignedIn && (
+              <>
+                <SignInButton>
+                  <button className="button-secondary text-xs sm:text-sm font-medium h-6 sm:h-8 px-3 sm:px-4 flex items-center justify-center">
+                    Login
+                  </button>
+                </SignInButton>
+                <SignUpButton>
+                  <button className="button-primary text-xs sm:text-sm font-medium h-6 sm:h-8 px-3 sm:px-4 flex items-center justify-center">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </>
+            )}
           </SignedOut>
           <SignedIn>
             <div className="flex items-center gap-2">
@@ -153,16 +163,20 @@ const Navbar = () => {
           {/* Mobile Auth Buttons */}
           <div className="flex flex-col items-center gap-4 mt-4 w-full">
             <SignedOut>
-              <SignInButton>
-                <button className="button-secondary text-base font-medium h-10 px-6 w-full flex items-center justify-center">
-                  Login
-                </button>
-              </SignInButton>
-              <SignUpButton>
-                <button className="button-primary text-base font-medium h-10 px-6 w-full flex items-center justify-center">
-                  Sign Up
-                </button>
-              </SignUpButton>
+              {mounted && !isSignedIn && (
+                <>
+                  <SignInButton>
+                    <button className="button-secondary text-base font-medium h-10 px-6 w-full flex items-center justify-center">
+                      Login
+                    </button>
+                  </SignInButton>
+                  <SignUpButton>
+                    <button className="button-primary text-base font-medium h-10 px-6 w-full flex items-center justify-center">
+                      Sign Up
+                    </button>
+                  </SignUpButton>
+                </>
+              )}
             </SignedOut>
             <SignedIn>
               <div className="flex items-center gap-2">

@@ -14,6 +14,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [userType, setUserType] = useState<"advertiser" | "publisher" | null>(null);
   const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("");
@@ -23,10 +24,16 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [showUserTypeSelection, setShowUserTypeSelection] = useState(true); // Default to showing user type selection
   const { isSignedIn, user } = useUser();
 
+  // UI state hooks must be declared unconditionally (before any early returns)
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
   useEffect(() => {
     // If user is already signed in, pre-fill their email and skip to user type selection
     if (isSignedIn && user) {
       setEmail(user.emailAddresses[0]?.emailAddress || "");
+      setFullName(user.fullName || "");
       // For signed-in users requesting access, we want to show the signup form directly
       setIsLogin(false);
       setShowUserTypeSelection(true);
@@ -39,91 +46,103 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     setUserType(type);
     setShowUserTypeSelection(false);
   };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple flow: if user is signing up (request access), POST to /api/request-access
-    if (!userType) {
-      alert('Please select Advertiser or Publisher');
-      return;
-    }
+    setLoading(true);
+    setError("");
+    try {
+      if (!userType) {
+        alert("Please select Advertiser or Publisher");
+        return;
+      }
 
-    const payload = {
-      email: email.trim(),
-      password,
-      role: userType,
-      phone: phone.trim(),
-      country: country.trim(),
-      traffic: traffic.trim() || 'unknown',
-      numberOfWebsites: numberOfWebsites.trim() || '0',
-      message: message.trim()
-    };
+      if (isLogin) {
+        // Login flow: call check-user to validate credentials and approval
+        const res = await fetch("/api/check-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim(), password, role: userType }),
+        });
 
-    if (!isLogin) {
-      // client-side validation for signup
-      if (!phone.trim() || !country.trim() || !traffic.trim() || !numberOfWebsites.trim()) {
-        alert('Please fill phone, country, traffic and number of websites');
+        // The server may return a 200 with approved:false for pending accounts,
+        // or a non-OK status for errors. Parse the JSON in both cases.
+        const data = await res.json().catch(() => ({}));
+
+        // Special-case role mismatch (403) so we can show a clear popup message
+        if (res.status === 403) {
+          // Server already sends a helpful message; fallback to a user-friendly one
+          setError(data.error || "You are not registered for this role.");
+          setLoading(false);
+          return;
+        }
+
+        if (!res.ok) {
+          // Non-OK responses should be displayed as errors
+          throw new Error(data.error || "Login failed");
+        }
+
+        // Handle approved:false (pending) even if res.ok === true
+        if (data.approved === false) {
+          setError("Your account is pending approval. Please wait for an admin to approve your account.");
+        } else {
+          const role = data.user?.role || data.role;
+          if (role === "publisher") {
+            window.location.href = "/dashboard/publisher";
+          } else if (role === "advertiser") {
+            window.location.href = "/dashboard/consumer";
+          } else {
+            window.location.href = "/dashboard";
+          }
+        }
+
+        return;
+      }
+
+      // Sign up / Request Access flow
+      if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
+        setError("Email, password, and confirm password are required.");
+        setLoading(false);
         return;
       }
       if (password !== confirmPassword) {
-        alert('Passwords do not match');
+        setError("Passwords do not match");
+        setLoading(false);
         return;
       }
-      // Request access / sign up
-      fetch('/api/request-access', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-        .then(async (res) => {
-          const json = await res.json();
-          if (json.success) {
-            alert('Request submitted. Your account will be activated after approval.');
-            resetForm();
-            onClose();
-          } else {
-            alert(json.error || 'Failed to submit request');
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          alert('Network error');
-        });
-      return;
-    }
 
-    // Login flow: call check-user to validate credentials and approval
-    fetch('/api/check-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.trim(), password, role: userType })
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const j = await res.json().catch(() => ({}));
-          alert(j.error || 'Login failed');
-          return;
-        }
-        const j = await res.json();
-        if (j.approved) {
-          // Redirect based on role
-          const role = j.user?.role;
-          if (role === 'publisher') {
-            window.location.href = '/dashboard/publisher';
-          } else if (role === 'advertiser') {
-            window.location.href = '/dashboard/consumer';
-          } else {
-            // Fallback
-            window.location.href = '/dashboard';
-          }
-        } else {
-          alert(j.error || 'Account pending approval');
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        alert('Network error');
+      const payload: any = {
+        email: email.trim(),
+        role: userType,
+        fullName: fullName.trim(),
+        phone: phone.trim(),
+        country: country.trim(),
+        traffic: traffic.trim() || "unknown",
+        numberOfWebsites: numberOfWebsites.trim() || "0",
+        message: message.trim(),
+      };
+
+      if (password) payload.password = password;
+      if (confirmPassword) payload.confirmPassword = confirmPassword;
+
+      const res = await fetch("/api/request-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(json.error || "Request failed");
+      }
+
+      setSubmitted(true);
+      resetForm();
+      onClose();
+    } catch (err: any) {
+      setError(err?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const resetForm = () => {
@@ -137,6 +156,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     setTraffic("");
     setNumberOfWebsites("");
     setMessage("");
+    setFullName("");
   };
 
   const handleClose = () => {
@@ -245,12 +265,26 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         <div className="p-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-white mb-2">
-              {isSignedIn ? "Request Access" : isLogin ? "Welcome Back" : "Create Account"}
+              {isLogin ? "Welcome Back" : "Create Account"}
             </h2>
             <p className="text-white/70">
-              {isSignedIn ? "Request access to become an advertiser or publisher" : isLogin ? "Sign in to your account" : "Sign up to get started"}
+              {isLogin ? "Sign in to your account" : "Sign up to get started"}
             </p>
           </div>
+
+          {/* Error alert (dismissible) */}
+          {error && (
+            <div className="mb-4 p-3 rounded-lg border border-red-400 bg-red-600/10 flex items-start justify-between">
+              <div className="mr-4 text-sm text-red-100">{error}</div>
+              <button
+                onClick={() => setError("")}
+                className="text-red-100/80 hover:text-red-100 text-xs px-2 py-1 rounded"
+                aria-label="Dismiss error"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
 
           {/* User type indicator */}
           {userType && (
@@ -272,76 +306,84 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             </div>
           )}
 
-          {/* Toggle between Login and Sign Up - only show for non-signed-in users */}
-          {!isSignedIn && (
-            <div className="flex mb-6 bg-white/10 rounded-full p-1">
-              <button
-                onClick={() => setIsLogin(true)}
-                className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
-                  isLogin 
-                    ? "bg-white text-orange-500 shadow" 
-                    : "text-white/70 hover:text-white"
-                }`}
-              >
-                Login
-              </button>
-              <button
-                onClick={() => setIsLogin(false)}
-                className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
-                  !isLogin 
-                    ? "bg-white text-orange-500 shadow" 
-                    : "text-white/70 hover:text-white"
-                }`}
-              >
-                Sign Up
-              </button>
-            </div>
-          )}
+          {/* Toggle between Login and Sign Up - always visible */}
+          <div className="flex mb-6 bg-white/10 rounded-full p-1">
+            <button
+              onClick={() => setIsLogin(true)}
+              className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
+                isLogin 
+                  ? "bg-white text-orange-500 shadow" 
+                  : "text-white/70 hover:text-white"
+              }`}
+            >
+              Login
+            </button>
+            <button
+              onClick={() => setIsLogin(false)}
+              className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
+                !isLogin 
+                  ? "bg-white text-orange-500 shadow" 
+                  : "text-white/70 hover:text-white"
+              }`}
+            >
+              Sign Up
+            </button>
+          </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email field - only show for non-signed-in users */}
-            {!isSignedIn && (
+            {/* Email field - always visible and editable (prefilled when signed-in) */}
+            <div>
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                required
+              />
+            </div>
+
+            {/* Full name (show for signup/request) */}
+            {!isLogin && (
               <div>
                 <input
-                  type="email"
-                  placeholder="Email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  placeholder="Full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   required
                 />
               </div>
             )}
+
+            {/* Company and Website fields removed per request */}
             
             {/* Password and confirmation fields - only for signup or non-signed-in users */}
             {!isLogin && (
               <>
-                {!isSignedIn && (
-                  <div>
-                    <input
-                      type="password"
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      required
-                    />
-                  </div>
-                )}
-                
-                {!isSignedIn && (
-                  <div>
-                    <input
-                      type="password"
-                      placeholder="Confirm Password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      required
-                    />
-                  </div>
-                )}
+                <div>
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="password"
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    required
+                  />
+                </div>
                 
                 <div>
                   <input
@@ -396,8 +438,8 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
               </>
             )}
             
-            {/* Password field for login - only for non-signed-in users */}
-            {isLogin && !isSignedIn && (
+            {/* Password field for login */}
+            {isLogin && (
               <div>
                 <input
                   type="password"

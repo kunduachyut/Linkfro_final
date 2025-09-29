@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 const FloatingAuthPanel = () => {
   const { isSignedIn, user } = useUser();
+  const [mounted, setMounted] = useState(false);
   const [allowed, setAllowed] = useState<boolean>(false);
   const [checking, setChecking] = useState<boolean>(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -47,6 +48,10 @@ const FloatingAuthPanel = () => {
       }
     };
   }, [isSignedIn]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleMouseEnter = () => {
     // Clear any existing close timeout
@@ -190,18 +195,20 @@ const FloatingAuthPanel = () => {
               </SignOutButton>
             </div>
           ) : (
-            <div className="flex space-x-2">
-              <SignInButton mode="modal">
-                <Button className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform hover:scale-[1.02] shadow-lg">
-                  Sign In
-                </Button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <Button className="flex-1 bg-white/20 border border-white/30 text-gray-800 hover:bg-white/30 py-2 px-4 rounded-full backdrop-blur-sm transition-all duration-300 transform hover:scale-[1.02] shadow-lg">
-                  Sign Up
-                </Button>
-              </SignUpButton>
-            </div>
+            mounted && (
+              <div className="flex space-x-2">
+                <SignInButton mode="modal">
+                  <Button className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-2 px-4 rounded-full transition-all duration-300 transform hover:scale-[1.02] shadow-lg">
+                    Sign In
+                  </Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button className="flex-1 bg-white/20 border border-white/30 text-gray-800 hover:bg-white/30 py-2 px-4 rounded-full backdrop-blur-sm transition-all duration-300 transform hover:scale-[1.02] shadow-lg">
+                    Sign Up
+                  </Button>
+                </SignUpButton>
+              </div>
+            )
           )}
         </div>
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import {
   SignedIn,
   SignedOut,
@@ -10,7 +11,12 @@ import {
 } from "@clerk/nextjs";
 
 export default function Header() {
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="flex justify-between items-center px-4 sm:px-6 lg:px-8 py-4 shadow w-full" style={{backgroundColor: 'var(--base-primary)', borderBottom: '1px solid var(--base-tertiary)'}}>
@@ -33,16 +39,20 @@ export default function Header() {
       {/* Auth Buttons */}
       <div className="flex items-center gap-2 sm:gap-4">
         <SignedOut>
-          <SignInButton>
-            <button className="button-secondary text-xs sm:text-sm font-medium h-6 sm:h-8 px-3 sm:px-4 flex items-center justify-center">
-              Login
-            </button>
-          </SignInButton>
-          <SignUpButton>
-            <button className="button-primary text-xs sm:text-sm font-medium h-6 sm:h-8 px-3 sm:px-4 flex items-center justify-center">
-              Sign Up
-            </button>
-          </SignUpButton>
+          {mounted && !isSignedIn && (
+            <>
+              <SignInButton>
+                <button className="button-secondary text-xs sm:text-sm font-medium h-6 sm:h-8 px-3 sm:px-4 flex items-center justify-center">
+                  Login
+                </button>
+              </SignInButton>
+              <SignUpButton>
+                <button className="button-primary text-xs sm:text-sm font-medium h-6 sm:h-8 px-3 sm:px-4 flex items-center justify-center">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </>
+          )}
         </SignedOut>
         <SignedIn>
           <div className="flex items-center gap-2">

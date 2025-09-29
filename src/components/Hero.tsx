@@ -14,6 +14,11 @@ const Hero = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { isSignedIn } = useUser();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // Check if mobile on mount and when window resizes
@@ -160,25 +165,27 @@ const Hero = () => {
                   <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </button>
               ) : (
-                <SignInButton mode="modal" signUpForceRedirectUrl="/">
-                  <button 
-                    className="flex items-center justify-center group w-full sm:w-auto text-center" 
-                    style={{
-                      backgroundColor: '#FE5C02',
-                      borderRadius: '1440px',
-                      boxSizing: 'border-box',
-                      color: '#FFFFFF',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      lineHeight: '20px',
-                      padding: '16px 24px', // Slightly reduced padding for mobile
-                      border: '1px solid white',
-                    }}
-                  >
-                    Request Access
-                    <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </button>
-                </SignInButton>
+                mounted && (
+                  <SignInButton mode="modal" signUpForceRedirectUrl="/">
+                    <button 
+                      className="flex items-center justify-center group w-full sm:w-auto text-center" 
+                      style={{
+                        backgroundColor: '#FE5C02',
+                        borderRadius: '1440px',
+                        boxSizing: 'border-box',
+                        color: '#FFFFFF',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        lineHeight: '20px',
+                        padding: '16px 24px', // Slightly reduced padding for mobile
+                        border: '1px solid white',
+                      }}
+                    >
+                      Request Access
+                      <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </button>
+                  </SignInButton>
+                )
               )}
             </div>
           </div>
