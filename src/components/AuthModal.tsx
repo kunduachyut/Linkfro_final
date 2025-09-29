@@ -28,6 +28,10 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [phoneForOtp, setPhoneForOtp] = useState("");
 
   useEffect(() => {
     // If user is already signed in, pre-fill their email and skip to user type selection
@@ -439,7 +443,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             )}
             
             {/* Password field for login */}
-            {isLogin && (
+            {isLogin && !forgotMode && (
               <div>
                 <input
                   type="password"
@@ -449,6 +453,113 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   required
                 />
+              </div>
+            )}
+
+            {/* Inline forgot password link (visible in login mode) */}
+            {isLogin && !forgotMode && (
+              <div className="w-full flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setForgotMode(true)}
+                  className="text-sm text-white/70 hover:text-white mt-2"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
+
+            {/* Forgot password flow */}
+            {isLogin && forgotMode && (
+              <div className="space-y-3">
+                <div>
+                  <input
+                    type="tel"
+                    placeholder="Registered phone number"
+                    value={phoneForOtp}
+                    onChange={(e) => setPhoneForOtp(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    required
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setLoading(true); setError("");
+                      try {
+                        const res = await fetch('/api/password-otp/send', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ email: email.trim(), phone: phoneForOtp.trim() })
+                        });
+                        const json = await res.json().catch(() => ({}));
+                        if (!res.ok) throw new Error(json.error || 'Failed to send OTP');
+                        setError('OTP sent — check server logs or your SMS');
+                      } catch (err: any) {
+                        setError(err?.message || 'Failed to send OTP');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    className="flex-1 py-2 px-4 bg-white/10 border border-white/20 rounded-xl text-white hover:bg-white/20"
+                  >
+                    Send OTP
+                  </button>
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Enter OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="password"
+                    placeholder="New password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setLoading(true); setError("");
+                      try {
+                        if (!otp.trim() || !newPassword.trim()) {
+                          setError('OTP and new password are required');
+                          setLoading(false);
+                          return;
+                        }
+                        const res = await fetch('/api/password-otp/verify', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ email: email.trim(), code: otp.trim(), newPassword: newPassword.trim() })
+                        });
+                        const json = await res.json().catch(() => ({}));
+                        if (!res.ok) throw new Error(json.error || 'Failed to verify OTP');
+                        setError('Password updated — you can now login with the new password');
+                        setForgotMode(false);
+                      } catch (err: any) {
+                        setError(err?.message || 'OTP verification failed');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    className="flex-1 py-2 px-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl"
+                  >
+                    Verify & Change Password
+                  </button>
+                </div>
               </div>
             )}
             
@@ -463,9 +574,15 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           {/* Footer links - only show for non-signed-in users */}
           {!isSignedIn && (
             <div className="mt-6 text-center">
-              <a href="#" className="text-white/70 hover:text-white text-sm">
-                {isLogin ? "Forgot password?" : "Already have an account? Sign in"}
-              </a>
+              {!forgotMode ? (
+                <a href="#" onClick={(e) => { e.preventDefault(); setForgotMode(true); }} className="text-white/70 hover:text-white text-sm">
+                  Forgot password?
+                </a>
+              ) : (
+                <a href="#" onClick={(e) => { e.preventDefault(); setForgotMode(false); }} className="text-white/70 hover:text-white text-sm">
+                  Back to login
+                </a>
+              )}
             </div>
           )}
         </div>

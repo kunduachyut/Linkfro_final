@@ -20,6 +20,8 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
+import Link from 'next/link';
+import { useUser } from '@clerk/clerk-react';
 
 const sidebarVariants = {
   open: {
@@ -85,6 +87,7 @@ export function PublisherSidebar({
 }: PublisherSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isPinned, setIsPinned] = useState(false);
+  const { user, isLoaded } = useUser();
   
   // Notify parent component when collapse state changes
   useEffect(() => {
@@ -252,17 +255,24 @@ export function PublisherSidebar({
           {/* Profile section at the bottom */}
           <div className="p-3 border-t border-gray-200">
             <div className="flex items-center">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-                <User className="h-4 w-4 text-blue-600" />
-              </div>
-              <motion.li variants={variants}>
-                {(!isCollapsed || isPinned) && (
-                  <div className="ml-2">
-                    <p className="text-xs font-semibold text-gray-900">Publisher</p>
-                    <p className="text-xs text-gray-500">View profile</p>
+              <Link href="/dashboard/profile" className="w-full">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+                    {isLoaded && user?.imageUrl ? (
+                      <img src={user.imageUrl} alt={user.fullName ?? 'Avatar'} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="h-4 w-4 text-blue-600" />
+                    )}
                   </div>
-                )}
-              </motion.li>
+
+                  <motion.li variants={variants}>
+                    <div className="ml-2">
+                      <p className="text-sm font-medium text-gray-800 truncate">{isLoaded ? (user?.fullName ?? 'Profile') : 'Profile'}</p>
+                      <p className="text-xs text-gray-500">View profile</p>
+                    </div>
+                  </motion.li>
+                </div>
+              </Link>
             </div>
           </div>
         </motion.ul>

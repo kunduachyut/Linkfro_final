@@ -19,7 +19,7 @@ interface IRequest extends Document {
 
 // --- Define Schema ---
 const requestSchema = new Schema<IRequest>({
-  email: { type: String, required: true },
+  email: { type: String, required: true, unique: true, index: true, lowercase: true },
   phone: { type: String },
   password: { type: String, required: true },
   country: { type: String },
@@ -76,12 +76,33 @@ export async function POST(req: Request) {
 
     // Build request data with optional fields
     const requestData: Partial<IRequest> & { email: string; password: string; role: string } = {
-      email: body.email,
+      email: String(body.email).toLowerCase(),
       password: body.password,
       role: body.role,
       status: 'pending',
       createdAt: new Date()
     };
+
+    // Ensure email is unique across Request and existing User records
+    // Check for existing Request
+    const existingRequest = await RequestModel.findOne({ email: requestData.email });
+    if (existingRequest) {
+      return NextResponse.json(
+        { success: false, error: 'A request with this email already exists' },
+        { status: 409 }
+      );
+    }
+
+    // Check for existing User (Clerk-managed) account
+    if ((mongoose.models as any).User) {
+      const existingUser = await (mongoose.models as any).User.findOne({ email: requestData.email });
+      if (existingUser) {
+        return NextResponse.json(
+          { success: false, error: 'An account with this email already exists. Please sign in.' },
+          { status: 409 }
+        );
+      }
+    }
 
     if (body.phone) requestData.phone = body.phone;
     if (body.country) requestData.country = body.country;

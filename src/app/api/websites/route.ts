@@ -491,6 +491,7 @@ async function getUserRole(userId: string): Promise<string> {
 
     // use Clerk to fetch user email
     try {
+      // Acquire a Clerk client instance (project uses clerkClient() pattern elsewhere)
       const client = await clerkClient();
       const user = await client.users.getUser(userId);
       const rawEmail = (user?.emailAddresses || []).find((e: any) => e?.primary === true)?.emailAddress

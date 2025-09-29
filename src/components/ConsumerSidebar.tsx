@@ -18,6 +18,8 @@ import {
   LogOut
 } from "lucide-react";
 import { useCart } from "../app/context/CartContext";
+import Link from 'next/link';
+import { useUser } from '@clerk/clerk-react';
 
 const sidebarVariants = {
   open: {
@@ -75,6 +77,7 @@ export function ConsumerSidebar({
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isPinned, setIsPinned] = useState(false);
   const { itemCount } = useCart();
+  const { user, isLoaded } = useUser();
   
   // Notify parent component when collapse state changes
   useEffect(() => {
@@ -252,18 +255,33 @@ export function ConsumerSidebar({
         {/* Profile section at the bottom */}
         <div className="p-3 border-t border-gray-200">
           <div className="flex items-center">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <User className="w-4 h-4 text-blue-600" />
-            </div>
-            <motion.div 
-              className="ml-2 overflow-hidden"
-              initial={isCollapsed && !isPinned ? "closed" : "open"}
-              animate={isCollapsed && !isPinned ? "closed" : "open"}
-              variants={textVariants}
-            >
-              <p className="text-xs font-semibold text-gray-900 whitespace-nowrap">Advertiser</p>
-              <p className="text-xs text-gray-500 whitespace-nowrap">View profile</p>
-            </motion.div>
+            {/* Profile link with avatar and name */}
+            <Link href="/dashboard/profile" className="w-full">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+                  {isLoaded && user?.imageUrl ? (
+                    <img src={user.imageUrl} alt={user.fullName ?? 'Avatar'} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <User className="w-4 h-4 text-blue-600" />
+                    </div>
+                  )}
+                </div>
+
+                <motion.div 
+                  className="ml-2 overflow-hidden"
+                  initial={isCollapsed && !isPinned ? "closed" : "open"}
+                  animate={isCollapsed && !isPinned ? "closed" : "open"}
+                  variants={textVariants}
+                >
+                  {/* Name and view link text */}
+                  <p className="text-sm font-medium text-gray-800 truncate">
+                    {isLoaded ? (user?.fullName ?? 'Profile') : 'Profile'}
+                  </p>
+                  <p className="text-xs text-gray-500">View profile</p>
+                </motion.div>
+              </div>
+            </Link>
           </div>
         </div>
       </div>

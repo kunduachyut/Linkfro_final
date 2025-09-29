@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import './ProfilePage.css';
+import Navbar from './Navbar';
 
 // Type definitions
 interface UserData {
@@ -93,31 +94,34 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="profile-page">
-      <div className="profile-header">
-        <h1>My Profile</h1>
-      </div>
+    <>
+      <Navbar />
+      <div className="profile-page">
+        <div className="profile-header">
+          <h1>My Profile</h1>
+        </div>
 
-      <UserProfileSection 
-        user={user}
-        joinDate={formatJoinDate()}
-      />
-
-      <div className="info-sections">
-        <BasicInformationSection 
+        <UserProfileSection 
           user={user}
-          userData={userData}
-          onInputChange={handleInputChange}
+          joinDate={formatJoinDate()}
         />
-        
-        <PaymentInformationSection 
-          userData={userData}
-          onInputChange={handleInputChange}
-        />
-      </div>
 
-      <ActionButtons onSave={handleSaveChanges} />
-    </div>
+        <div className="info-sections">
+          <BasicInformationSection 
+            user={user}
+            userData={userData}
+            onInputChange={handleInputChange}
+          />
+          
+          <PaymentInformationSection 
+            userData={userData}
+            onInputChange={handleInputChange}
+          />
+        </div>
+
+        <ActionButtons onSave={handleSaveChanges} />
+      </div>
+    </>
   );
 };
 
