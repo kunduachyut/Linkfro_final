@@ -99,25 +99,34 @@ const ProfilePage: React.FC = () => {
           <h1>My Profile</h1>
         </div>
 
-        <UserProfileSection 
-          user={user}
-          joinDate={formatJoinDate()}
-        />
+        <div className="profile-content">
+          {/* Left Sidebar */}
+          <div className="profile-sidebar">
+            <UserProfileSection 
+              user={user}
+              joinDate={formatJoinDate()}
+            />
+            <button className="password-change-btn">
+              Password Change
+            </button>
+          </div>
 
-        <div className="info-sections">
-          <BasicInformationSection 
-            user={user}
-            userData={userData}
-            onInputChange={handleInputChange}
-          />
-          
-          <PaymentInformationSection 
-            userData={userData}
-            onInputChange={handleInputChange}
-          />
+          {/* Right Main Content */}
+          <div className="profile-main-content">
+            <BasicInformationSection 
+              user={user}
+              userData={userData}
+              onInputChange={handleInputChange}
+            />
+            
+            <PaymentInformationSection 
+              userData={userData}
+              onInputChange={handleInputChange}
+            />
+
+            <ActionButtons onSave={handleSaveChanges} />
+          </div>
         </div>
-
-        <ActionButtons onSave={handleSaveChanges} />
       </div>
     </>
   );
@@ -132,50 +141,44 @@ const UserProfileSection: React.FC<UserProfileSectionProps> = ({ user, joinDate 
   const formattedLastLogin = lastLogin ? new Date(lastLogin).toLocaleString() : 'Never logged in';
 
   return (
-    <div className="profile-section">
-      <div className="user-info-card">
-        <div className="user-avatar">
-          <img 
-            src={user.imageUrl} 
-            alt={user.fullName || 'User'} 
-            className="avatar-image"
-          />
-        </div>
+    <div className="user-info-card">
+      <div className="user-avatar">
+        <img 
+          src={user.imageUrl} 
+          alt={user.fullName || 'User'} 
+          className="avatar-image"
+        />
+      </div>
 
-        <div className="user-details">
-          <h2>{user.fullName || 'Santanu Rakshit'}</h2>
-          <p className="user-role">{role}</p>
+      <div className="user-details">
+        <h2>{user.fullName || 'Santanu Rakshit'}</h2>
+        <p className="user-role">{role}</p>
+        
+        <div className="user-meta-grid">
+          <div className="meta-item">
+            <span className="meta-label">Account Status</span>
+            <div className="status-with-indicator">
+              <span className="status-indicator active"></span>
+              <span className="meta-value">{accountStatus}</span>
+            </div>
+          </div>
           
-          <div className="user-meta-grid">
-            <div className="meta-item">
-              <span className="meta-label">Account Status</span>
-              <div className="status-with-indicator">
-                <span className="status-indicator active"></span>
-                <span className="meta-value">{accountStatus}</span>
-              </div>
-            </div>
-            
-            <div className="meta-item">
-              <span className="meta-label">Last Sign In</span>
-              <span className="meta-value">{formattedLastLogin}</span>
-            </div>
-            
-            <div className="meta-item">
-              <span className="meta-label">Date Joined</span>
-              <span className="meta-value">{joinDate}</span>
-            </div>
-            
-            <div className="meta-item">
-              <span className="meta-label">User ID</span>
-              <span className="meta-value">{user.id}</span>
-            </div>
+          <div className="meta-item">
+            <span className="meta-label">Last Sign In</span>
+            <span className="meta-value">{formattedLastLogin}</span>
+          </div>
+          
+          <div className="meta-item">
+            <span className="meta-label">Date Joined</span>
+            <span className="meta-value">{joinDate}</span>
+          </div>
+          
+          <div className="meta-item">
+            <span className="meta-label">User ID</span>
+            <span className="meta-value">{user.id}</span>
           </div>
         </div>
       </div>
-
-      <button className="password-change-btn">
-        Password Change
-      </button>
     </div>
   );
 };
