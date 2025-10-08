@@ -240,51 +240,72 @@ export function AddWebsiteForm({
       });
     }
   };
-  
+
+  // Update functions for step 2 and step 3
   const updateStep2Data = (field: keyof typeof step2Data, value: string) => {
     setStep2Data((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (step2Errors[field]) {
       setStep2Errors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
+        const newErrors = { ...prev } as Record<string, string>;
+        delete newErrors[field as string];
         return newErrors;
       });
     }
   };
-  
-  const updateStep3Data = (field: keyof typeof step3Data, value: string | string[]) => {
+
+  const updateStep3Data = (field: keyof typeof step3Data, value: string) => {
     setStep3Data((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (step3Errors[field]) {
       setStep3Errors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
+        const newErrors = { ...prev } as Record<string, string>;
+        delete newErrors[field as string];
         return newErrors;
       });
     }
   };
-  
+
+  // Countries helpers used by the UI
   const addCountry = (country: string) => {
-    if (!step3Data.primeTrafficCountries.includes(country)) {
-      updateStep3Data("primeTrafficCountries", [...step3Data.primeTrafficCountries, country]);
-    }
+    if (!country) return;
+    setStep3Data(prev => {
+      const list = Array.isArray(prev.primeTrafficCountries) ? [...prev.primeTrafficCountries] : [];
+      if (!list.includes(country)) list.push(country);
+      return { ...prev, primeTrafficCountries: list };
+    });
   };
-  
+
   const removeCountry = (index: number) => {
-    const newCountries = [...step3Data.primeTrafficCountries];
-    newCountries.splice(index, 1);
-    updateStep3Data("primeTrafficCountries", newCountries);
+    setStep3Data(prev => {
+      const list = Array.isArray(prev.primeTrafficCountries) ? [...prev.primeTrafficCountries] : [];
+      list.splice(index, 1);
+      return { ...prev, primeTrafficCountries: list };
+    });
   };
-  
+
   const handleAddCountry = () => {
-    if (searchTerm.trim()) {
-      const country = searchTerm.trim();
-      if (!step3Data.primeTrafficCountries.includes(country)) {
-        addCountry(country);
-        setSearchTerm('');
-      }
+    const candidate = searchTerm.trim();
+    if (!candidate) return;
+    addCountry(candidate);
+    setSearchTerm('');
+    setCountrySearchTerm('');
+    setShowCountryDropdown(false);
+  };
+
+  // Validate step 1 (basic info)
+  const validateStep1 = () => {
+    const errors: Record<string, string> = {};
+    if (!step1Data.domainName || !step1Data.domainName.trim()) {
+      errors.domainName = 'Domain name is required';
     }
+    if (!step1Data.price || isNaN(Number(step1Data.price)) || Number(step1Data.price) < 0) {
+      errors.price = 'Price is required and must be a positive number';
+    }
+    if (!step1Data.category || !step1Data.category.trim()) {
+      errors.category = 'Category is required';
+    }
+    // websiteUrl and description are optional per requirements
+    setStep1Errors(errors);
+    return Object.keys(errors).length === 0;
   };
   
   const handleCountryKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -298,93 +319,51 @@ export function AddWebsiteForm({
     setSearchTerm(e.target.value);
   };
   
-  const handleCountryBlur = () => {
-    // Add the country when user clicks away and there's text
-    if (searchTerm.trim()) {
-      handleAddCountry();
-    }
-  };
-
-  // Validation functions
-  const validateStep1 = () => {
-    const errors: Record<string, string> = {};
-    
-    if (!step1Data.domainName.trim()) {
-      errors.domainName = "Domain name is required";
-    }
-    
-    // websiteUrl is optional. Only validate it if the user provided a value.
-    if (step1Data.websiteUrl && step1Data.websiteUrl.trim()) {
-      // Allow URLs with or without http/https prefix
-      let urlToTest = step1Data.websiteUrl.trim();
-      if (!/^https?:\/\//i.test(urlToTest)) {
-        urlToTest = `https://${urlToTest}`;
-      }
-
-      try {
-        new URL(urlToTest);
-      } catch (e) {
-        errors.websiteUrl = "Please enter a valid URL";
-      }
-    }
-    
-    if (!step1Data.category) {
-      errors.category = "Category is required";
-    }
-    
-    if (!step1Data.price) {
-      errors.price = "Price is required";
-    } else if (isNaN(Number(step1Data.price)) || Number(step1Data.price) < 0) {
-      errors.price = "Please enter a valid price";
-    }
-    
-    if (!step1Data.description.trim()) {
-      errors.description = "Description is required";
-    }
-    
-    setStep1Errors(errors);
-    return Object.keys(errors).length === 0;
-  };
-  
   const validateStep2 = () => {
     const errors: Record<string, string> = {};
-    
+
+    // DA is required
     if (!step2Data.DA) {
       errors.DA = "DA is required";
     } else if (isNaN(Number(step2Data.DA)) || Number(step2Data.DA) < 0 || Number(step2Data.DA) > 100) {
       errors.DA = "DA must be between 0 and 100";
     }
-    
-    if (!step2Data.PA) {
-      errors.PA = "PA is required";
-    } else if (isNaN(Number(step2Data.PA)) || Number(step2Data.PA) < 0 || Number(step2Data.PA) > 100) {
-      errors.PA = "PA must be between 0 and 100";
+
+    // PA is optional; validate only when provided
+    if (step2Data.PA) {
+      if (isNaN(Number(step2Data.PA)) || Number(step2Data.PA) < 0 || Number(step2Data.PA) > 100) {
+        errors.PA = "PA must be between 0 and 100";
+      }
     }
-    
+
+    // DR is required
     if (!step2Data.DR) {
       errors.DR = "DR is required";
     } else if (isNaN(Number(step2Data.DR)) || Number(step2Data.DR) < 0 || Number(step2Data.DR) > 100) {
       errors.DR = "DR must be between 0 and 100";
     }
-    
+
+    // Spam is required
     if (!step2Data.spam) {
       errors.spam = "Spam score is required";
     } else if (isNaN(Number(step2Data.spam)) || Number(step2Data.spam) < 0 || Number(step2Data.spam) > 100) {
       errors.spam = "Spam score must be between 0 and 100";
     }
-    
+
+    // Organic traffic is required
     if (!step2Data.organicTraffic) {
       errors.organicTraffic = "Organic traffic is required";
     } else if (isNaN(Number(step2Data.organicTraffic)) || Number(step2Data.organicTraffic) < 0) {
       errors.organicTraffic = "Organic traffic must be a positive number";
     }
-    
-    if (!step2Data.rdLink) {
-      errors.rdLink = "RD link is required";
-    } else if (isNaN(Number(step2Data.rdLink)) || Number(step2Data.rdLink) < 0) {
-      errors.rdLink = "RD link must be a positive number";
+
+    // Referring domains (rdLink) are optional; if provided, validate as a positive number
+    if (step2Data.rdLink) {
+      if (isNaN(Number(step2Data.rdLink)) || Number(step2Data.rdLink) < 0) {
+        errors.rdLink = "RD link must be a positive number";
+      }
     }
-    
+
     setStep2Errors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -596,6 +575,7 @@ export function AddWebsiteForm({
                     
                     <motion.div variants={fadeInUp} className="space-y-2">
                       <Label htmlFor="websiteUrl">Order accepted e-mail *</Label>
+                      <Label htmlFor="websiteUrl">Website URL (optional)</Label>
                       <Input
                         id="websiteUrl"
                         placeholder="https://example.com or www.example.com"
@@ -722,7 +702,7 @@ export function AddWebsiteForm({
                           <p className="text-sm text-red-500">{step2Errors.PA}</p>
                         )}
                       </motion.div>
-                      
+
                       <motion.div variants={fadeInUp} className="space-y-2">
                         <Label htmlFor="DR">DR *</Label>
                         <Input
@@ -739,7 +719,7 @@ export function AddWebsiteForm({
                           <p className="text-sm text-red-500">{step2Errors.DR}</p>
                         )}
                       </motion.div>
-                      
+
                       <motion.div variants={fadeInUp} className="space-y-2">
                         <Label htmlFor="spam">Spam *</Label>
                         <Input

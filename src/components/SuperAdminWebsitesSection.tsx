@@ -315,6 +315,10 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
   const [failedFlags, setFailedFlags] = useState<Record<string, boolean>>({});
   // State to hold website pending approve-confirmation when no extra price was entered
   const [confirmApproveWebsite, setConfirmApproveWebsite] = useState<{ id: string; title?: string } | null>(null);
+  // Edit modal state for super admins
+  const [editingWebsite, setEditingWebsite] = useState<Website | null>(null);
+  const [editForm, setEditForm] = useState<Record<string, any>>({});
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // Load country flags from REST Countries API
   useEffect(() => {
@@ -355,6 +359,91 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
       console.error('Failed to copy email: ', err);
     }
   };
+
+  // --- Filter state (similar to PublisherWebsitesSection) ---
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "available" | "unavailable">("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [minDA, setMinDA] = useState<string>("");
+  const [maxDA, setMaxDA] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+
+  const uniqueCategories = Array.from(new Set((websites || []).flatMap(w => {
+    if (!w.category) return [];
+    return Array.isArray(w.category) ? w.category : [w.category];
+  })).values()).filter(Boolean);
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setShowFilters(false);
+    setAvailabilityFilter("all");
+    setCategoryFilter("all");
+    setMinPrice("");
+    setMaxPrice("");
+    setMinDA("");
+    setMaxDA("");
+    setStartDate("");
+    setEndDate("");
+  };
+
+  const filteredWebsites = (websites || []).filter((w) => {
+    // Search (title, url, description)
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      const hay = `${w.title || ''} ${w.url || ''} ${w.description || ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+
+    // Availability
+    if (availabilityFilter !== 'all') {
+      const isAvailable = Boolean((w as any).available);
+      if (availabilityFilter === 'available' && !isAvailable) return false;
+      if (availabilityFilter === 'unavailable' && isAvailable) return false;
+    }
+
+    // Category
+    if (categoryFilter !== 'all') {
+      const cats = w.category ? (Array.isArray(w.category) ? w.category : [w.category]) : [];
+      if (!cats.map(c => String(c).toLowerCase()).includes(categoryFilter.toLowerCase())) return false;
+    }
+
+    // Price range (publisher-visible price: originalPriceCents or priceCents - adminExtra)
+    const priceCents = (w as any).originalPriceCents ?? (w.priceCents ?? 0) - ((w as any).adminExtraPriceCents ?? 0);
+    if (minPrice) {
+      const minC = Math.round(parseFloat(minPrice) * 100);
+      if (!Number.isNaN(minC) && priceCents < minC) return false;
+    }
+    if (maxPrice) {
+      const maxC = Math.round(parseFloat(maxPrice) * 100);
+      if (!Number.isNaN(maxC) && priceCents > maxC) return false;
+    }
+
+    // DA range
+    if (minDA) {
+      const minDAN = Number(minDA);
+      if (!Number.isNaN(minDAN) && (w.DA ?? 0) < minDAN) return false;
+    }
+    if (maxDA) {
+      const maxDAN = Number(maxDA);
+      if (!Number.isNaN(maxDAN) && (w.DA ?? 0) > maxDAN) return false;
+    }
+
+    // Date range (createdAt)
+    if (startDate) {
+      const sd = new Date(startDate);
+      if (!isNaN(sd.getTime()) && new Date(w.createdAt) < sd) return false;
+    }
+    if (endDate) {
+      const ed = new Date(endDate);
+      if (!isNaN(ed.getTime()) && new Date(w.createdAt) > ed) return false;
+    }
+
+    return true;
+  });
 
   // Get status badge component
   const getStatusBadge = (status: Website["status"]) => {
@@ -424,18 +513,224 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
             </div>
           </div>
         )}
+
+        {/* Edit Website Modal (Super Admin) */}
+        {editingWebsite && (
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 bg-black bg-opacity-50">
+            <div className="bg-white rounded-xl p-6 max-w-3xl w-full shadow-xl">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Edit Website - {editingWebsite.title}</h3>
+                <button onClick={() => { setEditingWebsite(null); setEditForm({}); }} className="text-gray-500 hover:text-gray-700">Close</button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600">Title</label>
+                  <input value={editForm.title ?? editingWebsite.title} onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+
+                  <label className="block text-xs font-medium text-gray-600 mt-3">URL</label>
+                  <input value={editForm.url ?? editingWebsite.url} onChange={(e) => setEditForm(prev => ({ ...prev, url: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+
+                  <label className="block text-xs font-medium text-gray-600 mt-3">Description</label>
+                  <textarea value={editForm.description ?? editingWebsite.description} onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+
+                  <label className="block text-xs font-medium text-gray-600 mt-3">Category (comma separated)</label>
+                  <input value={editForm.category ?? (Array.isArray(editingWebsite.category) ? editingWebsite.category.join(', ') : editingWebsite.category ?? '')} onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600">Price (USD)</label>
+                  <input type="number" step="0.01" value={editForm.price ?? (editingWebsite.priceCents ? (editingWebsite.priceCents / 100).toFixed(2) : editingWebsite.price ?? '')} onChange={(e) => setEditForm(prev => ({ ...prev, price: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+
+                  <label className="block text-xs font-medium text-gray-600 mt-3">Admin Extra (USD)</label>
+                  <input type="number" step="0.01" value={editForm.adminExtra ?? ((editingWebsite as any).adminExtraPriceCents ? ((editingWebsite as any).adminExtraPriceCents / 100).toFixed(2) : '')} onChange={(e) => setEditForm(prev => ({ ...prev, adminExtra: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+
+                  <label className="block text-xs font-medium text-gray-600 mt-3">Status</label>
+                  <select value={editForm.status ?? editingWebsite.status} onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded">
+                    <option value="pending">pending</option>
+                    <option value="approved">approved</option>
+                    <option value="rejected">rejected</option>
+                    <option value="priceConflict">priceConflict</option>
+                  </select>
+
+                  <label className="block text-xs font-medium text-gray-600 mt-3">Image URL</label>
+                  <input value={editForm.image ?? editingWebsite.image ?? ''} onChange={(e) => setEditForm(prev => ({ ...prev, image: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mt-3">DA</label>
+                  <input type="number" value={editForm.DA ?? editingWebsite.DA ?? ''} onChange={(e) => setEditForm(prev => ({ ...prev, DA: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+
+                  <label className="block text-xs font-medium text-gray-600 mt-3">DR</label>
+                  <input type="number" value={editForm.DR ?? editingWebsite.DR ?? ''} onChange={(e) => setEditForm(prev => ({ ...prev, DR: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+
+                  <label className="block text-xs font-medium text-gray-600 mt-3">PA</label>
+                  <input type="number" value={editForm.PA ?? editingWebsite.PA ?? ''} onChange={(e) => setEditForm(prev => ({ ...prev, PA: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mt-3">Spam</label>
+                  <input type="number" value={editForm.Spam ?? editingWebsite.Spam ?? ''} onChange={(e) => setEditForm(prev => ({ ...prev, Spam: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+
+                  <label className="block text-xs font-medium text-gray-600 mt-3">Organic Traffic</label>
+                  <input type="number" value={editForm.OrganicTraffic ?? editingWebsite.OrganicTraffic ?? ''} onChange={(e) => setEditForm(prev => ({ ...prev, OrganicTraffic: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+
+                  <label className="block text-xs font-medium text-gray-600 mt-3">Traffic Value</label>
+                  <input type="number" value={editForm.trafficValue ?? editingWebsite.trafficValue ?? ''} onChange={(e) => setEditForm(prev => ({ ...prev, trafficValue: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-medium text-gray-600 mt-3">Special Notes</label>
+                  <textarea value={editForm.specialNotes ?? editingWebsite.specialNotes ?? ''} onChange={(e) => setEditForm(prev => ({ ...prev, specialNotes: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+
+                  <label className="block text-xs font-medium text-gray-600 mt-3">Prime Traffic Countries (comma separated)</label>
+                  <input value={editForm.primeTrafficCountries ?? (editingWebsite.primeTrafficCountries ? editingWebsite.primeTrafficCountries.join(', ') : '')} onChange={(e) => setEditForm(prev => ({ ...prev, primeTrafficCountries: e.target.value }))} className="mt-1 w-full px-2 py-1 border rounded" />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-4">
+                <button onClick={() => { setEditingWebsite(null); setEditForm({}); }} className="px-4 py-2 bg-gray-100 rounded">Cancel</button>
+                <button disabled={isSavingEdit} onClick={async () => {
+                  try {
+                    setIsSavingEdit(true);
+                    const id = editingWebsite.id;
+                    const body: any = {};
+                    // Simple mapping from editForm into API body
+                    if (editForm.title !== undefined) body.title = editForm.title;
+                    if (editForm.url !== undefined) body.url = editForm.url;
+                    if (editForm.description !== undefined) body.description = editForm.description;
+                    if (editForm.category !== undefined) body.category = editForm.category ? editForm.category.split(',').map((s: string) => s.trim()) : undefined;
+                    // price in dollars -> cents
+                    if (editForm.price !== undefined) {
+                      const p = parseFloat(editForm.price);
+                      if (!Number.isNaN(p)) body.priceCents = Math.round(p * 100);
+                    }
+                    if (editForm.adminExtra !== undefined) {
+                      const a = parseFloat(editForm.adminExtra);
+                      if (!Number.isNaN(a)) body.adminExtraPriceCents = Math.round(a * 100);
+                    }
+                    if (editForm.status !== undefined) body.status = editForm.status;
+                    if (editForm.image !== undefined) body.image = editForm.image;
+                    if (editForm.DA !== undefined) body.DA = Number(editForm.DA) || 0;
+                    if (editForm.DR !== undefined) body.DR = Number(editForm.DR) || 0;
+                    if (editForm.PA !== undefined) body.PA = Number(editForm.PA) || 0;
+                    if (editForm.Spam !== undefined) body.Spam = Number(editForm.Spam) || 0;
+                    if (editForm.OrganicTraffic !== undefined) body.OrganicTraffic = Number(editForm.OrganicTraffic) || 0;
+                    if (editForm.trafficValue !== undefined) body.trafficValue = Number(editForm.trafficValue) || 0;
+                    if (editForm.specialNotes !== undefined) body.specialNotes = editForm.specialNotes;
+                    if (editForm.primeTrafficCountries !== undefined) body.primeTrafficCountries = editForm.primeTrafficCountries ? editForm.primeTrafficCountries.split(',').map((s: string) => s.trim()) : [];
+
+                    // Send PATCH
+                    const res = await fetch(`/api/websites/${id}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(body),
+                    });
+
+                    if (res.ok) {
+                      // refresh list and close modal
+                      await refresh();
+                      setEditingWebsite(null);
+                      setEditForm({});
+                    } else {
+                      const err = await res.json().catch(() => ({}));
+                      alert('Failed to save website: ' + JSON.stringify(err));
+                    }
+                  } catch (error) {
+                    console.error('Error saving website edit:', error);
+                    alert('Network error while saving website');
+                  } finally {
+                    setIsSavingEdit(false);
+                  }
+                }} className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-50">{isSavingEdit ? 'Saving...' : 'Save'}</button>
+              </div>
+            </div>
+          </div>
+        )}
         
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Website Moderation</h2>
-          <button
-            onClick={refresh}
-            className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
-            title="Refresh"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
+        <div className="p-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-gray-900">Website Moderation</h2>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Search websites..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100 transition-colors relative"
+                title="Filters"
+              >
+                <span className="material-symbols-outlined">filter_list</span>
+                {(availabilityFilter !== "all" || categoryFilter !== "all" || minPrice || maxPrice || minDA || maxDA || startDate || endDate) && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+                )}
+              </button>
+              <button
+                onClick={refresh}
+                className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                title="Refresh"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Filters panel */}
+          {showFilters && (
+            <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-4 mt-4">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-md font-medium text-gray-900">Filters</h3>
+                <button onClick={clearFilters} className="text-sm text-blue-600 hover:text-blue-800">Clear all</button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Availability</label>
+                  <select value={availabilityFilter} onChange={(e) => setAvailabilityFilter(e.target.value as any)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                    <option value="all">All</option>
+                    <option value="available">Available</option>
+                    <option value="unavailable">Unavailable</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                    <option value="all">All Categories</option>
+                    {uniqueCategories.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Price Range ($)</label>
+                  <div className="flex gap-2">
+                    <input type="number" placeholder="Min" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                    <input type="number" placeholder="Max" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">DA Range</label>
+                  <div className="flex gap-2">
+                    <input type="number" placeholder="Min" value={minDA} onChange={(e) => setMinDA(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                    <input type="number" placeholder="Max" value={maxDA} onChange={(e) => setMaxDA(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                  <div className="flex gap-2">
+                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         
         {/* Stats Cards */}
@@ -545,7 +840,7 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            {(websites || []).length === 0 ? (
+                {(filteredWebsites || []).length === 0 ? (
               <div className="p-12 text-center">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -594,7 +889,7 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {(websites || []).map((website, idx) => {
+                    {(filteredWebsites || []).map((website, idx) => {
                       return (
                         <tr key={website.id || idx} className="hover:bg-gray-50">
                           {filter === "pending" && (
@@ -912,6 +1207,37 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                                     </svg>
                                   </button>
                                 )}
+                                {/* Edit button visible to superadmin */}
+                                <button
+                                  onClick={() => {
+                                    // prefill edit form
+                                    setEditingWebsite(website);
+                                    setEditForm({
+                                      title: website.title ?? '',
+                                      url: website.url ?? '',
+                                      description: website.description ?? '',
+                                      category: Array.isArray(website.category) ? website.category.join(', ') : website.category ?? '',
+                                      price: website.priceCents ? (website.priceCents / 100).toFixed(2) : website.price ? website.price.toFixed(2) : '',
+                                      adminExtra: (website as any).adminExtraPriceCents ? ((website as any).adminExtraPriceCents / 100).toFixed(2) : '',
+                                      status: website.status,
+                                      image: website.image ?? '',
+                                      DA: website.DA ?? '',
+                                      DR: website.DR ?? '',
+                                      PA: website.PA ?? '',
+                                      Spam: website.Spam ?? '',
+                                      OrganicTraffic: website.OrganicTraffic ?? '',
+                                      trafficValue: website.trafficValue ?? '',
+                                      specialNotes: website.specialNotes ?? '',
+                                      primeTrafficCountries: website.primeTrafficCountries ? website.primeTrafficCountries.join(', ') : ''
+                                    });
+                                  }}
+                                  className="text-indigo-600 hover:text-indigo-900"
+                                  title="Edit website"
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5h6M11 12h6M11 19h6M4 6h.01M4 13h.01M4 20h.01" />
+                                  </svg>
+                                </button>
                               </div>
                             </div>
                           </td>
