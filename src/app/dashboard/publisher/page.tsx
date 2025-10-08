@@ -279,6 +279,10 @@ export default function PublisherDashboard() {
 
   // Function to handle editing a website with multiple categories
   function editWebsite(website: any) {
+    if (!website) {
+      console.warn('editWebsite called with empty website');
+      return;
+    }
     setEditingWebsite(website);
     
     // Handle category field - convert array to comma-separated string if needed
@@ -306,7 +310,15 @@ export default function PublisherDashboard() {
       url: website.url,
       description: website.description,
       category: categoryValue,
-      price: (((website as any).originalPriceCents != null ? (website as any).originalPriceCents : website.priceCents) / 100).toString(),
+      // Ensure price is parsed defensively and formatted as string
+      price: ((): string => {
+        const op = (website as any).originalPriceCents;
+        const pc = website.priceCents ?? website.price;
+        const cents = (typeof op === 'number' && !Number.isNaN(op)) ? op
+          : (typeof pc === 'number' && !Number.isNaN(pc)) ? pc
+          : 0;
+        return (cents / 100).toString();
+      })(),
       DA: website.DA?.toString() || '',
       PA: website.PA?.toString() || '',
       Spam: website.Spam?.toString() || '',
@@ -324,35 +336,92 @@ export default function PublisherDashboard() {
     setActiveTab('add-website');
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent, overrideData?: any) {
     e.preventDefault();
     setFormLoading(true);
 
     try {
-      // Process category data to convert from comma-separated string to array
+      // If overrideData is provided, use that as submitData (constructed by caller)
+      if (overrideData) {
+        // eslint-disable-next-line no-console
+        console.debug('Using override submitData provided by caller:', overrideData);
+      }
+
+      // Process category data to convert from comma-separated string to array (only if not overridden)
       let processedCategory: string[] = [];
-      if (typeof formData.category === 'string' && formData.category.includes(',')) {
-        processedCategory = formData.category.split(',').map(cat => cat.trim()).filter(Boolean);
-      } else if (typeof formData.category === 'string' && formData.category.trim()) {
-        processedCategory = [formData.category.trim()];
-      } else if (Array.isArray(formData.category)) {
-        processedCategory = formData.category;
+      if (!overrideData) {
+        if (typeof formData.category === 'string' && formData.category.includes(',')) {
+          processedCategory = formData.category.split(',').map(cat => cat.trim()).filter(Boolean);
+        } else if (typeof formData.category === 'string' && formData.category.trim()) {
+          processedCategory = [formData.category.trim()];
+        } else if (Array.isArray(formData.category)) {
+          processedCategory = formData.category;
+        }
       }
 
       // Ensure greyNicheAccepted is a boolean in submitted payload
-      const submitData = {
-        ...formData,
-        greyNicheAccepted: formData.greyNicheAccepted === true ? true : false,
-        category: processedCategory,
-        priceCents: Math.round(parseFloat(formData.price) * 100),
-        DA: formData.DA ? parseInt(formData.DA) : undefined,
-        PA: formData.PA ? parseInt(formData.PA) : undefined,
-        Spam: formData.Spam ? parseInt(formData.Spam) : undefined,
-        OrganicTraffic: formData.OrganicTraffic ? parseInt(formData.OrganicTraffic) : undefined,
-        DR: formData.DR ? parseInt(formData.DR) : undefined,
-        // Ensure status is set to pending for new submissions
-        ...(editingWebsite ? {} : { status: "pending" })
+      // Compute priceCents defensively: check overrideData.price first (multi-step flow), then formData.price,
+      // then fall back to editingWebsite originalPriceCents or priceCents.
+      const priceSource = overrideData?.price ?? formData.price;
+      const parsedPrice = parseFloat(String(priceSource || '').trim());
+      let computedPriceCents: number | undefined;
+      if (!Number.isNaN(parsedPrice) && parsedPrice !== Infinity) {
+        computedPriceCents = Math.round(parsedPrice * 100);
+      } else if (editingWebsite) {
+        // Prefer originalPriceCents when editing existing site
+        const op = (editingWebsite as any).originalPriceCents;
+        const pc = editingWebsite.priceCents ?? editingWebsite.price;
+        if (typeof op === 'number' && !Number.isNaN(op)) computedPriceCents = op;
+        else if (typeof pc === 'number' && !Number.isNaN(pc)) computedPriceCents = pc;
+      }
+
+      // If overrideData provided, allow its category to be processed too (it may be a comma string)
+      let finalCategory = processedCategory;
+      if (overrideData && overrideData.category) {
+        if (typeof overrideData.category === 'string' && overrideData.category.includes(',')) {
+          finalCategory = overrideData.category.split(',').map((cat: string) => cat.trim()).filter(Boolean);
+        } else if (typeof overrideData.category === 'string' && overrideData.category.trim()) {
+          finalCategory = [overrideData.category.trim()];
+        } else if (Array.isArray(overrideData.category)) {
+          finalCategory = overrideData.category;
+        }
+      }
+
+      // Build the final submit payload by merging overrideData (if any) with normalized/derived fields
+      const base = overrideData ? { ...overrideData } : { ...formData };
+      const submitData: any = {
+        ...base,
+        greyNicheAccepted: (base.greyNicheAccepted === true) || (formData.greyNicheAccepted === true) ? true : false,
+        category: finalCategory,
+        // Include both numeric priceCents and human-readable price (float) to be safe
+        ...(computedPriceCents !== undefined ? { priceCents: computedPriceCents, price: computedPriceCents / 100 } : {}),
+        DA: base.DA ? parseInt(String(base.DA)) : undefined,
+        PA: base.PA ? parseInt(String(base.PA)) : undefined,
+        Spam: base.Spam ? parseInt(String(base.Spam)) : undefined,
+        OrganicTraffic: base.OrganicTraffic ? parseInt(String(base.OrganicTraffic)) : undefined,
+        DR: base.DR ? parseInt(String(base.DR)) : undefined,
       };
+
+      // If this is an edit by the publisher, force it back to pending approval and clear any admin extras.
+      if (editingWebsite) {
+        submitData.status = 'pending';
+        if (computedPriceCents !== undefined) {
+          // publisher-updated price should be stored as originalPriceCents
+          submitData.originalPriceCents = computedPriceCents;
+          // set authoritative consumer price to publisher price until admin re-applies extras
+          submitData.priceCents = computedPriceCents;
+          submitData.price = computedPriceCents / 100;
+        }
+        // Clear previous admin extra so admin can review/re-apply
+        submitData.adminExtraPriceCents = 0;
+      } else {
+        // Ensure status is set to pending for new submissions
+        submitData.status = 'pending';
+      }
+
+      // Debug: log what we're sending so we can verify server receives the intended price
+      // eslint-disable-next-line no-console
+      console.debug('Submitting website update payload:', submitData);
 
       let res;
       if (editingWebsite) {
@@ -371,16 +440,54 @@ export default function PublisherDashboard() {
         });
       }
 
+  const result = await res.json();
+  // Debug: log server response from PATCH to verify originalPriceCents is returned
+  // Remove or lower verbosity in production if needed.
+  // eslint-disable-next-line no-console
+  console.debug('Website PATCH result:', result);
       if (res.ok) {
         // Replace alert with success message
         setSuccessMessage(editingWebsite ? 'Website updated successfully!' : 'Website submitted for approval!');
         // Clear the success message after 3 seconds
         setTimeout(() => setSuccessMessage(null), 3000);
+
+        // If we updated an existing website, update local state immediately so UI shows new price
+        if (editingWebsite && result) {
+          const updatedSite = result.website || result;
+          // Debug: show the returned originalPriceCents (publisher-visible price)
+          // eslint-disable-next-line no-console
+          console.debug('Updated site originalPriceCents:', updatedSite?.originalPriceCents);
+          // Normalize returned site similarly to refresh()
+          const siteId = updatedSite && (updatedSite._id || updatedSite.id || (updatedSite._id && typeof updatedSite._id === 'object' && updatedSite._id.toString ? updatedSite._id.toString() : null));
+          const normalized = {
+            ...updatedSite,
+            _id: siteId,
+            priceCents: typeof updatedSite?.priceCents === 'number' && !Number.isNaN(updatedSite.priceCents)
+              ? updatedSite.priceCents
+              : typeof updatedSite?.price === 'number' && !Number.isNaN(updatedSite.price)
+                ? Math.round(updatedSite.price * 100)
+                : // If originalPriceCents is present, use it to compute visible price
+                (typeof updatedSite?.originalPriceCents === 'number' ? updatedSite.originalPriceCents : 0),
+            // Preserve adminExtraPriceCents and originalPriceCents if returned
+            originalPriceCents: typeof updatedSite?.originalPriceCents === 'number' ? updatedSite.originalPriceCents : undefined,
+            adminExtraPriceCents: typeof updatedSite?.adminExtraPriceCents === 'number' ? updatedSite.adminExtraPriceCents : undefined,
+            available: updatedSite.available !== undefined ? updatedSite.available : true
+          };
+
+          setMySites(prev => {
+            // Replace existing site if present, otherwise append
+            const found = prev.find(s => s._id === normalized._id);
+            if (found) return prev.map(site => site._id === normalized._id ? normalized : site);
+            return [normalized, ...prev];
+          });
+        }
+
         resetForm();
         setActiveTab('websites');
+        // Refresh to ensure any server-side changes are reflected
         refresh();
       } else {
-        const error = await res.json();
+        const error = result;
         alert('Error: ' + (error.error || 'Failed to save website'));
       }
     } catch (error) {

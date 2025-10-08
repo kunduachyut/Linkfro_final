@@ -317,6 +317,26 @@ export default function PublisherWebsitesSection({
     return s && typeof s.priceCents === 'number' ? s.priceCents : 0;
   };
 
+  // Prepare website object for the edit form: ensure the form shows the publisher-original price
+  const prepareWebsiteForForm = (site: any) => {
+    if (!site) return site;
+    // Prefer explicit originalPriceCents when available, otherwise derive via computePublisherVisiblePrice
+    const visibleCents = (typeof site.originalPriceCents === 'number' && site.originalPriceCents != null)
+      ? site.originalPriceCents
+      : computePublisherVisiblePrice(site);
+
+    return {
+      ...site,
+      // set form fields to show only the publisher-visible/original price
+      priceCents: visibleCents,
+      price: visibleCents / 100,
+      originalPriceCents: visibleCents,
+      // When opening the edit form for the publisher, clear any admin-applied extra
+      // so the publisher only sees their own listed price. Admin can re-apply extras later.
+      adminExtraPriceCents: 0,
+    };
+  };
+
   // Apply all filters
   const filteredSites = mySites.filter(site => {
     // Status filter (existing)
@@ -693,7 +713,7 @@ export default function PublisherWebsitesSection({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        editWebsite(website);
+                        editWebsite(prepareWebsiteForForm(website));
                       }}
                       className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
                       aria-label="Edit website"
@@ -944,7 +964,17 @@ export default function PublisherWebsitesSection({
                     </button>
                     <button
                       onClick={() => {
-                        editWebsite(selectedWebsite);
+                        // Guard against missing selection and ensure we pass a prepared website
+                        if (!selectedWebsite) {
+                          console.warn('Edit clicked but no website selected');
+                          return;
+                        }
+                        try {
+                          editWebsite(prepareWebsiteForForm(selectedWebsite));
+                        } catch (err) {
+                          console.error('Failed to open edit for website', err);
+                          return;
+                        }
                         closeWebsiteModal();
                       }}
                       className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center gap-2"

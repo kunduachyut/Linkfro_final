@@ -95,7 +95,8 @@ export default function PublisherAddWebsiteSection({
     status?: "pending" | "approved" | "rejected"; // Add status field
   };
   handleFormChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  handleSubmit: (e: React.FormEvent) => void;
+  // Accept optional overrideData so callers (multi-step flow) can pass a prepared payload
+  handleSubmit: (e: React.FormEvent, overrideData?: any) => void;
   formLoading: boolean;
   resetForm: () => void;
   setActiveTab: (tab: "dashboard" | "websites" | "add-website" | "analytics" | "earnings" | "settings") => void;
@@ -154,8 +155,32 @@ export default function PublisherAddWebsiteSection({
       });
     }
     
-    // Submit the form
-    handleSubmit({ preventDefault: () => {} } as React.FormEvent);
+    // Submit the form by constructing an explicit payload and passing it to handleSubmit
+    // This avoids race conditions with parent state updates.
+    const computedPayload: any = {
+      title: data.domainName,
+      url: data.websiteUrl,
+      description: data.description,
+      category: Array.isArray(data.category) ? data.category : (data.category ? data.category.split(',').map((s: string) => s.trim()) : []),
+      price: typeof data.price === 'string' ? data.price : (data.price != null ? String(data.price) : ''),
+      DA: data.DA ? String(data.DA) : undefined,
+      PA: data.PA ? String(data.PA) : undefined,
+      Spam: data.spam ? String(data.spam) : undefined,
+      OrganicTraffic: data.organicTraffic ? String(data.organicTraffic) : undefined,
+      DR: data.DR ? String(data.DR) : undefined,
+      RD: data.rdLink || undefined,
+      trafficValue: data.trafficValue ? String(data.trafficValue) : undefined,
+      locationTraffic: data.locationTraffic ? String(data.locationTraffic) : undefined,
+      greyNicheAccepted: data.greyNicheAccepted === 'true' ? true : false,
+      specialNotes: data.specialNotes || undefined,
+      primeTrafficCountries: Array.isArray(data.primeTrafficCountries) ? data.primeTrafficCountries.join(',') : data.primeTrafficCountries,
+      status: editingWebsite ? undefined : 'pending'
+    };
+
+    // call handleSubmit with the constructed payload to ensure price is sent correctly
+    setTimeout(() => {
+      handleSubmit({ preventDefault: () => {} } as React.FormEvent, computedPayload);
+    }, 0);
   };
 
   // If we're using the multi-step form, we can hide the original form
@@ -492,7 +517,7 @@ export default function PublisherAddWebsiteSection({
         {/* Description */}
         <div>
           <label htmlFor="description" className="block text-sm font-semibold text-gray-700">
-            Description *
+            Description
           </label>
           <textarea
             id="description"
@@ -500,7 +525,6 @@ export default function PublisherAddWebsiteSection({
             value={formData.description}
             onChange={handleFormChange}
             rows={4}
-            required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
             placeholder="Describe your website..."
           />

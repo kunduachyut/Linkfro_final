@@ -186,7 +186,10 @@ export function AddWebsiteForm({
   const [step1Data, setStep1Data] = useState({
     domainName: editingWebsite?.title || "",
     websiteUrl: editingWebsite?.url || "",
-    category: editingWebsite?.category || "",
+    // Ensure category is always a scalar string. If editingWebsite provides an array, join it.
+    category: Array.isArray(editingWebsite?.category)
+      ? editingWebsite.category.join(',')
+      : (editingWebsite?.category || ""),
     price: editingWebsite?.priceCents ? (editingWebsite.priceCents / 100).toString() : "",
     description: editingWebsite?.description || "",
   });
@@ -310,15 +313,14 @@ export function AddWebsiteForm({
       errors.domainName = "Domain name is required";
     }
     
-    if (!step1Data.websiteUrl.trim()) {
-      errors.websiteUrl = "Website URL is required";
-    } else {
+    // websiteUrl is optional. Only validate it if the user provided a value.
+    if (step1Data.websiteUrl && step1Data.websiteUrl.trim()) {
       // Allow URLs with or without http/https prefix
       let urlToTest = step1Data.websiteUrl.trim();
       if (!/^https?:\/\//i.test(urlToTest)) {
         urlToTest = `https://${urlToTest}`;
       }
-      
+
       try {
         new URL(urlToTest);
       } catch (e) {
@@ -452,7 +454,8 @@ export function AddWebsiteForm({
       // Ensure all required fields are present
       const finalSubmissionData: FormData = {
         domainName: combinedData.domainName,
-        websiteUrl: combinedData.websiteUrl,
+        // If websiteUrl is empty, default it to the domainName provided by the user
+        websiteUrl: combinedData.websiteUrl && combinedData.websiteUrl.trim() ? combinedData.websiteUrl : combinedData.domainName,
         category: combinedData.category,
         price: combinedData.price,
         description: combinedData.description,
@@ -592,7 +595,7 @@ export function AddWebsiteForm({
                     </motion.div>
                     
                     <motion.div variants={fadeInUp} className="space-y-2">
-                      <Label htmlFor="websiteUrl">Website URL *</Label>
+                      <Label htmlFor="websiteUrl">Order accepted e-mail *</Label>
                       <Input
                         id="websiteUrl"
                         placeholder="https://example.com or www.example.com"
@@ -658,7 +661,7 @@ export function AddWebsiteForm({
                     </motion.div>
                     
                     <motion.div variants={fadeInUp} className="space-y-2">
-                      <Label htmlFor="description">Description *</Label>
+                      <Label htmlFor="description">Description</Label>
                       <Textarea
                         id="description"
                         placeholder="Describe your website..."
@@ -704,7 +707,7 @@ export function AddWebsiteForm({
                       </motion.div>
                       
                       <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="PA">PA *</Label>
+                        <Label htmlFor="PA">PA</Label>
                         <Input
                           id="PA"
                           type="number"
@@ -771,7 +774,7 @@ export function AddWebsiteForm({
                       </motion.div>
                       
                       <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="rdLink">RD Link *</Label>
+                        <Label htmlFor="rdLink">Referring Domain</Label>
                         <Input
                           id="rdLink"
                           type="number"

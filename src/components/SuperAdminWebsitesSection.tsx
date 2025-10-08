@@ -791,11 +791,11 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                               {website.OrganicTraffic?.toLocaleString() || 0} visits
                             </div>
                             <div className="text-xs text-gray-500">
-                              Value: ${website.trafficValue || 0}
+                              Traffic Value: ${website.trafficValue || 0}
                             </div>
                             {website.locationTraffic !== undefined && (
                               <div className="text-xs text-gray-500">
-                                Location: {website.locationTraffic}
+                                Primary Location Traffic: {website.locationTraffic}
                               </div>
                             )}
                           </td>

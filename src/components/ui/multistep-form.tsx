@@ -167,6 +167,13 @@ const OnboardingForm = ({ initialData, onSubmit, onCancel }: OnboardingFormProps
     ...initialData
   });
 
+  // Helper to ensure a value passed to Select is a scalar string (Radix Select expects string values for non-multiple selects)
+  const asScalar = (v: any) => {
+    if (v == null) return "";
+    if (Array.isArray(v)) return v.join(",");
+    return String(v);
+  };
+
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -370,11 +377,11 @@ const OnboardingForm = ({ initialData, onSubmit, onCancel }: OnboardingFormProps
                       <motion.div variants={fadeInUp} className="space-y-2">
                         <Label htmlFor="category">Category *</Label>
                         <Select
-                          value={formData.category}
-                          onValueChange={(value) =>
-                            updateFormData("category", value)
-                          }
-                        >
+                            value={asScalar(formData.category)}
+                            onValueChange={(value) =>
+                              updateFormData("category", value)
+                            }
+                          >
                           <SelectTrigger id="category">
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
@@ -562,11 +569,11 @@ const OnboardingForm = ({ initialData, onSubmit, onCancel }: OnboardingFormProps
                       <motion.div variants={fadeInUp} className="space-y-2">
                         <Label htmlFor="greyNicheAccepted">Grey Niche Accepted? *</Label>
                         <Select
-                          value={formData.greyNicheAccepted}
-                          onValueChange={(value) =>
-                            updateFormData("greyNicheAccepted", value)
-                          }
-                        >
+                            value={asScalar(formData.greyNicheAccepted)}
+                            onValueChange={(value) =>
+                              updateFormData("greyNicheAccepted", value)
+                            }
+                          >
                           <SelectTrigger id="greyNicheAccepted">
                             <SelectValue placeholder="Select option" />
                           </SelectTrigger>
@@ -687,7 +694,7 @@ const OnboardingForm = ({ initialData, onSubmit, onCancel }: OnboardingFormProps
                           What industry do you work in?
                         </Label>
                         <Select
-                          value={formData.industry}
+                          value={asScalar(formData.industry)}
                           onValueChange={(value) =>
                             updateFormData("industry", value)
                           }
@@ -719,7 +726,7 @@ const OnboardingForm = ({ initialData, onSubmit, onCancel }: OnboardingFormProps
                           Years of experience in your field
                         </Label>
                         <Select
-                          value={formData.experience}
+                          value={asScalar(formData.experience)}
                           onValueChange={(value) =>
                             updateFormData("experience", value)
                           }

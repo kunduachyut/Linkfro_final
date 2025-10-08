@@ -54,11 +54,14 @@ export async function GET(req: Request, context: any) {
 }
 
 export async function PATCH(req: Request, context: any) {
+  await dbConnect();
   const params = await context.params;
+  const id = params.id;
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return NextResponse.json({ error: 'Invalid website ID' }, { status: 400 });
+  }
   try {
     const body = await req.json();
-    const { id } = params; // ✅ Fixed: Removed await, access directly
-
     const website = await Website.findById(id);
     if (!website) {
       return NextResponse.json({ error: "Website not found" }, { status: 404 });
@@ -97,28 +100,63 @@ export async function PATCH(req: Request, context: any) {
         updatedFields: Object.keys(body)
       });
       
-      // Store the original status to check if content was modified
+  // Store the original status to check if content was modified
       const originalStatus = website.status;
+  // Debug: log incoming body to verify client-sent price fields
+  // eslint-disable-next-line no-console
+  console.debug('PATCH incoming body for publisher edit:', body);
       
+      // Apply incoming updates, but protect admin-only price fields from publisher edits
+      const protectedKeysForPublisher = ['adminExtraPriceCents', 'originalPriceCents'];
       Object.keys(body).forEach((key) => {
-        if (body[key] !== undefined) {
-          // Special handling for primeTrafficCountries to ensure it's an array
-          if (key === 'primeTrafficCountries' && typeof body[key] === 'string') {
-            // If it's a comma-separated string, convert to array
-            if (body[key].includes(",")) {
-              website[key] = body[key]
-                .split(",")
-                .map((country: string) => country.trim())
-                .filter((country: string) => country);
-            } else {
-              // Single country
-              website[key] = [body[key].trim()].filter((country: string) => country);
-            }
+        if (body[key] === undefined) return;
+
+        // Prevent publisher from directly modifying admin fields
+        if (protectedKeysForPublisher.includes(key)) {
+          console.log(`Ignoring protected field on publisher update: ${key}`);
+          return;
+        }
+
+        // Special handling for primeTrafficCountries to ensure it's an array
+        if (key === 'primeTrafficCountries' && typeof body[key] === 'string') {
+          // If it's a comma-separated string, convert to array
+          if (body[key].includes(",")) {
+            website[key] = body[key]
+              .split(",")
+              .map((country: string) => country.trim())
+              .filter((country: string) => country);
           } else {
-            website[key] = body[key];
+            // Single country
+            website[key] = [body[key].trim()].filter((country: string) => country);
           }
+        } else {
+          website[key] = body[key];
         }
       });
+
+      // If publisher provided a price update, update originalPriceCents to match their new price
+      let newPriceCents: number | undefined = undefined;
+      if (body.priceCents !== undefined) {
+        const n = Number(body.priceCents);
+        if (!Number.isNaN(n)) newPriceCents = Math.max(0, Math.floor(n));
+      } else if (body.price !== undefined) {
+        const p = Number(body.price);
+        if (!Number.isNaN(p)) newPriceCents = Math.max(0, Math.round(p * 100));
+      }
+
+      // Debug: show computed newPriceCents
+      // eslint-disable-next-line no-console
+      console.debug('Computed newPriceCents from body:', newPriceCents);
+
+      if (typeof newPriceCents === 'number') {
+        // Update the publisher-visible original price
+        (website as any).originalPriceCents = newPriceCents;
+
+        // Keep any admin extra price intact and recompute authoritative priceCents
+        const adminExtra = typeof (website as any).adminExtraPriceCents === 'number' ? (website as any).adminExtraPriceCents : 0;
+        website.priceCents = newPriceCents + adminExtra;
+        website.price = website.priceCents / 100;
+      }
 
       // When a publisher edits content, set status to pending for admin review
       // Exception: Don't change priceConflict status as it needs admin resolution
@@ -137,7 +175,16 @@ export async function PATCH(req: Request, context: any) {
     }
 
     await website.save();
-    return NextResponse.json({ success: true, website });
+    // Debug: log saved values so server logs show updated originalPriceCents
+    // eslint-disable-next-line no-console
+    console.debug('PATCH saved website (pre-reload)', { id: website._id?.toString?.(), originalPriceCents: (website as any).originalPriceCents, priceCents: website.priceCents });
+
+    // Reload from DB to ensure we return the persisted state
+    const fresh = await Website.findById(website._id).lean();
+  // eslint-disable-next-line no-console
+  console.debug('PATCH reloaded website from DB', { id: (fresh as any)?._id?.toString?.(), originalPriceCents: (fresh as any)?.originalPriceCents, priceCents: (fresh as any)?.priceCents });
+
+    return NextResponse.json({ success: true, website: fresh });
   } catch (error) {
     console.error("PATCH error:", error);
     return NextResponse.json(
