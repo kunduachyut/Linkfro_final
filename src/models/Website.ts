@@ -32,6 +32,9 @@ export interface IWebsite extends mongoose.Document {
   OrganicTraffic?: number;
   DR?: number;
   RD?: string;
+  // Publisher price workflow
+  publisherUpdatedPriceCents?: number | null; // price proposed by publisher, pending admin approval
+  publisherPreviousPriceCents?: number | null; // previous publisher-visible price for auditing
 
   // Price conflict fields
   conflictsWith?: mongoose.Types.ObjectId; // ID of the website this conflicts with
@@ -121,6 +124,16 @@ const WebsiteSchema = new mongoose.Schema({
   },
   // Preserve the original publisher-visible price when admins add an extra amount
   originalPriceCents: {
+    type: Number,
+    default: null
+  },
+  // Publisher-proposed updated price (pending admin approval)
+  publisherUpdatedPriceCents: {
+    type: Number,
+    default: null
+  },
+  // Store the previous publisher-visible price when a publisher proposes an update
+  publisherPreviousPriceCents: {
     type: Number,
     default: null
   },

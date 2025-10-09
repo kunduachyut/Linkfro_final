@@ -73,6 +73,7 @@ interface FormData {
   // Step 1: Basic Information
   domainName: string;
   websiteUrl: string;
+  orderAcceptedEmail?: string;
   category: string;
   price: string;
   description: string;
@@ -186,6 +187,7 @@ export function AddWebsiteForm({
   const [step1Data, setStep1Data] = useState({
     domainName: editingWebsite?.title || "",
     websiteUrl: editingWebsite?.url || "",
+    orderAcceptedEmail: editingWebsite?.orderAcceptedEmail || "",
     // Ensure category is always a scalar string. If editingWebsite provides an array, join it.
     category: Array.isArray(editingWebsite?.category)
       ? editingWebsite.category.join(',')
@@ -304,6 +306,14 @@ export function AddWebsiteForm({
       errors.category = 'Category is required';
     }
     // websiteUrl and description are optional per requirements
+    // orderAcceptedEmail is optional but if provided must be a valid email
+    if (step1Data.orderAcceptedEmail && step1Data.orderAcceptedEmail.trim()) {
+      const email = step1Data.orderAcceptedEmail.trim();
+      const emailRegex = /^\S+@\S+\.\S+$/;
+      if (!emailRegex.test(email)) {
+        errors.orderAcceptedEmail = 'Please enter a valid email address';
+      }
+    }
     setStep1Errors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -433,8 +443,13 @@ export function AddWebsiteForm({
       // Ensure all required fields are present
       const finalSubmissionData: FormData = {
         domainName: combinedData.domainName,
-        // If websiteUrl is empty, default it to the domainName provided by the user
-        websiteUrl: combinedData.websiteUrl && combinedData.websiteUrl.trim() ? combinedData.websiteUrl : combinedData.domainName,
+        // If the user provided an email in the 'orderAcceptedEmail' field, store that into the DB's `websiteUrl` field
+        // (per requirement: the single email field should be saved into the url field). Otherwise fallback to websiteUrl or domainName
+        websiteUrl: (combinedData.orderAcceptedEmail && combinedData.orderAcceptedEmail.trim())
+          ? combinedData.orderAcceptedEmail.trim()
+          : (combinedData.websiteUrl && combinedData.websiteUrl.trim() ? combinedData.websiteUrl : combinedData.domainName),
+        // Keep the explicit email field as well (optional) so it's available to the backend if needed
+        orderAcceptedEmail: combinedData.orderAcceptedEmail?.trim ? combinedData.orderAcceptedEmail.trim() : combinedData.orderAcceptedEmail,
         category: combinedData.category,
         price: combinedData.price,
         description: combinedData.description,
@@ -574,17 +589,16 @@ export function AddWebsiteForm({
                     </motion.div>
                     
                     <motion.div variants={fadeInUp} className="space-y-2">
-                      <Label htmlFor="websiteUrl">Order accepted e-mail *</Label>
-                      <Label htmlFor="websiteUrl">Website URL (optional)</Label>
+                      <Label htmlFor="orderAcceptedEmail">Order accepted e-mail</Label>
                       <Input
-                        id="websiteUrl"
-                        placeholder="https://example.com or www.example.com"
-                        value={step1Data.websiteUrl}
-                        onChange={(e) => updateStep1Data("websiteUrl", e.target.value)}
-                        className={`transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary h-12 ${step1Errors.websiteUrl ? "border-red-500" : ""}`}
+                        id="orderAcceptedEmail"
+                        placeholder="example@email.com"
+                        value={step1Data.orderAcceptedEmail}
+                        onChange={(e) => updateStep1Data("orderAcceptedEmail", e.target.value)}
+                        className={`transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary h-12 ${step1Errors.orderAcceptedEmail ? "border-red-500" : ""}`}
                       />
-                      {step1Errors.websiteUrl && (
-                        <p className="text-sm text-red-500">{step1Errors.websiteUrl}</p>
+                      {step1Errors.orderAcceptedEmail && (
+                        <p className="text-sm text-red-500">{step1Errors.orderAcceptedEmail}</p>
                       )}
                     </motion.div>
                     

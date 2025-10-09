@@ -319,6 +319,7 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
   const [editingWebsite, setEditingWebsite] = useState<Website | null>(null);
   const [editForm, setEditForm] = useState<Record<string, any>>({});
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   // Load country flags from REST Countries API
   useEffect(() => {
@@ -484,6 +485,38 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
   return (
     <section className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 relative overflow-hidden">
       <div className="relative z-10">
+        {/* Success Message Popup */}
+        {showSuccessMessage && (
+          <div 
+            className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            style={{ backgroundColor: "rgba(13, 17, 23, 0.3)" }}
+          >
+            <div className="bg-white p-6 rounded-lg w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-green-600">Success!</h3>
+                <button
+                  onClick={() => setShowSuccessMessage(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="mb-4">
+                <p className="text-gray-600">Purchase request sent! The administrator will review your order.</p>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setShowSuccessMessage(false)}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Confirm approve modal (shown when admin attempts to approve without extra price) */}
         {confirmApproveWebsite && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -500,10 +533,17 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                   Cancel
                 </button>
                 <button
-                  onClick={() => {
-                    // Call approve with undefined extra price
-                    updateWebsiteStatus(confirmApproveWebsite.id, "approved");
-                    setConfirmApproveWebsite(null);
+                  onClick={async () => {
+                    try {
+                      await Promise.resolve(updateWebsiteStatus(confirmApproveWebsite.id, "approved"));
+                      // try to refresh list if available
+                      try { await Promise.resolve(refresh()); } catch (e) { /* ignore */ }
+                      setConfirmApproveWebsite(null);
+                      setShowSuccessMessage(true);
+                    } catch (err) {
+                      console.error('Error approving website:', err);
+                      alert('Failed to approve website');
+                    }
                   }}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
@@ -872,7 +912,17 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                         Status
                       </th>
                       <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
+                        Publisher <br/>Price
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Publisher<br/> Price 
+                        (Updated)
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Additional<br/> Price
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Final Price
                       </th>
                       <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         SEO Metrics
@@ -934,30 +984,37 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                                       </Tooltip>
                                     </TooltipProvider>
                                   )}
-                                  {website.url && (
-                                    <a 
-                                      href={website.url} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
-                                      className="ml-2 text-blue-500 hover:text-blue-700"
-                                      title="Visit website"
-                                    >
-                                      <svg 
-                                        xmlns="http://www.w3.org/2000/svg" 
-                                        className="h-4 w-4" 
-                                        fill="none" 
-                                        viewBox="0 0 24 24" 
-                                        stroke="currentColor"
+                                  {(website as any).orderAcceptedEmail || website.url ? (
+                                    <div className="ml-2 inline-flex items-center">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const email = (website as any).orderAcceptedEmail ?? website.url;
+                                          if (email) handleCopyEmail(email);
+                                        }}
+                                        className="text-blue-500 hover:text-blue-700 p-1 rounded"
+                                        title="Copy order accepted email"
                                       >
-                                        <path 
-                                          strokeLinecap="round" 
-                                          strokeLinejoin="round" 
-                                          strokeWidth={2} 
-                                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" 
-                                        />
-                                      </svg>
-                                    </a>
-                                  )}
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          className="h-4 w-4"
+                                          fill="none"
+                                          viewBox="0 0 24 24"
+                                          stroke="currentColor"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M8 7V3a1 1 0 011-1h8a1 1 0 011 1v8a1 1 0 01-1 1h-4M16 21H6a2 2 0 01-2-2V7a2 2 0 012-2h8"
+                                          />
+                                        </svg>
+                                      </button>
+                                      {copiedEmail === ((website as any).orderAcceptedEmail ?? website.url) && (
+                                        <span className="ml-2 text-xs text-green-600">Copied</span>
+                                      )}
+                                    </div>
+                                  ) : null}
                                 </div>
                                 <div className="flex items-center mt-1 space-x-1">
                                   {website.category && (
@@ -1044,21 +1101,50 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">
-                              {website.priceCents ? `$${(website.priceCents / 100).toFixed(2)}` : 
-                               website.price ? `$${website.price.toFixed(2)}` : '$0.00'}
+                              {/* Publisher original price (publisher-visible) */}
+                              {((website as any).originalPriceCents !== undefined && (website as any).originalPriceCents !== null)
+                                ? `$${(((website as any).originalPriceCents) / 100).toFixed(2)}`
+                                : (website.priceCents ? `$${(website.priceCents / 100).toFixed(2)}` : website.price ? `$${website.price.toFixed(2)}` : '$0.00')}
                             </div>
-                            {(() => {
-                              const orig = (website as any).originalPriceCents;
-                              const adminExtra = (website as any).adminExtraPriceCents;
-                              if (typeof adminExtra === 'number' && adminExtra !== 0) {
-                                return (
-                                  <div className="text-xs text-indigo-600">
-                                    +${(adminExtra / 100).toFixed(2)} extra
-                                  </div>
-                                );
-                              }
-                              return null;
-                            })()}
+                          </td>
+
+                          {/* Publisher updated price (pending approval) */}
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {(() => {
+                                const updated = (website as any).publisherUpdatedPriceCents;
+                                if (typeof updated === 'number' && updated !== null) return `$${(updated / 100).toFixed(2)}`;
+                                return '-';
+                              })()}
+                            </div>
+                          </td>
+
+                          {/* Admin extra price */}
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {(() => {
+                                const adminExtra = (website as any).adminExtraPriceCents ?? 0;
+                                return (typeof adminExtra === 'number' && adminExtra !== 0) ? `+$${(adminExtra / 100).toFixed(2)}` : '$0.00';
+                              })()}
+                            </div>
+                          </td>
+
+                          {/* Final price (base + admin extra) */}
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {(() => {
+                                // If publisher proposed an updated price, use it as the base for final price
+                                const pending = (website as any).publisherUpdatedPriceCents;
+                                const orig = (website as any).originalPriceCents;
+                                const fallback = website.priceCents ?? (typeof website.price === 'number' ? Math.round(website.price * 100) : 0);
+                                const base = (typeof pending === 'number' && pending != null)
+                                  ? pending
+                                  : ((orig !== undefined && orig !== null) ? orig : (fallback ?? 0));
+                                const adminExtra = Number((website as any).adminExtraPriceCents ?? 0);
+                                const finalCents = Number(base) + adminExtra;
+                                return `$${(finalCents / 100).toFixed(2)}`;
+                              })()}
+                            </div>
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex flex-wrap gap-1">
@@ -1164,7 +1250,33 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                                         if (!extraCents) {
                                           setConfirmApproveWebsite({ id: website.id, title: website.title });
                                         } else {
-                                          updateWebsiteStatus(website.id, "approved", undefined, extraCents);
+                                          // Perform inline PATCH to apply admin extra and, if publisherUpdatedPriceCents exists,
+                                          // swap it into originalPriceCents and clear publisherUpdatedPriceCents so the publisher price is updated.
+                                          (async () => {
+                                            try {
+                                              const body: any = { adminExtraPriceCents: extraCents, status: 'approved' };
+                                              const pendingUpdated = (website as any).publisherUpdatedPriceCents;
+                                              if (typeof pendingUpdated === 'number') {
+                                                body.originalPriceCents = pendingUpdated;
+                                                body.publisherUpdatedPriceCents = null;
+                                              }
+                                              const res = await fetch(`/api/websites/${website.id}`, {
+                                                method: 'PATCH',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify(body),
+                                              });
+                                                  if (res.ok) {
+                                                    await refresh();
+                                                    setShowSuccessMessage(true);
+                                                  } else {
+                                                const err = await res.json().catch(() => ({}));
+                                                alert('Failed to approve website: ' + JSON.stringify(err));
+                                              }
+                                            } catch (err) {
+                                              console.error('Approve patch failed', err);
+                                              alert('Network error while approving');
+                                            }
+                                          })();
                                         }
                                       }}
                                       className="text-green-600 hover:text-green-900"
@@ -1198,7 +1310,16 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                                 )}
                                 {(website.status || 'pending') === 'rejected' && (
                                   <button
-                                    onClick={() => updateWebsiteStatus(website.id, "approved")}
+                                    onClick={async () => {
+                                      try {
+                                        await Promise.resolve(updateWebsiteStatus(website.id, "approved"));
+                                        try { await Promise.resolve(refresh()); } catch (e) { /* ignore */ }
+                                        setShowSuccessMessage(true);
+                                      } catch (err) {
+                                        console.error('Error re-approving website:', err);
+                                        alert('Failed to approve website');
+                                      }
+                                    }}
                                     className="text-green-600 hover:text-green-900"
                                     title="Approve website"
                                   >

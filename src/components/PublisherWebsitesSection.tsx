@@ -213,6 +213,10 @@ type Website = {
   url: string;
   description: string;
   priceCents: number;
+  // If a publisher has proposed an updated price (pending approval)
+  publisherUpdatedPriceCents?: number | null;
+  // The previous publisher-visible price (optional)
+  publisherPreviousPriceCents?: number | null;
   status: "pending" | "approved" | "rejected";
   available: boolean;
   rejectionReason?: string;
@@ -308,6 +312,8 @@ export default function PublisherWebsitesSection({
   // Prefer explicit originalPriceCents when set. If missing but adminExtraPriceCents exists,
   // derive original price as priceCents - adminExtraPriceCents. Fallback to priceCents.
   const computePublisherVisiblePrice = (s: any) => {
+    // If publisher has proposed an updated price, show it (pending)
+    if (s && typeof s.publisherUpdatedPriceCents === 'number' && s.publisherUpdatedPriceCents != null) return s.publisherUpdatedPriceCents;
     if (s && typeof s.originalPriceCents === 'number' && s.originalPriceCents != null) return s.originalPriceCents;
     const extra = (s && typeof s.adminExtraPriceCents === 'number') ? s.adminExtraPriceCents : 0;
     if (extra > 0 && s && typeof s.priceCents === 'number') {

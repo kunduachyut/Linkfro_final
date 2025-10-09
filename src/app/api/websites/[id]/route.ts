@@ -68,24 +68,45 @@ export async function PATCH(req: Request, context: any) {
     }
 
     // --- Super Admin actions ---
-    if (body.action === "approve") {
+    // Support either explicit action 'approve' or requests that set status='approved' (front-end uses status)
+    if (body.action === "approve" || body.status === 'approved') {
       website.status = "approved";
       website.available = true; // Explicitly set available to true when approving
       website.rejectionReason = undefined;
       website.approvedAt = new Date();
-
       // If an admin provided an extra price (in cents), persist the original publisher price
       // and store the admin-applied extra separately so publisher views can continue to show the original.
-      if (typeof body.extraPriceCents === 'number' && !Number.isNaN(body.extraPriceCents) && body.extraPriceCents !== 0) {
+      const extraCentsProvided = (typeof body.extraPriceCents === 'number' && !Number.isNaN(body.extraPriceCents)) ? body.extraPriceCents :
+        ((typeof body.adminExtraPriceCents === 'number' && !Number.isNaN(body.adminExtraPriceCents)) ? body.adminExtraPriceCents : undefined);
+
+      if (typeof extraCentsProvided === 'number' && extraCentsProvided !== 0) {
         const currentCents = typeof website.priceCents === 'number' ? website.priceCents : (typeof website.price === 'number' ? Math.round(website.price * 100) : 0);
         // If originalPriceCents is not already set, preserve the current publisher-submitted price
         if ((website as any).originalPriceCents == null) {
           (website as any).originalPriceCents = currentCents;
         }
-        // Record the admin extra amount separately
-        (website as any).adminExtraPriceCents = ((website as any).adminExtraPriceCents || 0) + body.extraPriceCents;
+        // Record the admin extra amount separately (accumulate)
+        (website as any).adminExtraPriceCents = ((website as any).adminExtraPriceCents || 0) + extraCentsProvided;
         // Update the authoritative priceCents for consumers (includes admin extra)
         website.priceCents = ((website as any).originalPriceCents ?? currentCents) + (website as any).adminExtraPriceCents;
+        website.price = website.priceCents / 100;
+      }
+      // Ignore any incoming publisherUpdatedPriceCents from client payload — server controls promotion/clearing
+      // If there's a pending publisher-updated price, promote it into originalPriceCents
+      if (typeof (website as any).publisherUpdatedPriceCents === 'number') {
+        const pending = (website as any).publisherUpdatedPriceCents as number;
+        // If publisherPreviousPriceCents is not set, set it to the current original/visible price for audit
+        if ((website as any).publisherPreviousPriceCents == null) {
+          (website as any).publisherPreviousPriceCents = (website as any).originalPriceCents ?? (typeof website.priceCents === 'number' ? website.priceCents : (typeof website.price === 'number' ? Math.round(website.price * 100) : 0));
+        }
+        // Promote proposed price into the publisher-visible original price
+        (website as any).originalPriceCents = pending;
+        // Clear the pending proposal
+        (website as any).publisherUpdatedPriceCents = null;
+
+        // Recompute authoritative priceCents
+        const adminExtra = typeof (website as any).adminExtraPriceCents === 'number' ? (website as any).adminExtraPriceCents : 0;
+        website.priceCents = (website as any).originalPriceCents + adminExtra;
         website.price = website.priceCents / 100;
       }
     } else if (body.action === "reject") {
@@ -134,7 +155,8 @@ export async function PATCH(req: Request, context: any) {
         }
       });
 
-      // If publisher provided a price update, update originalPriceCents to match their new price
+      // If publisher provided a price update, record it as a pending update instead of overwriting
+      // the originalPriceCents. Preserve the prior publisher-visible price in publisherPreviousPriceCents
       let newPriceCents: number | undefined = undefined;
       if (body.priceCents !== undefined) {
         const n = Number(body.priceCents);
@@ -146,15 +168,20 @@ export async function PATCH(req: Request, context: any) {
 
       // Debug: show computed newPriceCents
       // eslint-disable-next-line no-console
-      console.debug('Computed newPriceCents from body:', newPriceCents);
+      console.debug('Computed newPriceCents from body (publisher):', newPriceCents);
 
       if (typeof newPriceCents === 'number') {
-        // Update the publisher-visible original price
-        (website as any).originalPriceCents = newPriceCents;
+        // When publisher proposes a new price, record their proposed value and keep the
+        // currently visible publisher price as publisherPreviousPriceCents for audit.
+        const currentPublisherVisible = (website as any).originalPriceCents ?? (typeof website.priceCents === 'number' ? website.priceCents : (typeof website.price === 'number' ? Math.round(website.price * 100) : 0));
+        // Only set previous if it's not already set or if it's different
+        (website as any).publisherPreviousPriceCents = currentPublisherVisible;
+        (website as any).publisherUpdatedPriceCents = newPriceCents;
 
-        // Keep any admin extra price intact and recompute authoritative priceCents
+        // Recompute authoritative priceCents as the visible base (originalPriceCents or priceCents) + admin extra.
+        const baseVisible = (website as any).originalPriceCents ?? currentPublisherVisible;
         const adminExtra = typeof (website as any).adminExtraPriceCents === 'number' ? (website as any).adminExtraPriceCents : 0;
-        website.priceCents = newPriceCents + adminExtra;
+        website.priceCents = baseVisible + adminExtra;
         website.price = website.priceCents / 100;
       }
 
