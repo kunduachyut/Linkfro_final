@@ -556,7 +556,7 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
 
         {/* Edit Website Modal (Super Admin) */}
         {editingWebsite && (
-          <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 bg-black bg-opacity-50">
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 bg-transparent">
             <div className="bg-white rounded-xl p-6 max-w-3xl w-full shadow-xl">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Edit Website - {editingWebsite.title}</h3>

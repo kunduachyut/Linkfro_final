@@ -70,6 +70,22 @@ export async function PATCH(req: Request, context: any) {
     // --- Super Admin actions ---
     // Support either explicit action 'approve' or requests that set status='approved' (front-end uses status)
     if (body.action === "approve" || body.status === 'approved') {
+      // Apply admin-editable fields from body so that the super-admin edit modal can update these values.
+      // Only allow a whitelist of fields here to avoid unintended overwrites.
+      const adminEditable = [
+        'title', 'url', 'description', 'category', 'image',
+        'DA', 'PA', 'Spam', 'DR', 'OrganicTraffic', 'trafficValue', 'specialNotes', 'primeTrafficCountries'
+      ];
+      adminEditable.forEach((k) => {
+        if (body[k] !== undefined) {
+          // For primeTrafficCountries allow string -> array conversion
+          if (k === 'primeTrafficCountries' && typeof body[k] === 'string') {
+            website[k] = body[k].includes(',') ? body[k].split(',').map((s: string) => s.trim()).filter(Boolean) : [body[k].trim()];
+          } else {
+            website[k] = body[k];
+          }
+        }
+      });
       website.status = "approved";
       website.available = true; // Explicitly set available to true when approving
       website.rejectionReason = undefined;
@@ -85,10 +101,11 @@ export async function PATCH(req: Request, context: any) {
         if ((website as any).originalPriceCents == null) {
           (website as any).originalPriceCents = currentCents;
         }
-        // Record the admin extra amount separately (accumulate)
-        (website as any).adminExtraPriceCents = ((website as any).adminExtraPriceCents || 0) + extraCentsProvided;
-        // Update the authoritative priceCents for consumers (includes admin extra)
-        website.priceCents = ((website as any).originalPriceCents ?? currentCents) + (website as any).adminExtraPriceCents;
+  // Record the admin extra amount separately (replace previous admin extra with provided value)
+  // The admin's provided extra should overwrite previous admin extra instead of accumulating.
+  (website as any).adminExtraPriceCents = extraCentsProvided;
+  // Update the authoritative priceCents for consumers (includes admin extra)
+  website.priceCents = ((website as any).originalPriceCents ?? currentCents) + (website as any).adminExtraPriceCents;
         website.price = website.priceCents / 100;
       }
       // Ignore any incoming publisherUpdatedPriceCents from client payload — server controls promotion/clearing
