@@ -1,17 +1,22 @@
 "use client";
 
 import React, { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import HumanoidSection from "@/components/HumanoidSection";
-import SpecsSection from "@/components/SpecsSection";
-import DetailsSection from "@/components/DetailsSection";
-import ImageShowcaseSection from "@/components/ImageShowcaseSection";
-import Features from "@/components/Features";
-import Testimonials from "@/components/Testimonials";
-import Newsletter from "@/components/Newsletter";
-import MadeByHumans from "@/components/MadeByHumans";
-import Footer from "@/components/Footer";
+import NewNavbar from "@/components/NewNavbar";
+import NewHero from "@/components/NewHero";
+import WhyChooseLinkfro from "@/components/WhyChooseLinkfro";
+import SpecialOffers from "@/components/SpecialOffers";
+import MarketplacePreview from "@/components/MarketplacePreview";
+import AIAdvantage from "@/components/AIAdvantage";
+import ForWhom from "@/components/ForWhom";
+import PackagesOffers from "@/components/PackagesOffers";
+import SocialProof from "@/components/SocialProof";
+import FinalCTA from "@/components/FinalCTA";
+import NewFooter from "@/components/NewFooter";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import ExitIntentPopup from "@/components/ExitIntentPopup";
+import SpinWheelPopup from "@/components/SpinWheelPopup";
+import GeoPersonalization from "@/components/GeoPersonalization";
+import TopRightNotification from "@/components/TopRightNotification";
 
 export default function Home() {
   // Initialize intersection observer to detect when elements enter viewport
@@ -61,19 +66,24 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      <main className="space-y-4 sm:space-y-8">
-        <Hero />
-        <HumanoidSection />
-        <SpecsSection />
-        <DetailsSection />
-        <ImageShowcaseSection />
-        <Features />
-        <Testimonials />
-        <Newsletter />
-        <MadeByHumans />
+      <NewNavbar />
+      <main className="space-y-0 pt-16">
+        <NewHero />
+        <WhyChooseLinkfro />
+        <SpecialOffers />
+        <MarketplacePreview />
+        <AIAdvantage />
+        <ForWhom />
+        <PackagesOffers />
+        <SocialProof />
+        <FinalCTA />
       </main>
-      <Footer />
+      <NewFooter />
+      <FloatingWhatsApp />
+      <ExitIntentPopup />
+      <SpinWheelPopup />
+      <GeoPersonalization />
+      <TopRightNotification />
     </div>
   );
 }
