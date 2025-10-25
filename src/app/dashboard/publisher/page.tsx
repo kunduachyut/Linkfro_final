@@ -488,10 +488,12 @@ export default function PublisherDashboard() {
         refresh();
       } else {
         const error = result;
-        alert('Error: ' + (error.error || 'Failed to save website'));
+        // Throw so the caller (AddWebsiteForm) can handle the failure and show an error toast
+        throw new Error(error?.error || 'Failed to save website');
       }
-    } catch (error) {
-      alert('Network error. Please try again.');
+    } catch (err: any) {
+      // Re-throw a normalized Error so callers can catch and display a user-friendly message
+      throw new Error(err?.message || 'Network error. Please try again.');
     } finally {
       setFormLoading(false);
     }

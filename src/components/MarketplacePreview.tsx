@@ -50,6 +50,7 @@ const MarketplacePreview = () => {
               className="w-full pl-12 pr-4 py-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
             />
             <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-pulse-500 text-white px-6 py-2 rounded-full hover:bg-pulse-600 transition-colors">
               Search

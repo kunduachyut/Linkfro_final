@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import useCountries from "../hooks/useCountries";
 import { motion, AnimatePresence } from "framer-motion";
 import { AddWebsiteForm } from "@/components/ui/add-website-form";
+import { CATEGORIES } from "../lib/categories";
 
 type Website = {
   _id: string;
@@ -26,43 +27,7 @@ type Website = {
   primaryCountry?: string; // Add primaryCountry field
 };
 
-// Define the categories as requested with mapping to backend enum values
-const CATEGORIES = [
-  { id: 1, name: "Finance, Insurance & Investment", backendValue: "business" },
-  { id: 2, name: "Crypto, Blockchain, Bitcoin & Digital Assets", backendValue: "business" },
-  { id: 3, name: "Health, Wellness, Fitness & Personal Care", backendValue: "business" },
-  { id: 4, name: "Software, SaaS, Technology & IT Solutions", backendValue: "business" },
-  { id: 5, name: "Business, Marketing, PR & Communication", backendValue: "business" },
-  { id: 6, name: "Travel, Tourism, Adventure & Hospitality", backendValue: "business" },
-  { id: 7, name: "Law, Legal Services, Attorneys & Compliance", backendValue: "business" },
-  { id: 8, name: "Automotive, Cars, Bikes & Electric Vehicles (EVs)", backendValue: "business" },
-  { id: 9, name: "iGaming, Casino, Betting, Gambling & Adult Niches", backendValue: "entertainment" },
-  { id: 10, name: "Education, E-Learning, Training & Career Development", backendValue: "educational" },
-  { id: 11, name: "Real Estate, Property, Home Improvement & Garden", backendValue: "business" },
-  { id: 12, name: "Food, Recipes, Cooking & Culinary Lifestyle", backendValue: "business" },
-  { id: 13, name: "Sports, Fitness, Training & Active Lifestyle", backendValue: "entertainment" },
-  { id: 14, name: "Clothing, Fashion, Style & Apparel", backendValue: "business" },
-  { id: 15, name: "Beauty, Cosmetics, Skincare & Personal Style", backendValue: "business" },
-  { id: 16, name: "Parenting, Family, Kids & Childcare", backendValue: "business" },
-  { id: 17, name: "Wedding, Events, Parties & Celebrations", backendValue: "business" },
-  { id: 18, name: "Lifestyle, General Interest & Multi-Niche Blogs", backendValue: "blog" },
-  { id: 19, name: "Photography, Visual Arts & Creative Media", backendValue: "entertainment" },
-  { id: 20, name: "Hobbies, Leisure, Crafts & Entertainment", backendValue: "entertainment" },
-  { id: 21, name: "Women's Lifestyle, Fashion & Inspiration", backendValue: "business" },
-  { id: 22, name: "Men's Lifestyle, Fashion & Grooming", backendValue: "business" },
-  { id: 23, name: "Media, Publishing, Literature & Books", backendValue: "blog" },
-  { id: 24, name: "Music, Movies, Film & Entertainment", backendValue: "entertainment" },
-  { id: 25, name: "Gadgets, Electronics, Hardware & Consumer Tech", backendValue: "business" },
-  { id: 26, name: "Social Media, Influencers & Digital Trends", backendValue: "blog" },
-  { id: 27, name: "News, Blogs, Magazines & Current Affairs", backendValue: "blog" },
-  { id: 28, name: "Promotional Products, Gifts & Corporate Merchandise", backendValue: "business" },
-  { id: 29, name: "Catering, Food Services & Hospitality Industry", backendValue: "business" },
-  { id: 30, name: "Animals, Pets, Wildlife & Veterinary Care", backendValue: "business" },
-  { id: 31, name: "Construction, Architecture, Engineering & Building", backendValue: "business" },
-  { id: 32, name: "Sustainability, Eco-Friendly & Green Living", backendValue: "business" },
-  { id: 33, name: "Games, Toys, Kids & Children's Products", backendValue: "entertainment" },
-  { id: 34, name: "Private SEO Blog Networks (PSBN)", backendValue: "blog" }
-];
+// Use shared categories list
 
 export default function PublisherAddWebsiteSection({ 
   editingWebsite,
@@ -103,6 +68,8 @@ export default function PublisherAddWebsiteSection({
 }) {
   // State for showing the multi-step form or the original form
   const [useMultiStepForm, setUseMultiStepForm] = useState(true);
+  // Validation state: ensure Location Traffic is less than Organic Traffic
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   // Handle form submission from the multi-step form
   const handleMultiStepSubmit = (data: any) => {
@@ -116,7 +83,13 @@ export default function PublisherAddWebsiteSection({
     
     // Update each field using the existing handleFormChange function
     handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "title", value: data.domainName } });
-    handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "url", value: data.websiteUrl } });
+    // If the multi-step websiteUrl is actually an email, map it to orderAcceptedEmail instead
+    const isEmail = (s: any) => typeof s === 'string' && /^\S+@\S+\.\S+$/.test(s);
+    if (isEmail(data.websiteUrl)) {
+      handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "orderAcceptedEmail", value: data.websiteUrl } });
+    } else {
+      handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "url", value: data.websiteUrl } });
+    }
     handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "description", value: data.description } });
     handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "category", value: data.category } });
     handleFormChange({ ...eventMock, target: { ...eventMock.target, name: "price", value: data.price } });
@@ -159,7 +132,10 @@ export default function PublisherAddWebsiteSection({
     // This avoids race conditions with parent state updates.
     const computedPayload: any = {
       title: data.domainName,
-      url: data.websiteUrl,
+      // Only set url when it is not an email
+      url: isEmail(data.websiteUrl) ? undefined : data.websiteUrl,
+      // Preserve orderAcceptedEmail separately; if websiteUrl was an email use that as the email
+      orderAcceptedEmail: data.orderAcceptedEmail || (isEmail(data.websiteUrl) ? data.websiteUrl : undefined),
       description: data.description,
       category: Array.isArray(data.category) ? data.category : (data.category ? data.category.split(',').map((s: string) => s.trim()) : []),
       price: typeof data.price === 'string' ? data.price : (data.price != null ? String(data.price) : ''),
@@ -176,6 +152,19 @@ export default function PublisherAddWebsiteSection({
       primeTrafficCountries: Array.isArray(data.primeTrafficCountries) ? data.primeTrafficCountries.join(',') : data.primeTrafficCountries,
       status: editingWebsite ? undefined : 'pending'
     };
+
+    // Validate Location Traffic vs Organic Traffic for multi-step submissions as well
+    const organicNum = data.organicTraffic ? Number(data.organicTraffic) : NaN;
+    const locationNum = data.locationTraffic ? Number(data.locationTraffic) : NaN;
+    if (!isNaN(locationNum) && !isNaN(organicNum)) {
+      if (locationNum >= organicNum) {
+        setValidationError('Location Traffic should be less than main Organic Traffic.');
+        // Also show a popup to make the rule clear in multi-step flow
+        try { window.alert('Location Traffic should be less than main Organic Traffic.'); } catch (e) {}
+        return;
+      }
+    }
+    setValidationError(null);
 
     // call handleSubmit with the constructed payload to ensure price is sent correctly
     setTimeout(() => {
@@ -370,6 +359,19 @@ export default function PublisherAddWebsiteSection({
   const onLocalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate Location Traffic vs Organic Traffic
+    const organicNum = formData.OrganicTraffic ? Number(formData.OrganicTraffic) : NaN;
+    const locationNum = formData.locationTraffic ? Number(formData.locationTraffic) : NaN;
+    if (!isNaN(locationNum) && !isNaN(organicNum)) {
+      if (locationNum >= organicNum) {
+        setValidationError('Location Traffic should be less than main Organic Traffic.');
+        try { window.alert('Location Traffic should be less than main Organic Traffic.'); } catch (e) {}
+        return;
+      }
+    }
+    // Clear any previous validation error
+    setValidationError(null);
+
     const desc = (formData.description || '').trim();
     if (!desc) {
       window.alert('Description is required. Please add a description before submitting.');
@@ -392,6 +394,19 @@ export default function PublisherAddWebsiteSection({
 
     setTimeout(() => handleSubmit(e), 0);
   };
+
+  // Keep validation state in-sync while user types
+  useEffect(() => {
+    const organicNum = formData.OrganicTraffic ? Number(formData.OrganicTraffic) : NaN;
+    const locationNum = formData.locationTraffic ? Number(formData.locationTraffic) : NaN;
+    if (!isNaN(locationNum) && !isNaN(organicNum)) {
+      if (locationNum >= organicNum) {
+        setValidationError('Location Traffic should be less than main Organic Traffic.');
+        return;
+      }
+    }
+    setValidationError(null);
+  }, [formData.OrganicTraffic, formData.locationTraffic]);
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:p-8">
@@ -679,6 +694,9 @@ export default function PublisherAddWebsiteSection({
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
               placeholder="0"
             />
+            {validationError && (
+              <p className="mt-1 text-sm text-red-600">{validationError}</p>
+            )}
           </div>
 
           {/* Grey Niche Accepted */}
@@ -760,8 +778,8 @@ export default function PublisherAddWebsiteSection({
                 setTimeout(() => setShowCountryDropdown(false), 150);
               }}
               placeholder="Search and select countries..."
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md"
-              
             />
             
             {showCountryDropdown && (
@@ -822,7 +840,8 @@ export default function PublisherAddWebsiteSection({
               formLoading ||
               selectedCategories.length === 0 ||
               primeTrafficCountries.length === 0 ||
-              !(formData.description && formData.description.trim() !== '')
+              !(formData.description && formData.description.trim() !== '') ||
+              !!validationError
             }
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 font-medium transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
           >

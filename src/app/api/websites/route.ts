@@ -225,8 +225,8 @@ export async function POST(req: Request) {
   const userId = authResult as string;
 
   try {
-    const json = await req.json();
-    const { title, url, description, priceCents, category, tags, DA, PA, Spam, OrganicTraffic, DR, RD, primaryCountry, primeTrafficCountries, trafficValue, locationTraffic, greyNicheAccepted, specialNotes } = json;
+  const json = await req.json();
+  const { title, url, description, priceCents, category, tags, DA, PA, Spam, OrganicTraffic, DR, RD, primaryCountry, primeTrafficCountries, trafficValue, locationTraffic, greyNicheAccepted, specialNotes, orderAcceptedEmail } = json;
 
     // Instead of returning an error, we'll set default values for missing required fields
     const processedTitle = title || "Untitled Website";
@@ -337,6 +337,7 @@ export async function POST(req: Request) {
         locationTraffic: locationTraffic ? Number(locationTraffic) : undefined,
         greyNicheAccepted: typeof greyNicheAccepted === 'string' ? (greyNicheAccepted === 'true') : (typeof greyNicheAccepted === 'boolean' ? greyNicheAccepted : undefined),
         specialNotes: specialNotes || undefined,
+        orderAcceptedEmail: orderAcceptedEmail || undefined,
         userId: userId,
         image: "/default-website-image.png",
         status: "pending", // Will be changed to priceConflict
@@ -417,6 +418,7 @@ export async function POST(req: Request) {
         locationTraffic: locationTraffic ? Number(locationTraffic) : undefined,
         greyNicheAccepted: typeof greyNicheAccepted === 'string' ? (greyNicheAccepted === 'true') : (typeof greyNicheAccepted === 'boolean' ? greyNicheAccepted : undefined),
         specialNotes: specialNotes || undefined,
+        orderAcceptedEmail: orderAcceptedEmail || undefined,
         userId: userId,
         image: "/default-website-image.png",
         status: "pending",
@@ -456,6 +458,7 @@ export async function POST(req: Request) {
       locationTraffic: locationTraffic ? Number(locationTraffic) : undefined,
       greyNicheAccepted: typeof greyNicheAccepted === 'string' ? (greyNicheAccepted === 'true') : (typeof greyNicheAccepted === 'boolean' ? greyNicheAccepted : undefined),
       specialNotes: specialNotes || undefined,
+      orderAcceptedEmail: orderAcceptedEmail || undefined,
       userId: userId,
       image: "/default-website-image.png",
       status: "pending",

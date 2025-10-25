@@ -715,12 +715,12 @@ export default function CartPage() {
                           </div>
                         ) : websiteDetails[item._id] ? (
                           <div className="space-y-2">
-                            <div className="flex justify-between text-xs">
+                            {/* <div className="flex justify-between text-xs">
                               <span className="text-gray-600">URL:</span>
                               <span className="font-medium text-blue-600 truncate max-w-[120px]" title={websiteDetails[item._id].url}>
                                 {websiteDetails[item._id].url}
                               </span>
-                            </div>
+                            </div> */}
                             <div className="flex justify-between text-xs">
                               <span className="text-gray-600">Price:</span>
                               <span className="font-medium">${(websiteDetails[item._id].priceCents / 100).toFixed(2)}</span>
@@ -859,14 +859,14 @@ export default function CartPage() {
               className="space-y-4 mb-6"
             >
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Upload PDF Document</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Upload Your Document</label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors">
                   {!pdfFile ? (
                     <div className="text-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                       </svg>
-                      <p className="mt-1 text-sm text-gray-600">Drag and drop your PDF here, or</p>
+                      <p className="mt-1 text-sm text-gray-600">Drag and drop your Files here, or</p>
                       <div className="mt-2">
                         <label className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                           Browse Files
@@ -874,7 +874,7 @@ export default function CartPage() {
                             key={`file-input-${selectedItem?._id}-${modalKey}`}
                             ref={fileInputRef}
                             type="file"
-                            accept="application/pdf"
+                            accept=".pdf, .doc, .docx, .xls, .xlsx, .txt"
                             onChange={(e) => {
                               const f = e.target.files && e.target.files[0] ? e.target.files[0] : null;
                               if (f && f.size > 10 * 1024 * 1024) { alert("File must be <= 10MB"); e.currentTarget.value = ""; setPdfFile(null); return; }

@@ -9,6 +9,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import useCountries from "../hooks/useCountries";
+import { CATEGORIES } from "../lib/categories";
 
 // Country flag mapping function
 const getCountryFlagEmoji = (countryName: string): string => {
@@ -313,6 +315,8 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
   const [countryFlags, setCountryFlags] = useState<Record<string, string>>({});
   const [loadingFlags, setLoadingFlags] = useState(false);
   const [failedFlags, setFailedFlags] = useState<Record<string, boolean>>({});
+  // Central countries hook (full list for filters)
+  const { countries: allCountries, loading: loadingCountries } = useCountries();
   // State to hold website pending approve-confirmation when no extra price was entered
   const [confirmApproveWebsite, setConfirmApproveWebsite] = useState<{ id: string; title?: string } | null>(null);
   // Edit modal state for super admins
@@ -372,11 +376,39 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
   const [maxDA, setMaxDA] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+  const [countryFilter, setCountryFilter] = useState<string>("all");
 
-  const uniqueCategories = Array.from(new Set((websites || []).flatMap(w => {
-    if (!w.category) return [];
-    return Array.isArray(w.category) ? w.category : [w.category];
-  })).values()).filter(Boolean);
+  // Use shared CATEGORIES list so the filter always shows all defined categories
+  const uniqueCategories = CATEGORIES.map(c => String(c.name)).filter(Boolean);
+
+  // Country options: when a category is selected, derive countries from the DB (primaryCountry + primeTrafficCountries)
+  const countryOptions = (() => {
+    if (categoryFilter && categoryFilter !== 'all') {
+      const set = new Set<string>();
+      const selectedParts = String(categoryFilter).split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      const matchesCategory = (websiteCategories: any[]) => {
+        const wc = websiteCategories.map((c: any) => String(c).trim().toLowerCase());
+        return wc.some(wcItem => selectedParts.some(sp => wcItem === sp || wcItem.includes(sp) || sp.includes(wcItem)));
+      };
+
+      (websites || []).forEach(w => {
+        const cats = w.category ? (Array.isArray(w.category) ? w.category : [w.category]) : [];
+        if (!matchesCategory(cats)) return;
+
+        if (w.primaryCountry) set.add(String(w.primaryCountry));
+
+        const rawPrimes: any = (w as any).primeTrafficCountries;
+        if (Array.isArray(rawPrimes)) {
+          rawPrimes.forEach((c: string) => c && set.add(String(c)));
+        } else if (typeof rawPrimes === 'string' && rawPrimes.trim() !== '') {
+          rawPrimes.split(',').map((s: string) => s.trim()).filter(Boolean).forEach((c: string) => set.add(String(c)));
+        }
+      });
+      return Array.from(set).filter(Boolean);
+    }
+    // Default: use the full countries list from the central hook
+    return allCountries?.map((c: any) => c.name) ?? [];
+  })();
 
   const clearFilters = () => {
     setSearchQuery("");
@@ -389,6 +421,7 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
     setMaxDA("");
     setStartDate("");
     setEndDate("");
+    setCountryFilter("all");
   };
 
   const filteredWebsites = (websites || []).filter((w) => {
@@ -408,8 +441,11 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
 
     // Category
     if (categoryFilter !== 'all') {
+      const selectedParts = String(categoryFilter).split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
       const cats = w.category ? (Array.isArray(w.category) ? w.category : [w.category]) : [];
-      if (!cats.map(c => String(c).toLowerCase()).includes(categoryFilter.toLowerCase())) return false;
+      const wc = cats.map(c => String(c).trim().toLowerCase());
+      const matchedCat = wc.some(wcItem => selectedParts.some(sp => wcItem === sp || wcItem.includes(sp) || sp.includes(wcItem)));
+      if (!matchedCat) return false;
     }
 
     // Price range (publisher-visible price: originalPriceCents or priceCents - adminExtra)
@@ -441,6 +477,24 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
     if (endDate) {
       const ed = new Date(endDate);
       if (!isNaN(ed.getTime()) && new Date(w.createdAt) > ed) return false;
+    }
+
+    // Country filter: check primeTrafficCountries (array or CSV string)
+    if (countryFilter && countryFilter !== 'all') {
+      const selected = countryFilter.toLowerCase();
+      let primes: string[] = [];
+      const rawPrimes: any = (w as any).primeTrafficCountries;
+      if (Array.isArray(rawPrimes)) {
+        primes = rawPrimes as string[];
+      } else if (typeof rawPrimes === 'string' && rawPrimes.trim() !== '') {
+        primes = rawPrimes.split(',').map((s: string) => s.trim()).filter(Boolean);
+      }
+      if (primes.length === 0) return false;
+      const matched = primes.some(pc => {
+        const p = (pc || '').toLowerCase();
+        return p.includes(selected) || selected.includes(p);
+      });
+      if (!matched) return false;
     }
 
     return true;
@@ -697,6 +751,7 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                 placeholder="Search websites..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
                 className="pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               />
               <button
@@ -742,6 +797,25 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                   <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
                     <option value="all">All Categories</option>
                     {uniqueCategories.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                  <select
+                    value={countryFilter}
+                    onChange={(e) => setCountryFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="all">All Countries</option>
+                    {/* Show DB-derived countries when a category filter is active, otherwise show full list */}
+                    {categoryFilter && categoryFilter !== 'all' ? (
+                      countryOptions.map((c) => <option key={c} value={c}>{c}</option>)
+                    ) : (
+                      (!loadingCountries ? allCountries : []).map((country: any) => (
+                        <option key={country.name} value={country.name}>{country.name}</option>
+                      ))
+                    )}
                   </select>
                 </div>
 

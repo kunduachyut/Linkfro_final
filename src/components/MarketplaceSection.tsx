@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useCart } from "../app/context/CartContext";
+import useCountries from "../hooks/useCountries";
+import { CATEGORIES } from "../lib/categories";
 
 // Country flag mapping function
 const getCountryFlag = (countryName: string | undefined): string => {
@@ -303,6 +305,8 @@ export default function MarketplaceSection({
   paidSiteIds: Set<string>;
 }) {
   const { addToCart } = useCart();
+  // Use the central countries hook (same as PublisherAddWebsiteSection)
+  const { countries: allCountries, loading: loadingCountries } = useCountries();
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     minPrice: '',
@@ -469,14 +473,45 @@ export default function MarketplaceSection({
     setColumns(prev => prev.map(col => ({ ...col, visible: true })));
   };
 
-  // Get unique categories and countries from websites
-  const uniqueCategories = Array.from(
-    new Set(websites.flatMap(w => Array.isArray(w.category) ? w.category : w.category ? [w.category] : []))
-  ).filter(Boolean) as string[];
+  // Use full categories list from shared CATEGORIES (show all categories in filters)
+  const allCategories = CATEGORIES.map(c => String(c.name)).filter(Boolean) as string[];
 
   const uniqueCountries = Array.from(
     new Set(websites.map(w => w.primaryCountry).filter(Boolean))
   ).filter(Boolean) as string[];
+
+  // Country options: if a category is selected, derive countries from DB for websites in that category
+  const countryOptions = (() => {
+    if (filters.category) {
+      const set = new Set<string>();
+      // build normalized selected parts from the canonical category label (split on comma)
+      const selectedParts = String(filters.category).split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      const matchesCategory = (websiteCategories: any[]) => {
+        const wc = websiteCategories.map((c: any) => String(c).trim().toLowerCase());
+        return wc.some(wcItem => selectedParts.some(sp => wcItem === sp || wcItem.includes(sp) || sp.includes(wcItem)));
+      };
+
+      websites.forEach(w => {
+        const websiteCategories = Array.isArray(w.category) ? w.category : w.category ? [w.category] : [];
+        if (!matchesCategory(websiteCategories)) return;
+
+        // primaryCountry
+        if (w.primaryCountry) set.add(String(w.primaryCountry));
+
+        // primeTrafficCountries (array or CSV string)
+        const rawPrimes: any = (w as any).primeTrafficCountries;
+        if (Array.isArray(rawPrimes)) {
+          rawPrimes.forEach((c: string) => c && set.add(String(c)));
+        } else if (typeof rawPrimes === 'string' && rawPrimes.trim() !== '') {
+          rawPrimes.split(',').map((s: string) => s.trim()).filter(Boolean).forEach((c: string) => set.add(String(c)));
+        }
+      });
+      return Array.from(set).filter(Boolean) as string[];
+    }
+
+    // default: use uniqueCountries derived from primaryCountry
+    return uniqueCountries;
+  })();
 
   // Apply filters to websites
   const filteredWebsites = websites.filter(w => {
@@ -515,12 +550,38 @@ export default function MarketplaceSection({
 
     // Category filter
     if (filters.category) {
+      const selectedParts = String(filters.category).split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
       const websiteCategories = Array.isArray(w.category) ? w.category : w.category ? [w.category] : [];
-      if (!websiteCategories.includes(filters.category)) return false;
+      const wc = websiteCategories.map((c: any) => String(c).trim().toLowerCase());
+      const matchedCat = wc.some((wcItem: string) => selectedParts.some(sp => wcItem === sp || wcItem.includes(sp) || sp.includes(wcItem)));
+      if (!matchedCat) return false;
     }
 
-    // Country filter
-    if (filters.country && w.primaryCountry !== filters.country) return false;
+    // Country filter: match against primeTrafficCountries (DB field)
+    // Accepts arrays or comma-separated strings. Uses case-insensitive
+    // partial matching so 'United States' matches 'United States of America'.
+    if (filters.country) {
+      const selected = filters.country.toLowerCase();
+
+      // Normalize primeTrafficCountries into an array of strings
+      let primes: string[] = [];
+      const rawPrimes: any = (w as any).primeTrafficCountries;
+      if (Array.isArray(rawPrimes)) {
+        primes = rawPrimes as string[];
+      } else if (typeof rawPrimes === 'string' && rawPrimes.trim() !== '') {
+        // split on commas and trim
+        primes = rawPrimes.split(',').map((s: string) => s.trim()).filter(Boolean);
+      }
+
+      if (primes.length === 0) return false;
+
+      const matched = primes.some(pc => {
+        const p = (pc || '').toLowerCase();
+        return p.includes(selected) || selected.includes(p);
+      });
+
+      if (!matched) return false;
+    }
 
     // Grey Niche filter
     if (filters.greyNicheAccepted !== '') {
@@ -626,6 +687,7 @@ export default function MarketplaceSection({
               placeholder="Search..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
               className="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
             />
             <svg className="w-4 h-4 absolute left-2.5 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -787,7 +849,7 @@ export default function MarketplaceSection({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">All Categories</option>
-                {uniqueCategories.map(category => (
+                {allCategories.map(category => (
                   <option key={category} value={category}>{category}</option>
                 ))}
               </select>
@@ -849,9 +911,16 @@ export default function MarketplaceSection({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">All Countries</option>
-                {uniqueCountries.map(country => (
-                  <option key={country} value={country}>{country}</option>
-                ))}
+                {/* If a category is selected we show countries derived from DB (countryOptions), otherwise show the full countries list */}
+                {filters.category ? (
+                  countryOptions.map((country: string) => (
+                    <option key={country} value={country}>{country}</option>
+                  ))
+                ) : (
+                  (!loadingCountries ? allCountries : []).map((country: any) => (
+                    <option key={country.name} value={country.name}>{country.name}</option>
+                  ))
+                )}
               </select>
             </div>
             

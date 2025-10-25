@@ -443,11 +443,8 @@ export function AddWebsiteForm({
       // Ensure all required fields are present
       const finalSubmissionData: FormData = {
         domainName: combinedData.domainName,
-        // If the user provided an email in the 'orderAcceptedEmail' field, store that into the DB's `websiteUrl` field
-        // (per requirement: the single email field should be saved into the url field). Otherwise fallback to websiteUrl or domainName
-        websiteUrl: (combinedData.orderAcceptedEmail && combinedData.orderAcceptedEmail.trim())
-          ? combinedData.orderAcceptedEmail.trim()
-          : (combinedData.websiteUrl && combinedData.websiteUrl.trim() ? combinedData.websiteUrl : combinedData.domainName),
+        // websiteUrl should be the site URL or domain. Do NOT overwrite it with the order-accepted email.
+        websiteUrl: (combinedData.websiteUrl && combinedData.websiteUrl.trim() ? combinedData.websiteUrl.trim() : combinedData.domainName),
         // Keep the explicit email field as well (optional) so it's available to the backend if needed
         orderAcceptedEmail: combinedData.orderAcceptedEmail?.trim ? combinedData.orderAcceptedEmail.trim() : combinedData.orderAcceptedEmail,
         category: combinedData.category,
@@ -600,6 +597,7 @@ export function AddWebsiteForm({
                       {step1Errors.orderAcceptedEmail && (
                         <p className="text-sm text-red-500">{step1Errors.orderAcceptedEmail}</p>
                       )}
+                      <p className="mt-1 text-xs text-gray-500">This email will be saved separately and can be reused across multiple websites (not saved into the website URL).</p>
                     </motion.div>
                     
                     <motion.div variants={fadeInUp} className="space-y-2">
@@ -620,6 +618,7 @@ export function AddWebsiteForm({
                                 className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 value={categorySearchTerm}
                                 onChange={(e) => setCategorySearchTerm(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
                               />
                             </div>
                             <div className="max-h-60 overflow-y-auto">
@@ -1074,8 +1073,8 @@ export function AddWebsiteForm({
                         <p className="font-medium">{submissionData.domainName}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Website URL</p>
-                        <p className="font-medium">{submissionData.websiteUrl}</p>
+                        <p className="text-sm text-gray-500">Order accepting email</p>
+                        <p className="font-medium">{submissionData.orderAcceptedEmail}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Category</p>

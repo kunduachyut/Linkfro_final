@@ -21,6 +21,7 @@ export interface IWebsite extends mongoose.Document {
   featured: boolean;
   tags: string[];
   primaryCountry?: string; // Add primaryCountry field
+  orderAcceptedEmail?: string; // Add optional order accepted email
   primeTrafficCountries?: string[]; // Add prime traffic countries field
   metaTitle?: string;
   metaDescription?: string;
@@ -41,6 +42,7 @@ export interface IWebsite extends mongoose.Document {
   conflictGroup?: string; // Group ID for multiple conflicting websites
   isOriginal?: boolean;   // True for the original website, false for the new submission
 
+  // Timestamps (createdAt and updatedAt) are provided by mongoose when timestamps: true
   createdAt: Date;
   updatedAt: Date;
 
@@ -208,6 +210,20 @@ const WebsiteSchema = new mongoose.Schema({
     trim: true,
     maxlength: [100, 'Country name cannot exceed 100 characters']
   }],
+
+  // Optional email used for order acceptance; can be reused across multiple websites
+  orderAcceptedEmail: {
+    type: String,
+    trim: true,
+    default: null,
+    validate: {
+      validator: function(v: string) {
+        if (!v) return true; // allow empty
+        return /^\S+@\S+\.\S+$/.test(v);
+      },
+      message: 'Please enter a valid email address'
+    }
+  },
 
   // SEO fields
   metaTitle: {

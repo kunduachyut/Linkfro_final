@@ -3,6 +3,8 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, Edit, Trash2, CheckCircle, Clock, XCircle } from "lucide-react";
 import { MinimalToggle } from "./ui/toggle";
+import useCountries from "../hooks/useCountries";
+import { CATEGORIES } from "../lib/categories";
 
 // Add the getCountryFlagEmoji function directly since we can't import it properly
 const getCountryFlagEmoji = (countryName: string): string => {
@@ -295,6 +297,15 @@ export default function PublisherWebsitesSection({
   const [maxPrice, setMaxPrice] = useState<string>("");
   const [minDA, setMinDA] = useState<string>("");
   const [maxDA, setMaxDA] = useState<string>("");
+  // Additional filters to match MarketplaceSection
+  const [minDR, setMinDR] = useState<string>("");
+  const [maxDR, setMaxDR] = useState<string>("");
+  const [minOrganicTraffic, setMinOrganicTraffic] = useState<string>("");
+  const [maxOrganicTraffic, setMaxOrganicTraffic] = useState<string>("");
+  const [countryFilter, setCountryFilter] = useState<string>("");
+  const [minTrafficValue, setMinTrafficValue] = useState<string>("");
+  const [maxTrafficValue, setMaxTrafficValue] = useState<string>("");
+  const [greyNicheFilter, setGreyNicheFilter] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [showFilters, setShowFilters] = useState(false);
@@ -307,6 +318,48 @@ export default function PublisherWebsitesSection({
       site.category ? (Array.isArray(site.category) ? site.category : [site.category]) : []
     ))
   ).filter(Boolean) as string[];
+
+  // Use canonical category list from shared CATEGORIES so filters show all options
+  const allCategories = CATEGORIES.map(c => String(c.name)).filter(Boolean) as string[];
+
+  // Use countries hook (cached) — Marketplace uses this to populate country lists
+  const { countries: allCountries, loading: loadingCountries } = useCountries();
+
+  // Unique primary countries from publisher sites (fallback list)
+  const uniqueCountries = Array.from(
+    new Set(mySites.map(w => w.primaryCountry).filter(Boolean))
+  ).filter(Boolean) as string[];
+
+  // Country options: if a category is selected, derive countries from DB for websites in that category
+  const countryOptions = (() => {
+    if (countryFilter && countryFilter !== '') {
+      // if user already selected a country, keep it as the only option
+      return [countryFilter];
+    }
+    if (categoryFilter && categoryFilter !== 'all') {
+      const set = new Set<string>();
+      const selectedParts = String(categoryFilter).split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      const matchesCategory = (websiteCategories: any[]) => {
+        const wc = websiteCategories.map((c: any) => String(c).trim().toLowerCase());
+        return wc.some(wcItem => selectedParts.some(sp => wcItem === sp || wcItem.includes(sp) || sp.includes(wcItem)));
+      };
+
+      mySites.forEach(w => {
+        const websiteCategories = Array.isArray(w.category) ? w.category : w.category ? [w.category] : [];
+        if (!matchesCategory(websiteCategories)) return;
+
+        if (w.primaryCountry) set.add(String(w.primaryCountry));
+
+        const rawPrimes: any = (w as any).primeTrafficCountries;
+        if (Array.isArray(rawPrimes)) rawPrimes.forEach((c: string) => c && set.add(String(c)));
+        else if (typeof rawPrimes === 'string' && rawPrimes.trim() !== '') rawPrimes.split(',').map((s: string) => s.trim()).filter(Boolean).forEach((c: string) => set.add(String(c)));
+      });
+
+      return Array.from(set).filter(Boolean) as string[];
+    }
+
+    return uniqueCountries;
+  })();
 
   // Helper to compute the publisher-visible price:
   // Prefer explicit originalPriceCents when set. If missing but adminExtraPriceCents exists,
@@ -380,10 +433,50 @@ export default function PublisherWebsitesSection({
     const priceToUse = computePublisherVisiblePrice(site as any);
     if (minPrice && priceToUse < parseFloat(minPrice) * 100) return false;
     if (maxPrice && priceToUse > parseFloat(maxPrice) * 100) return false;
-    
+
     // DA filters
     if (minDA && (site.DA ?? 0) < parseInt(minDA)) return false;
     if (maxDA && (site.DA ?? 0) > parseInt(maxDA)) return false;
+
+    // DR filters
+    if (minDR && (site.DR ?? 0) < parseInt(minDR)) return false;
+    if (maxDR && (site.DR ?? 0) > parseInt(maxDR)) return false;
+
+    // Organic traffic filters
+    if (minOrganicTraffic && (site.OrganicTraffic ?? 0) < parseInt(minOrganicTraffic)) return false;
+    if (maxOrganicTraffic && (site.OrganicTraffic ?? 0) > parseInt(maxOrganicTraffic)) return false;
+
+    // Traffic value filters
+    if (minTrafficValue && (site.trafficValue ?? 0) < parseInt(minTrafficValue)) return false;
+    if (maxTrafficValue && (site.trafficValue ?? 0) > parseInt(maxTrafficValue)) return false;
+
+    // Country filter: match against primeTrafficCountries (DB field) or primaryCountry
+    if (countryFilter) {
+      const selected = countryFilter.toLowerCase();
+      // Normalize primeTrafficCountries into array
+      let primes: string[] = [];
+      const rawPrimes: any = (site as any).primeTrafficCountries;
+      if (Array.isArray(rawPrimes)) primes = rawPrimes as string[];
+      else if (typeof rawPrimes === 'string' && rawPrimes.trim() !== '') primes = rawPrimes.split(',').map((s: string) => s.trim()).filter(Boolean);
+
+      // Also include primaryCountry for matching
+      if (site.primaryCountry) primes.push(String(site.primaryCountry));
+
+      if (primes.length === 0) return false;
+
+      const matched = primes.some(pc => {
+        const p = (pc || '').toLowerCase();
+        return p.includes(selected) || selected.includes(p);
+      });
+
+      if (!matched) return false;
+    }
+
+    // Grey niche filter
+    if (greyNicheFilter !== '') {
+      const filterValue = greyNicheFilter === 'true';
+      if (site.greyNicheAccepted !== filterValue) return false;
+    }
     
     // Date filters
     if (startDate || endDate) {
@@ -419,6 +512,14 @@ export default function PublisherWebsitesSection({
     setMaxPrice("");
     setMinDA("");
     setMaxDA("");
+    setMinDR("");
+    setMaxDR("");
+    setMinOrganicTraffic("");
+    setMaxOrganicTraffic("");
+    setCountryFilter("");
+    setMinTrafficValue("");
+    setMaxTrafficValue("");
+    setGreyNicheFilter("");
     setStartDate("");
     setEndDate("");
   };
@@ -512,6 +613,7 @@ export default function PublisherWebsitesSection({
                 placeholder="Search websites..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
                 className="pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               />
               <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-base">search</span>
@@ -524,7 +626,7 @@ export default function PublisherWebsitesSection({
             >
               <span className="material-symbols-outlined">filter_list</span>
               {/* Filter indicator dot */}
-              {(availabilityFilter !== "all" || categoryFilter !== "all" || minPrice || maxPrice || minDA || maxDA || startDate || endDate) && (
+              {(availabilityFilter !== "all" || categoryFilter !== "all" || minPrice || maxPrice || minDA || maxDA || startDate || endDate || minDR || maxDR || minOrganicTraffic || maxOrganicTraffic || countryFilter || minTrafficValue || maxTrafficValue || greyNicheFilter) && (
                 <span className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
               )}
             </button>
@@ -579,7 +681,7 @@ export default function PublisherWebsitesSection({
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="all">All Categories</option>
-                  {uniqueCategories.map((category) => (
+                  {allCategories.map((category) => (
                     <option key={category} value={category}>{category}</option>
                   ))}
                 </select>
@@ -625,6 +727,97 @@ export default function PublisherWebsitesSection({
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
+              </div>
+              {/* DR Range */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">DR Range</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={minDR}
+                    onChange={(e) => setMinDR(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={maxDR}
+                    onChange={(e) => setMaxDR(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Organic Traffic Range */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Organic Traffic</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={minOrganicTraffic}
+                    onChange={(e) => setMinOrganicTraffic(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={maxOrganicTraffic}
+                    onChange={(e) => setMaxOrganicTraffic(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Traffic Value Range */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Traffic Value</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={minTrafficValue}
+                    onChange={(e) => setMinTrafficValue(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={maxTrafficValue}
+                    onChange={(e) => setMaxTrafficValue(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Country Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                <select
+                  value={countryFilter}
+                  onChange={(e) => setCountryFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">All Countries</option>
+                  {countryOptions.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Grey Niche Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Grey Niche</label>
+                <select
+                  value={greyNicheFilter}
+                  onChange={(e) => setGreyNicheFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">All</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
               </div>
               
               {/* Date Range */}
@@ -678,7 +871,7 @@ export default function PublisherWebsitesSection({
                 <div className="font-medium">{website.title}</div>
                 <div className="text-sm text-muted-foreground truncate">
                   <a 
-                    href={website.url} 
+                    href={website.title.startsWith('http') ? website.title : `http://${website.title}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-blue-500 hover:text-blue-700 inline-flex items-center"
@@ -825,7 +1018,7 @@ export default function PublisherWebsitesSection({
                     <h3 className="text-lg font-semibold mb-4">Website Information</h3>
                     <div className="space-y-3">
                       <div>
-                        <p className="text-sm text-muted-foreground">URL</p>
+                        <p className="text-sm text-muted-foreground">Order accepted e-mail</p>
                         <p className="font-mono text-blue-600 hover:underline cursor-pointer" onClick={() => window.open(selectedWebsite.url, '_blank')}>
                           {selectedWebsite.url}
                         </p>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 export default function PurchasesSection({ 
   purchases, 
@@ -75,6 +76,8 @@ export default function PurchasesSection({
   const [websiteDetails, setWebsiteDetails] = useState<Record<string, any>>({});
   const [loadingDetails, setLoadingDetails] = useState<Record<string, boolean>>({});
   const [activeDetailsItem, setActiveDetailsItem] = useState<string | null>(null);
+  // Tooltip position (viewport coordinates) for the details popup so we can render it in a portal
+  const [tooltipRect, setTooltipRect] = useState<{ left: number; top: number } | null>(null);
 
   // Filter purchases based on search and filters
   const filteredPurchases = purchases.filter(purchase => {
@@ -260,6 +263,7 @@ export default function PurchasesSection({
               placeholder="Search purchases..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
               className="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
             />
             <svg className="w-4 h-4 absolute left-2.5 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -458,17 +462,25 @@ export default function PurchasesSection({
                         <div className="relative">
                           <button 
                             className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100 transition-colors"
-                            onMouseEnter={async () => {
+                            onMouseEnter={async (e) => {
                               // Fetch details on hover if not already loaded
                               if (websiteId && !websiteDetails[websiteId] && !loadingDetails[websiteId]) {
                                 await fetchWebsiteDetails(websiteId);
+                              }
+                              // Capture the button position so the tooltip can render in a portal
+                              try {
+                                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                setTooltipRect({ left: rect.left + rect.width / 2, top: rect.bottom });
+                              } catch (err) {
+                                setTooltipRect(null);
                               }
                               // Set this item as the active details item
                               setActiveDetailsItem(purchase._id);
                             }}
                             onMouseLeave={() => {
-                              // Clear the active details item when mouse leaves
+                              // Clear the active details item and tooltip position when mouse leaves
                               setActiveDetailsItem(null);
+                              setTooltipRect(null);
                             }}
                           >
                             {loadingDetails[websiteId] ? (
@@ -484,26 +496,30 @@ export default function PurchasesSection({
                             )}
                           </button>
                           
-                          {/* Floating tooltip with website details */}
-                          {activeDetailsItem === purchase._id && (
-                            <div className="absolute z-50 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 left-1/2 transform -translate-x-1/2">
+                          {/* Floating tooltip with website details rendered into a portal so it isn't clipped */}
+                          {activeDetailsItem === purchase._id && tooltipRect && typeof document !== 'undefined' && createPortal(
+                            <div
+                              style={{
+                                position: 'fixed',
+                                left: tooltipRect.left,
+                                top: tooltipRect.top + 8,
+                                transform: 'translateX(-50%)',
+                                zIndex: 99999,
+                                width: 256
+                              }}
+                              className="rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
+                            >
                               <div className="p-4">
                                 <div className="flex justify-between items-start mb-2">
                                   <h3 className="text-sm font-semibold text-gray-900 truncate">{websiteDetails[websiteId]?.title || 'Loading...'}</h3>
                                 </div>
-                                
+
                                 {loadingDetails[websiteId] ? (
                                   <div className="flex justify-center items-center h-16">
                                     <div className="text-gray-500 text-sm">Loading details...</div>
                                   </div>
                                 ) : websiteDetails[websiteId] ? (
                                   <div className="space-y-2">
-                                    <div className="flex justify-between text-xs">
-                                      <span className="text-gray-600">URL:</span>
-                                      <span className="font-medium text-blue-600 truncate max-w-[120px]" title={websiteDetails[websiteId].url}>
-                                        {websiteDetails[websiteId].url}
-                                      </span>
-                                    </div>
                                     <div className="flex justify-between text-xs">
                                       <span className="text-gray-600">Price:</span>
                                       <span className="font-medium">${(websiteDetails[websiteId].priceCents / 100).toFixed(2)}</span>
@@ -533,7 +549,8 @@ export default function PurchasesSection({
                                   </div>
                                 )}
                               </div>
-                            </div>
+                            </div>,
+                            document.body
                           )}
                         </div>
                       </div>
@@ -701,7 +718,7 @@ export default function PurchasesSection({
                     // Uploaded Content Details
                     <div>
                       <div className="mb-6">
-                        <h4 className="text-md font-medium text-gray-900 mb-2">My Content</h4>
+                        <h4 className="text-md font-medium text-gray-900 mb-2">My Content 1</h4>
                         <p className="text-gray-600">
                           You uploaded content for this purchase. Here are the details of your uploads.
                         </p>
