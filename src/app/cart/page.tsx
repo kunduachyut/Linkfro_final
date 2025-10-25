@@ -76,6 +76,13 @@ export default function CartPage() {
     briefNote: ''
   });
 
+  // Truncate helper for display (used to limit title length in cart)
+  const truncate = (s: string | undefined | null, n = 20) => {
+    if (!s) return '';
+    const str = String(s);
+    return str.length > n ? str.slice(0, n) + '…' : str;
+  };
+
   useEffect(() => {
     if (!isSignedIn) { 
       setUploadsByWebsite({}); 
@@ -546,7 +553,12 @@ export default function CartPage() {
                     {item.title.charAt(0).toUpperCase()}
                   </div>
                   <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">{item.title}</div>
+                    <div
+                      className="text-sm font-medium text-gray-900 max-w-[20ch] truncate overflow-hidden whitespace-nowrap"
+                      title={item.title}
+                    >
+                      {truncate(String(item.title), 20)}
+                    </div>
                   </div>
                 </div>
               </div>

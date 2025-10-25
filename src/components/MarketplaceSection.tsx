@@ -248,6 +248,32 @@ const truncate = (s: string, n = 15) => {
   return s.length > n ? s.slice(0, n) + '…' : s;
 };
 
+// Extract hostname/domain from a string value. Removes protocol, www. and path/query/hash.
+const extractHostname = (input?: string): string => {
+  if (!input) return '';
+  const s = String(input).trim();
+  // Quick fallback removal
+  try {
+    // If it looks like a URL, let URL parse it
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(s) || s.includes('/')) {
+      // ensure it has a protocol for URL constructor
+      const url = s.startsWith('//') ? 'https:' + s : (s.match(/^\w+:\/\//) ? s : 'https://' + s);
+      const u = new URL(url);
+      let host = u.hostname || '';
+      if (host.startsWith('www.')) host = host.slice(4);
+      return host;
+    }
+
+    // If no slashes, treat as a plain host and strip www.
+    let host = s.replace(/^https?:\/\//i, '').replace(/^www\./i, '');
+    host = host.split('/')[0].split('?')[0].split('#')[0];
+    return host;
+  } catch (err) {
+    // Last resort: regex strip
+    return s.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0].split('?')[0].split('#')[0];
+  }
+};
+
 type Website = {
   _id?: string;
   id?: string;
@@ -1164,10 +1190,10 @@ export default function MarketplaceSection({
                                 </div>
                                 <div className="ml-4 flex items-center">
                                   <div
-                                    className="text-sm font-medium text-gray-900 max-w-[20ch] truncate overflow-hidden whitespace-nowrap"
+                                    className="text-sm font-medium text-gray-900 max-w-[15ch] truncate overflow-hidden whitespace-nowrap"
                                     title={w.title}
                                   >
-                                    {truncate(String(w.title), 20)}
+                                    {truncate(extractHostname(String(w.title)), 15)}
                                   </div>
                                   {/* Description Icon */}
                                   {w.description && (

@@ -1111,7 +1111,7 @@ export function AddWebsiteForm({
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Spam:</span>
-                        <span className="font-medium">{submissionData.spam}</span>
+                        <span className="font-medium">% {submissionData.spam}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Organic Traffic:</span>
