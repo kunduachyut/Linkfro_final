@@ -242,6 +242,12 @@ const getCountryFlagEmoji = (countryName: string): string => {
   return '🌐';
 };
 
+// Truncate helper for display
+const truncate = (s: string, n = 15) => {
+  if (!s) return '';
+  return s.length > n ? s.slice(0, n) + '…' : s;
+};
+
 type Website = {
   _id?: string;
   id?: string;
@@ -1157,7 +1163,12 @@ export default function MarketplaceSection({
                                   {w.title.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="ml-4 flex items-center">
-                                  <div className="text-sm font-medium text-gray-900">{w.title}</div>
+                                  <div
+                                    className="text-sm font-medium text-gray-900 max-w-[20ch] truncate overflow-hidden whitespace-nowrap"
+                                    title={w.title}
+                                  >
+                                    {truncate(String(w.title), 20)}
+                                  </div>
                                   {/* Description Icon */}
                                   {w.description && (
                                     <div className="relative group ml-2">
