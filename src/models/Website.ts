@@ -382,7 +382,12 @@ if (mongoose.models.Website) {
 }
 
 // Final model with strict index control
-const Website = mongoose.model<IWebsite, WebsiteModel>('Website', WebsiteSchema);
+// Allow overriding the MongoDB collection name via env var in case the DB has a
+// non-standard or misspelled collection (for example 'websits'). Default is
+// the normal pluralized 'websites'. This avoids hard failures if the collection
+// name in the database doesn't match the model's inferred name.
+const collectionName = process.env.WEBSITE_COLLECTION_NAME || 'websites';
+const Website = mongoose.model<IWebsite, WebsiteModel>('Website', WebsiteSchema, collectionName);
 
 // Ensure no automatic indexing happens
 mongoose.set('autoIndex', false);

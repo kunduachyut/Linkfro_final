@@ -27,8 +27,11 @@ export async function GET(req: Request) {
   const status = searchParams.get("status");
   const category = searchParams.get("category");
   const page = parseInt(searchParams.get("page") || "1");
-  const limit = parseInt(searchParams.get("limit") || "10");
-  const skip = (page - 1) * limit;
+  const limitParam = searchParams.get("limit");
+  // Allow clients to request all items by passing limit=0 or limit=all
+  const limit = limitParam && limitParam.toLowerCase() === 'all' ? 0 : parseInt(limitParam || "10");
+  const usePagination = !(limitParam && (limit === 0 || (Number.isFinite(limit) && limit <= 0)));
+  const skip = usePagination ? (page - 1) * limit : 0;
   const role = searchParams.get("role"); // Get role parameter
 
   // Build filter object
@@ -54,24 +57,23 @@ export async function GET(req: Request) {
       }
       const userId = authCheck as string;
       filter.userId = userId;
+      {
+        let query = Website.find(filter).sort({ createdAt: -1 });
+        if (usePagination) query = query.skip(skip).limit(limit);
+        const websites = await query.exec();
 
-      const websites = await Website.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .exec();
+        const total = await safeCountDocuments(filter);
 
-      const total = await safeCountDocuments(filter);
-
-      return NextResponse.json({
-        websites,
-        pagination: {
-          page,
-          limit,
-          total,
-          pages: Math.ceil(total / limit),
-        },
-      });
+        return NextResponse.json({
+          websites,
+          pagination: {
+            page,
+            limit: usePagination ? limit : total,
+            total,
+            pages: usePagination ? Math.ceil(total / limit) : 1,
+          },
+        });
+      }
     }
 
     // Public access → only approved websites
@@ -79,23 +81,23 @@ export async function GET(req: Request) {
       filter.status = "approved";
       filter.available = true; // Only show available websites
 
-      const websites = await Website.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .exec();
+      {
+        let query = Website.find(filter).sort({ createdAt: -1 });
+        if (usePagination) query = query.skip(skip).limit(limit);
+        const websites = await query.exec();
 
-      const total = await safeCountDocuments(filter);
+        const total = await safeCountDocuments(filter);
 
-      return NextResponse.json({
-        websites,
-        pagination: {
-          page,
-          limit,
-          total,
-          pages: Math.ceil(total / limit),
-        },
-      });
+        return NextResponse.json({
+          websites,
+          pagination: {
+            page,
+            limit: usePagination ? limit : total,
+            total,
+            pages: usePagination ? Math.ceil(total / limit) : 1,
+          },
+        });
+      }
     }
 
     // Authenticated user role handling
@@ -105,11 +107,10 @@ export async function GET(req: Request) {
   // Allow both superadmins and 'websites' analysts to access the full websites view
   if (userRole === "superadmin" || userRole === "websites" || role === "superadmin") {
       // For super admin, populate user email information
-      const websites = await Website.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .exec();
+      {
+        let query = Website.find(filter).sort({ createdAt: -1 });
+        if (usePagination) query = query.skip(skip).limit(limit);
+        const websites = await query.exec();
 
       // Get unique user IDs
       const userIds = [...new Set(websites.map(website => website.userId).filter(id => id))];
@@ -139,32 +140,32 @@ export async function GET(req: Request) {
         websites: websitesWithUserEmail,
         pagination: {
           page,
-          limit,
+          limit: usePagination ? limit : total,
           total,
-          pages: Math.ceil(total / limit),
+          pages: usePagination ? Math.ceil(total / limit) : 1,
         },
       });
-  } else if (userRole === "consumer") {
+    }
+    } else if (userRole === "consumer") {
       filter.status = "approved";
       filter.available = true; // Only show available websites
+      {
+        let query = Website.find(filter).sort({ createdAt: -1 });
+        if (usePagination) query = query.skip(skip).limit(limit);
+        const websites = await query.exec();
 
-      const websites = await Website.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .exec();
+        const total = await safeCountDocuments(filter);
 
-      const total = await safeCountDocuments(filter);
-
-      return NextResponse.json({
-        websites,
-        pagination: {
-          page,
-          limit,
-          total,
-          pages: Math.ceil(total / limit),
-        },
-      });
+        return NextResponse.json({
+          websites,
+          pagination: {
+            page,
+            limit: usePagination ? limit : total,
+            total,
+            pages: usePagination ? Math.ceil(total / limit) : 1,
+          },
+        });
+      }
     } else if (userRole === "publisher") {
       const orFilter = {
         $or: [
@@ -172,46 +173,45 @@ export async function GET(req: Request) {
           { status: "approved", available: true }
         ],
       };
+      {
+        let query = Website.find(orFilter).sort({ createdAt: -1 });
+        if (usePagination) query = query.skip(skip).limit(limit);
+        const websites = await query.exec();
 
-      const websites = await Website.find(orFilter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .exec();
+        const total = await safeCountDocuments(orFilter);
 
-      const total = await safeCountDocuments(orFilter);
-
-      return NextResponse.json({
-        websites,
-        pagination: {
-          page,
-          limit,
-          total,
-          pages: Math.ceil(total / limit),
-        },
-      });
+        return NextResponse.json({
+          websites,
+          pagination: {
+            page,
+            limit: usePagination ? limit : total,
+            total,
+            pages: usePagination ? Math.ceil(total / limit) : 1,
+          },
+        });
+      }
     }
 
     // Default fallback → only approved and available
     filter.status = "approved";
     filter.available = true;
-    const websites = await Website.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .exec();
+    {
+      let query = Website.find(filter).sort({ createdAt: -1 });
+      if (usePagination) query = query.skip(skip).limit(limit);
+      const websites = await query.exec();
 
-    const total = await safeCountDocuments(filter);
+      const total = await safeCountDocuments(filter);
 
-    return NextResponse.json({
-      websites,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
-    });
+      return NextResponse.json({
+        websites,
+        pagination: {
+          page,
+          limit: usePagination ? limit : total,
+          total,
+          pages: usePagination ? Math.ceil(total / limit) : 1,
+        },
+      });
+    }
   } catch (error) {
     console.error("Error in websites API:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

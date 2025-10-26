@@ -140,7 +140,8 @@ export default function ConsumerDashboard() {
     setError((prev) => ({ ...prev, websites: "" }));
 
     try {
-      const res = await fetch("/api/websites");
+  // Request no limit (all websites) by using limit=0
+  const res = await fetch("/api/websites?limit=0");
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error || `HTTP error! status: ${res.status}`);

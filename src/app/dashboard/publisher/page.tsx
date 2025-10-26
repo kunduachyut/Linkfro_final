@@ -127,7 +127,8 @@ export default function PublisherDashboard() {
 
   function refresh() {
     setLoading(true);
-    fetch("/api/websites?owner=me")
+  // Request no limit for publisher so all sites are returned
+  fetch("/api/websites?owner=me&limit=0")
       .then((r) => r.json())
       .then((sitesData) => {
         const rawSites = sitesData.websites || sitesData || [];
