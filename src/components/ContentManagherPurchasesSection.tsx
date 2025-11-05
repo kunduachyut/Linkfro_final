@@ -18,6 +18,7 @@ type PurchaseRequest = {
   contentType?: "content" | "request" | null;
   docLink?: string;
   liveLink?: string;
+  paymentLink?: string;
 };
 
 // ...in SuperAdminPurchasesSection.tsx
@@ -263,9 +264,9 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
           </div>
         </div>
 
-        {/* Purchase Filter Tabs */}
+        {/* Purchase Filter Tabs (Content Manager: only show pending / ongoing / pendingPayment) */}
         <div className="flex flex-wrap gap-2 mb-6">
-          {(["all", "pending", "ongoing", "pendingPayment", "approved", "rejected"] as FilterType[]).map((tab) => (
+          {(["pending", "ongoing", "pendingPayment"] as FilterType[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setPurchaseFilter(tab)}
@@ -344,13 +345,10 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                     )}
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Website
+                      
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer
-                    </th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price
-                    </th>
+                    {/* Customer (removed) */}
+                    {/* Price (removed) */}
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Content Type
                     </th>
@@ -385,19 +383,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                         <td className="px-4 py-3">
                           <div className="text-sm font-medium text-gray-900">{request.websiteTitle || 'Untitled'}</div>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm text-gray-900 max-w-[150px] truncate" title={request.customerEmail || ''}>
-                            {request.customerEmail || 'N/A'}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {formatCurrency(request.priceCents)}
-                          </div>
-                          <div className="text-xs font-bold text-indigo-600">
-                            Total: {formatCurrency(request.totalCents)}
-                          </div>
-                        </td>
+                        {/* Customer and Price columns removed for Content Manager view */}
                         <td className="px-4 py-3 whitespace-nowrap">
                           {getContentTypeBadge(request.contentType, request)}
                         </td>
@@ -502,116 +488,20 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                           </div>
                         </td>
                       </tr>
+
                       {expandedRows[request.id] && (
                         <tr>
-                          <td colSpan={purchaseFilter === "pending" ? 8 : 7} className="px-4 py-2 bg-gray-50">
+                          {/* Adjust colspan since Customer and Price columns removed */}
+                          <td colSpan={purchaseFilter === "pending" ? 6 : 5} className="px-4 py-2 bg-gray-50">
                             <div className="flex justify-end">
                               <div className="flex flex-col gap-2 w-full max-w-md">
-                                <div className="flex flex-col gap-3">
-                                  {(request.status === 'pending' || request.status === 'ongoing') && (
-                                    <>
-                                      <div>
-                                        <label className="text-xs text-gray-500 mb-1">Document Link</label>
-                                        <div className="flex gap-2">
-                                          <input
-                                            value={messages?.[`docLink:${request.id}`] || ''}
-                                            onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`docLink:${request.id}`]: e.target.value }))}
-                                            placeholder="Enter document/file URL"
-                                            className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
-                                          />
-                                          <button
-                                            onClick={async () => {
-                                              if (!setMessages) {
-                                                alert('Cannot update document link - message handler not initialized');
-                                                return;
-                                              }
-                                              const link = messages?.[`docLink:${request.id}`] || '';
-                                              try {
-                                                const res = await fetch(`/api/purchases/${request.id}/doc-link`, {
-                                                  method: 'PATCH',
-                                                  headers: { 
-                                                    'Content-Type': 'application/json'
-                                                  },
-                                                  body: JSON.stringify({ docLink: link })
-                                                });
-                                                const body = await res.json();
-                                                if (!res.ok) {
-                                                  const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
-                                                  console.error('Push doc link failed', { status: res.status, body });
-                                                  alert(`Failed to push document link: ${serverMsg}`);
-                                                  return;
-                                                }
-                                                // Update the UI with the saved link
-                                                request.docLink = body.docLink;
-                                                // Clear the message input
-                                                setMessages(prev => ({ ...prev, [`docLink:${request.id}`]: '' }));
-                                                alert('Document link saved successfully');
-                                              } catch (err) {
-                                                console.error('Push doc link failed (network)', err);
-                                                alert('Failed to push document link (network error)');
-                                              }
-                                            }}
-                                            className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 whitespace-nowrap"
-                                          >
-                                            Push Doc
-                                          </button>
-                                        </div>
-                                      </div>
-
-                                      <div>
-                                        <label className="text-xs text-gray-500 mb-1">Live Link</label>
-                                        <div className="flex gap-2">
-                                          <input
-                                            value={messages?.[`liveLink:${request.id}`] || ''}
-                                            onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`liveLink:${request.id}`]: e.target.value }))}
-                                            placeholder="Enter live/demo URL"
-                                            className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
-                                          />
-                                          <button
-                                            onClick={async () => {
-                                              if (!setMessages) {
-                                                alert('Cannot update live link - message handler not initialized');
-                                                return;
-                                              }
-                                              const link = messages?.[`liveLink:${request.id}`] || '';
-                                              try {
-                                                const res = await fetch(`/api/purchases/${request.id}/live-link`, {
-                                                  method: 'PATCH',
-                                                  headers: { 
-                                                    'Content-Type': 'application/json'
-                                                  },
-                                                  body: JSON.stringify({ liveLink: link })
-                                                });
-                                                const body = await res.json();
-                                                if (!res.ok) {
-                                                  const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
-                                                  console.error('Push live link failed', { status: res.status, body });
-                                                  alert(`Failed to push live link: ${serverMsg}`);
-                                                  return;
-                                                }
-                                                // Update the UI with the saved link
-                                                request.liveLink = body.liveLink;
-                                                // Clear the message input
-                                                setMessages(prev => ({ ...prev, [`liveLink:${request.id}`]: '' }));
-                                                alert('Live link saved successfully');
-                                              } catch (err) {
-                                                console.error('Push live link failed (network)', err);
-                                                alert('Failed to push live link (network error)');
-                                              }
-                                            }}
-                                            className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 whitespace-nowrap"
-                                          >
-                                            Push Live
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </>
-                                  )}
-
+                                <div className="flex flex-col">
+                                  {/* Payment Link: only visible when the purchase is in pendingPayment state */}
                                   {request.status === 'pendingPayment' && (
-                                    <div>
+                                    <>
+                                      {/* Payment Link */}
                                       <label className="text-xs text-gray-500 mb-1">Payment Link</label>
-                                      <div className="flex gap-2">
+                                      <div className="flex gap-2 mb-2">
                                         <textarea
                                           value={messages?.[`paymentLink:${request.id}`] || ''}
                                           onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`paymentLink:${request.id}`]: e.target.value }))}
@@ -627,26 +517,23 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                                                 method: 'PATCH',
                                                 headers: { 'Content-Type': 'application/json' },
                                                 body: JSON.stringify({ paymentLink: link }),
-                                                credentials: 'same-origin',
                                               });
 
-                                              let body: any = null;
-                                              try {
-                                                body = await res.json();
-                                              } catch (e) {
-                                                // ignore json parse errors
-                                              }
-
+                                              const body = await res.json();
                                               if (!res.ok) {
                                                 const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
-                                                console.error('Push link failed', { status: res.status, body });
-                                                alert(`Failed to push link: ${serverMsg}`);
+                                                console.error('Push payment link failed', { status: res.status, body });
+                                                alert(`Failed to push payment link: ${serverMsg}`);
                                                 return;
                                               }
-
+                                              
+                                              // Update UI state
+                                              request.paymentLink = body.paymentLink;
+                                              // Clear input
+                                              setMessages(prev => ({ ...prev, [`paymentLink:${request.id}`]: '' }));
                                               alert('Payment link pushed successfully');
                                             } catch (err) {
-                                              console.error('Push link failed (network)', err);
+                                              console.error('Push payment link failed (network)', err);
                                               alert('Failed to push payment link (network error)');
                                             }
                                           }}
@@ -655,7 +542,192 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                                           Push Link
                                         </button>
                                       </div>
-                                    </div>
+
+                                      {/* Doc Link */}
+                                      <label className="text-xs text-gray-500 mb-1">Document Link</label>
+                                      <div className="flex gap-2 mb-2">
+                                        <textarea
+                                          value={messages?.[`docLink:${request.id}`] || ''}
+                                          onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`docLink:${request.id}`]: e.target.value }))}
+                                          placeholder="Enter document URL"
+                                          className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
+                                          rows={1}
+                                        />
+                                        <button
+                                          onClick={async () => {
+                                            if (!setMessages) {
+                                              alert('Cannot update document link - message handler not initialized');
+                                              return;
+                                            }
+                                            const link = messages?.[`docLink:${request.id}`] || '';
+                                            try {
+                                              const res = await fetch(`/api/purchases/${request.id}/doc-link`, {
+                                                method: 'PATCH',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ docLink: link })
+                                              });
+
+                                              const body = await res.json();
+                                              if (!res.ok) {
+                                                const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
+                                                console.error('Push doc link failed', { status: res.status, body });
+                                                alert(`Failed to push document link: ${serverMsg}`);
+                                                return;
+                                              }
+
+                                              // Update UI state
+                                              request.docLink = body.docLink;
+                                              // Clear input
+                                              setMessages(prev => ({ ...prev, [`docLink:${request.id}`]: '' }));
+                                              alert('Document link saved successfully');
+                                            } catch (err) {
+                                              console.error('Push doc link failed (network)', err);
+                                              alert('Failed to push document link (network error)');
+                                            }
+                                          }}
+                                          className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 whitespace-nowrap"
+                                        >
+                                          Push Doc
+                                        </button>
+                                      </div>
+
+                                      {/* Live Link */}
+                                      <label className="text-xs text-gray-500 mb-1">Live Link</label>
+                                      <div className="flex gap-2 mb-2">
+                                        <textarea
+                                          value={messages?.[`liveLink:${request.id}`] || ''}
+                                          onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`liveLink:${request.id}`]: e.target.value }))}
+                                          placeholder="Enter live URL"
+                                          className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
+                                          rows={1}
+                                        />
+                                        <button
+                                          onClick={async () => {
+                                            if (!setMessages) {
+                                              alert('Cannot update live link - message handler not initialized');
+                                              return;
+                                            }
+                                            const link = messages?.[`liveLink:${request.id}`] || '';
+                                            try {
+                                              const res = await fetch(`/api/purchases/${request.id}/live-link`, {
+                                                method: 'PATCH',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ liveLink: link })
+                                              });
+
+                                              const body = await res.json();
+                                              if (!res.ok) {
+                                                const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
+                                                console.error('Push live link failed', { status: res.status, body });
+                                                alert(`Failed to push live link: ${serverMsg}`);
+                                                return;
+                                              }
+
+                                              // Update UI state
+                                              request.liveLink = body.liveLink;
+                                              // Clear input
+                                              setMessages(prev => ({ ...prev, [`liveLink:${request.id}`]: '' }));
+                                              alert('Live link saved successfully');
+                                            } catch (err) {
+                                              console.error('Push live link failed (network)', err);
+                                              alert('Failed to push live link (network error)');
+                                            }
+                                          }}
+                                          className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 whitespace-nowrap"
+                                        >
+                                          Push Live
+                                        </button>
+                                      </div>
+                                    </>
+                                  )}
+
+                                  {/* Doc URL and Live URL: visible when the purchase is in pending or ongoing state */}
+                                  {(request.status === 'pending' || request.status === 'ongoing') && (
+                                    <>
+                                      {/* Doc URL field */}
+                                      <label className="text-xs text-gray-500 mb-1">Doc URL</label>
+                                      <div className="flex gap-2 mb-2">
+                                        <input
+                                          value={messages?.[`docUrl:${request.id}`] || ''}
+                                          onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`docUrl:${request.id}`]: e.target.value }))}
+                                          placeholder="Enter document URL (e.g., Google Drive link)"
+                                          className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
+                                        />
+                                        <button
+                                          onClick={async () => {
+                                            const link = messages?.[`docUrl:${request.id}`] || '';
+                                            try {
+                                              const res = await fetch(`/api/purchases/${request.id}/links`, {
+                                                method: 'PATCH',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ docUrl: link }),
+                                                credentials: 'same-origin',
+                                              });
+
+                                              let body: any = null;
+                                              try { body = await res.json(); } catch (e) { }
+
+                                              if (!res.ok) {
+                                                const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
+                                                console.error('Push doc link failed', { status: res.status, body });
+                                                alert(`Failed to push doc URL: ${serverMsg}`);
+                                                return;
+                                              }
+
+                                              alert('Doc URL pushed successfully');
+                                            } catch (err) {
+                                              console.error('Push doc link failed (network)', err);
+                                              alert('Failed to push doc URL (network error)');
+                                            }
+                                          }}
+                                          className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 whitespace-nowrap"
+                                        >
+                                          Push Doc
+                                        </button>
+                                      </div>
+
+                                      {/* Live URL field */}
+                                      <label className="text-xs text-gray-500 mb-1">Live URL</label>
+                                      <div className="flex gap-2">
+                                        <input
+                                          value={messages?.[`liveUrl:${request.id}`] || ''}
+                                          onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`liveUrl:${request.id}`]: e.target.value }))}
+                                          placeholder="Enter live site URL (e.g., https://example.com)"
+                                          className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
+                                        />
+                                        <button
+                                          onClick={async () => {
+                                            const link = messages?.[`liveUrl:${request.id}`] || '';
+                                            try {
+                                              const res = await fetch(`/api/purchases/${request.id}/links`, {
+                                                method: 'PATCH',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ liveUrl: link }),
+                                                credentials: 'same-origin',
+                                              });
+
+                                              let body: any = null;
+                                              try { body = await res.json(); } catch (e) { }
+
+                                              if (!res.ok) {
+                                                const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
+                                                console.error('Push live link failed', { status: res.status, body });
+                                                alert(`Failed to push live URL: ${serverMsg}`);
+                                                return;
+                                              }
+
+                                              alert('Live URL pushed successfully');
+                                            } catch (err) {
+                                              console.error('Push live link failed (network)', err);
+                                              alert('Failed to push live URL (network error)');
+                                            }
+                                          }}
+                                          className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 whitespace-nowrap"
+                                        >
+                                          Push Live
+                                        </button>
+                                      </div>
+                                    </>
                                   )}
                                 </div>
                               </div>

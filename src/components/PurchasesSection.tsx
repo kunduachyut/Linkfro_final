@@ -1,5 +1,9 @@
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { useUser } from '@clerk/nextjs';
+import ChatWindow from './ChatWindow';
 
 export default function PurchasesSection({ 
   purchases, 
@@ -79,6 +83,13 @@ export default function PurchasesSection({
   // Tooltip position (viewport coordinates) for the details popup so we can render it in a portal
   const [tooltipRect, setTooltipRect] = useState<{ left: number; top: number } | null>(null);
 
+  // Chat state (consumer side)
+  const { user } = useUser();
+  const currentUserId = (user && (user.id || (user?.id as string))) || '';
+  const currentUserRole = (user && (user.publicMetadata?.role as string)) ? (user.publicMetadata.role as 'consumer' | 'superadmin') : 'consumer';
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+  const [isChatMinimized, setIsChatMinimized] = useState(false);
+
   // Filter purchases based on search and filters
   const filteredPurchases = purchases.filter(purchase => {
     // Search filter
@@ -109,45 +120,83 @@ export default function PurchasesSection({
     return matchesSearch && matchesStatus && matchesContentType && matchesDateRange;
   });
 
-  // Fetch content uploads for each purchase
+  // Fetch content uploads for each purchase and refresh periodically
   useEffect(() => {
+    if (!purchases || purchases.length === 0) return;
+
+    let isSubscribed = true; // For cleanup
+    let intervalId: NodeJS.Timeout;
+
     const fetchContentUploads = async () => {
-      if (purchases.length === 0) return;
-      
-      // Create a map of purchaseId to websiteId for lookup
-      const purchaseToWebsiteMap: Record<string, string> = {};
+      if (!isSubscribed) return;
+
+      // Create a temporary map to collect all fetch results
+      const newUploads: Record<string, any[]> = {};
+      const loadingStates: Record<string, boolean> = {};
+
+      // First update all loading states at once
+      const purchaseMap: Record<string, string> = {};
       purchases.forEach(purchase => {
-        const websiteId = getWebsiteId(purchase);
-        if (websiteId) {
-          purchaseToWebsiteMap[purchase._id] = websiteId;
+        const purchaseId = purchase._id;
+        const websiteId = typeof purchase.websiteId === "string" ? purchase.websiteId : purchase.websiteId?._id;
+        if (websiteId && purchaseId) {
+          purchaseMap[purchaseId] = websiteId;
+          loadingStates[purchaseId] = true;
         }
       });
-      
-      // Fetch uploads for each purchase
-      Object.keys(purchaseToWebsiteMap).forEach(async (purchaseId) => {
-        const websiteId = purchaseToWebsiteMap[purchaseId];
-        if (!websiteId) return;
-        
-        setLoadingUploads(prev => ({ ...prev, [purchaseId]: true }));
-        try {
-          const res = await fetch(`/api/my-content?purchaseId=${purchaseId}`);
-          if (res.ok) {
-            const data = await res.json();
-            setContentUploads(prev => ({
-              ...prev,
-              [purchaseId]: data.items || []
-            }));
+
+      if (Object.keys(loadingStates).length > 0) {
+        setLoadingUploads(loadingStates);
+      }
+
+      // Fetch all content in parallel
+      try {
+        const fetchPromises = Object.keys(purchaseMap).map(async (purchaseId) => {
+          if (!isSubscribed) return;
+          
+          try {
+            const res = await fetch(`/api/my-content?purchaseId=${purchaseId}`);
+            if (res.ok && isSubscribed) {
+              const data = await res.json();
+              newUploads[purchaseId] = data.items || [];
+            }
+          } catch (err) {
+            console.error(`Failed to fetch content for purchase ${purchaseId}:`, err);
           }
-        } catch (err) {
-          console.error("Failed to fetch content uploads:", err);
-        } finally {
-          setLoadingUploads(prev => ({ ...prev, [purchaseId]: false }));
+        });
+
+        await Promise.all(fetchPromises);
+
+        // Only update state if component is still mounted
+        if (isSubscribed) {
+          setContentUploads(newUploads);
+          setLoadingUploads({});
         }
-      });
+      } catch (err) {
+        console.error("Failed to fetch content uploads:", err);
+        if (isSubscribed) {
+          setLoadingUploads({});
+        }
+      }
     };
-    
+
+    // Initial fetch
     fetchContentUploads();
-  }, [purchases]);
+
+    // Set up periodic refresh every 30 seconds
+    intervalId = setInterval(() => {
+      refreshPurchases();
+      fetchContentUploads();
+    }, 30000);
+
+    // Cleanup function
+    return () => {
+      isSubscribed = false;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [purchases, refreshPurchases]); // Remove getWebsiteId from dependencies
 
   // Function to fetch website details
   const fetchWebsiteDetails = async (websiteId: string) => {
@@ -180,6 +229,20 @@ export default function PurchasesSection({
 
   const updateMessage = (purchaseId: string, message: string) => {
     setMessages(prev => ({ ...prev, [purchaseId]: message }));
+  };
+
+  const handleChatClick = (purchaseId: string) => {
+    if (activeChatId === purchaseId) {
+      setIsChatMinimized(!isChatMinimized);
+    } else {
+      setActiveChatId(purchaseId);
+      setIsChatMinimized(false);
+    }
+  };
+
+  const handleCloseChat = () => {
+    setActiveChatId(null);
+    setIsChatMinimized(false);
   };
 
   const requestAd = async (websiteId: string, purchaseId: string) => {
@@ -247,11 +310,13 @@ export default function PurchasesSection({
         <div className="flex items-center gap-2">
           <button
             onClick={refreshPurchases}
-            className="p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100"
+            className="px-3 py-2 bg-green-50 text-green-600 hover:bg-green-100 rounded-md transition-colors flex items-center gap-2"
+            title="Click to refresh purchases and check for new updates"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
+            <span className="text-sm font-medium">Refresh</span>
           </button>
           <span className="text-sm font-medium text-gray-500">{filteredPurchases.length} of {purchases.length} purchases</span>
         </div>
@@ -419,14 +484,15 @@ export default function PurchasesSection({
           ) : (
             <div>
               {/* Table Header - Updated to 19 columns to accommodate Details column */}
-              <div className="grid grid-cols-19 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <div className="grid grid-cols-22 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <div className="col-span-4 flex items-center">WEBSITE NAME</div>
                 <div className="col-span-1 flex justify-center">DETAILS</div>
                 <div className="col-span-3 flex justify-center">CONTENT TYPE</div>
                 <div className="col-span-3 flex justify-center">PURCHASE DATE</div>
                 <div className="col-span-2 flex justify-center">AMOUNT</div>
                 <div className="col-span-2 flex justify-center">STATUS</div>
-                <div className="col-span-3 flex justify-center">ACTIONS</div>
+                <div className="col-span-3 flex justify-center">DOC URL</div>
+                <div className="col-span-3 flex justify-center">LIVE URL</div>
                 <div className="col-span-1"></div>
               </div>
               
@@ -441,7 +507,7 @@ export default function PurchasesSection({
                   const isLoadingUploads = loadingUploads[purchase._id] || false;
                   
                   return (
-                    <div key={purchase._id || index} className="grid grid-cols-19 gap-4 px-6 py-4 hover:bg-gray-50 items-center">
+                    <div key={purchase._id || index} className="grid grid-cols-22 gap-4 px-6 py-4 hover:bg-gray-50 items-center">
                       {/* Website Info */}
                       <div className="col-span-4">
                         <div className="flex items-center">
@@ -596,6 +662,56 @@ export default function PurchasesSection({
                         </span>
                       </div>
                       
+                      {/* Doc URL column - show button if provided, otherwise show disabled state */}
+                      <div className="col-span-3 flex justify-center">
+                        {purchase.docLink ? (
+                          <button
+                            onClick={() => window.open(purchase.docLink, '_blank')}
+                            className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 transition-colors text-sm flex items-center gap-2"
+                            title={purchase.docLink}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            View Doc
+                          </button>
+                        ) : (
+                          <button
+                            disabled
+                            className="px-3 py-1.5 bg-gray-50 text-gray-400 rounded-md cursor-not-allowed text-sm flex items-center gap-2"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Live URL column - show button if provided, otherwise show disabled state */}
+                      <div className="col-span-3 flex justify-center">
+                        {purchase.liveLink ? (
+                          <button
+                            onClick={() => window.open(purchase.liveLink, '_blank')}
+                            className="px-3 py-1.5 bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors text-sm flex items-center gap-2"
+                            title={purchase.liveLink}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            View Live
+                          </button>
+                        ) : (
+                          <button
+                            disabled
+                            className="px-3 py-1.5 bg-gray-50 text-gray-400 rounded-md cursor-not-allowed text-sm flex items-center gap-2"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+
                       {/* Actions */}
                       <div className="col-span-3 flex justify-center">
                         <div className="flex space-x-2">
@@ -632,6 +748,16 @@ export default function PurchasesSection({
                               </button>
                             </div>
                           )}
+                          {/* Chat Button - always available */}
+                          <button
+                            onClick={() => handleChatClick(purchase._id)}
+                            className="text-indigo-600 hover:text-indigo-900 p-1"
+                            title="Chat"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                          </button>
                           {/* Payment link input - visible only when purchase is ongoing */}
                           
                         </div>
@@ -655,6 +781,18 @@ export default function PurchasesSection({
       )}
 
       {/* Content Details Modal */}
+      {/* Chat Window */}
+      {activeChatId && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <ChatWindow
+            purchaseId={activeChatId}
+            currentUserRole={currentUserRole}
+            currentUserId={currentUserId}
+            onClose={handleCloseChat}
+            isMinimized={isChatMinimized}
+          />
+        </div>
+      )}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-xl">

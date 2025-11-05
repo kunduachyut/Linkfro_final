@@ -49,7 +49,9 @@ export async function GET(req: NextRequest) {
       amountCents: purchase.amountCents,
       customerId: purchase.buyerId,
       customerEmail: '', // We'll populate this below
-      paymentLink: purchase.paymentLink || null,
+  paymentLink: purchase.paymentLink || null,
+  docLink: purchase.docLink || null,
+  liveLink: purchase.liveLink || null,
       status: purchase.status,
       contentType: purchase.contentSelection, // Use stored content selection
       createdAt: purchase.createdAt.toISOString(),
@@ -127,7 +129,9 @@ export async function POST(req: NextRequest) {
         websiteId: purchase.websiteId.toString(),
         websiteTitle: item.title,
         priceCents: purchase.amountCents,
-        paymentLink: purchase.paymentLink || null,
+  paymentLink: purchase.paymentLink || null,
+  docLink: purchase.docLink || null,
+  liveLink: purchase.liveLink || null,
         totalCents: purchase.amountCents,
         amountCents: purchase.amountCents,
         customerId: purchase.buyerId,

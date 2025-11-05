@@ -4,24 +4,17 @@
 
 import { useEffect, useState } from "react";
 import { useUser } from '@clerk/clerk-react';
-import SuperAdminSidebar from "@/components/SuperAdminSidebar";
+import WebsiteAnalystSidePanel from "@/components/WebsiteAnalystSidePanel";
 import SuperAdminWebsitesSection from "@/components/SuperAdminWebsitesSection";
-import SuperAdminPurchasesSection from "@/components/SuperAdminPurchasesSection";
+import ContentManagherPurchasesSection from "@/components/ContentManagherPurchasesSection";
+import ContentMangerUserContentSection from "@/components/ContentMangerUserContentSection";
 import SuperAdminContentRequestsSection from "@/components/SuperAdminContentRequestsSection";
-import SuperAdminUserContentSection from "@/components/SuperAdminUserContentSection";
 import SuperAdminPriceConflictsSection from "@/components/SuperAdminPriceConflictsSection";
 import SuperAdminUserRequestsSection from "@/components/SuperAdminUserRequestsSection";
 import SuperAdminRolesSection from "@/components/SuperAdminRolesSection";
 
 // add Tab type to align with sidebar
-type Tab =
-  | "websites"
-  | "userContent"
-  | "purchases"
-  | "contentRequests"
-  | "priceConflicts"
-  | "userRequests"
-  | "roles";
+type Tab = "websites" | "purchases" | "contentRequests" | "userContent" | "priceConflicts" | "userRequests" | "roles";
 
 // Type definitions
 type Website = {
@@ -131,15 +124,16 @@ export default function SuperAdminDashboardPage() {
   
   const [currentUserRole, setCurrentUserRole] = useState<"websites" | "requests" | null>(null);
   const [isSuper, setIsSuper] = useState(false);
-  const [allowedTabs, setAllowedTabs] = useState<Tab[]>(["websites","userContent","purchases","contentRequests","priceConflicts","userRequests","roles"]);
+  // For Content Manager page we only show Purchases and User Uploads
+  const [allowedTabs, setAllowedTabs] = useState<Tab[]>(["websites"]);
 
   // Track last-seen counts per tab to detect new items since last view.
   const LS_KEY = 'adminLastSeenCounts_v1';
   const initialCounts = (): Record<Tab, number> => ({
     websites: 0,
-    userContent: 0,
     purchases: 0,
     contentRequests: 0,
+    userContent: 0,
     priceConflicts: 0,
     userRequests: 0,
     roles: 0,
@@ -157,9 +151,9 @@ export default function SuperAdminDashboardPage() {
   // New-item flags derived from comparing current counts vs lastSeenCounts
   const [newItems, setNewItems] = useState<Record<Tab, boolean>>({
     websites: false,
-    userContent: false,
     purchases: false,
     contentRequests: false,
+    userContent: false,
     priceConflicts: false,
     userRequests: false,
     roles: false,
@@ -181,11 +175,12 @@ export default function SuperAdminDashboardPage() {
         const res = await fetch("/api/admin-roles/current");
         const json = await res.json();
         // { role: 'websites' | 'requests' | null, isSuper: boolean }
-            // record role flags but don't limit visible tabs
+            // record role flags but keep Content Manager focused tabs visible
             setCurrentUserRole(json.role ?? null);
             setIsSuper(Boolean(json.isSuper));
-            // always enable full admin tab set
-            setAllowedTabs(["websites","userContent","purchases","contentRequests","priceConflicts","userRequests","roles"]);
+            // Content Manager should only expose Purchases and User Uploads
+            setAllowedTabs(["websites"]);
+            setActiveTab("websites");
       } catch (err) {
         console.error("Failed to load admin role", err);
         // fallback: super admin view
@@ -200,10 +195,11 @@ export default function SuperAdminDashboardPage() {
     try {
       const res = await fetch("/api/admin-roles/current");
       const json = await res.json();
-      // update role flags but keep all tabs visible
-      setCurrentUserRole(json.role ?? null);
-      setIsSuper(Boolean(json.isSuper));
-      setAllowedTabs(["websites","userContent","purchases","contentRequests","priceConflicts","userRequests","roles"]);
+  // update role flags but keep Content Manager focused tabs visible
+  setCurrentUserRole(json.role ?? null);
+  setIsSuper(Boolean(json.isSuper));
+  setAllowedTabs(["websites"]);
+  setActiveTab("websites");
     } catch (err) {
       console.error("Failed to refresh admin role", err);
     }
@@ -275,11 +271,6 @@ const [confirmationAction, setConfirmationAction] = useState<{
       const counts = { ...lastSeenCounts };
       // compute current counts snapshot
       counts.websites = websites.length || 0;
-      counts.priceConflicts = priceConflicts.length || 0;
-      counts.purchases = purchaseRequests.length || 0;
-      counts.userContent = userContent.length || 0;
-      counts.contentRequests = requests.length || 0;
-      counts.userRequests = userRequests.length || 0;
       // roles count intentionally left as 0 (could be from admin roles list)
 
       // if the active tab had new items, clear the badge and persist the updated count
@@ -869,12 +860,12 @@ setPurchaseStats(stats);
 
   return (
     <div className="flex min-h-screen w-screen overflow-x-hidden" style={{ backgroundColor: 'var(--base-primary)' }}>
-      <SuperAdminSidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        allowedTabs={allowedTabs} // <-- ensure allowedTabs is passed to match Sidebar props
-        newItems={newItems}
-        onCollapseChange={setIsSidebarCollapsed} // Add this prop
+      <WebsiteAnalystSidePanel
+        activeTab={activeTab as any}
+        setActiveTab={setActiveTab as any}
+        allowedTabs={allowedTabs as any}
+        newItems={newItems as any}
+        onCollapseChange={setIsSidebarCollapsed}
       />
 
       <main 
@@ -941,7 +932,7 @@ setPurchaseStats(stats);
         )}
 
         {allowedTabs.includes("userContent") && activeTab === "userContent" && (
-          <SuperAdminUserContentSection
+          <ContentMangerUserContentSection
             userContent={userContent}
             userContentLoading={userContentLoading}
             formatDate={formatDate}
@@ -957,7 +948,7 @@ setPurchaseStats(stats);
         )}
 
         {allowedTabs.includes("purchases") && activeTab === "purchases" && (
-          <SuperAdminPurchasesSection
+          <ContentManagherPurchasesSection
             purchaseRequests={purchaseRequests}                 
             filteredPurchaseRequests={filteredPurchaseRequests} 
             purchaseFilter={purchaseFilter as any}

@@ -9,6 +9,8 @@ const FloatingAuthPanel = () => {
   const { isSignedIn, user } = useUser();
   const [mounted, setMounted] = useState(false);
   const [allowed, setAllowed] = useState<boolean>(false);
+  const [adminRole, setAdminRole] = useState<string | null>(null);
+  const [isSuperRole, setIsSuperRole] = useState<boolean>(false);
   const [checking, setChecking] = useState<boolean>(true);
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -26,10 +28,12 @@ const FloatingAuthPanel = () => {
           setAllowed(false);
           return;
         }
-        const j = await res.json();
-        // j: { role: 'websites'|'requests'|null, isSuper: boolean }
-        const isAllowed = !!(j?.isSuper) || (j?.role === 'websites') || (j?.role === 'requests');
-        setAllowed(Boolean(isAllowed));
+  const j = await res.json();
+    // j: { role: 'websites'|'requests'|null, isSuper: boolean }
+  const isAllowed = !!(j?.isSuper) || (j?.role === 'websites') || (j?.role === 'requests');
+  setAllowed(Boolean(isAllowed));
+  setAdminRole(typeof j?.role === 'string' ? j.role : null);
+  setIsSuperRole(Boolean(j?.isSuper));
       } catch (e) {
         setAllowed(false);
       } finally {
@@ -123,6 +127,9 @@ const FloatingAuthPanel = () => {
   // Only allow signed-in users with the appropriate admin roles to see this panel.
   if (!isSignedIn || !allowed) return null;
 
+  // Helper boolean: when true show all options
+  const isSuper = isSuperRole || adminRole === 'super';
+
   return (
     <div 
       ref={panelRef}
@@ -161,24 +168,51 @@ const FloatingAuthPanel = () => {
             >
               Home
             </Button>
-            <Button 
-              className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
-              onClick={() => navigateToRole('publisher')}
-            >
-              Publisher
-            </Button>
-            <Button 
-              className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
-              onClick={() => navigateToRole('superadmin')}
-            >
-              Super Admin
-            </Button>
-            <Button 
-              className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
-              onClick={() => navigateToRole('consumer')}
-            >
-              Consumer
-            </Button>
+
+            {(isSuper || adminRole === 'publisher') && (
+              <Button 
+                className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
+                onClick={() => navigateToRole('publisher')}
+              >
+                Publisher
+              </Button>
+            )}
+
+            {(isSuper || adminRole === 'requests') && (
+              <Button 
+                className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
+                onClick={() => router.push('/dashboard/Content_Manager')}
+              >
+                Content Manager
+              </Button>
+            )}
+
+            {isSuper && (
+              <Button 
+                className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
+                onClick={() => navigateToRole('superadmin')}
+              >
+                Super Admin
+              </Button>
+            )}
+
+            {(isSuper || adminRole === 'websites') && (
+              <Button 
+                className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
+                onClick={() => router.push('/dashboard/Website_analyst')}
+              >
+                Website Analyst
+              </Button>
+            )}
+
+            {(isSuper || adminRole === 'consumer') && (
+              <Button 
+                className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
+                onClick={() => navigateToRole('consumer')}
+              >
+                Consumer
+              </Button>
+            )}
           </div>
         </div>
 
