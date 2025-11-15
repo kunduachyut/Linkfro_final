@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useCart } from "../app/context/CartContext";
 import useCountries from "../hooks/useCountries";
 import { CATEGORIES } from "../lib/categories";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Country flag mapping function
 const getCountryFlag = (countryName: string | undefined): string => {
@@ -567,7 +568,6 @@ export default function MarketplaceSection({
     if (filters.minDA && (w.DA || 0) < parseInt(filters.minDA)) return false;
     if (filters.maxDA && (w.DA || 0) > parseInt(filters.maxDA)) return false;
 
-
     // DR filters
     if (filters.minDR && (w.DR || 0) < parseInt(filters.minDR)) return false;
     if (filters.maxDR && (w.DR || 0) > parseInt(filters.maxDR)) return false;
@@ -1064,72 +1064,198 @@ export default function MarketplaceSection({
                     ),
                     'domain': (
                       <div key={col.id} style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">Domain Name</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">Domain Name</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Website domain available for link placement</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'category': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">Category</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">Category</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Content category of the website</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'price': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">Price</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">Price</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Cost to place a link on this website</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'da': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">DA</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">DA</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Domain Authority - Moz's metric for domain strength (0-100)</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'spam': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">Spam</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">Spam</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Spam Score - Percentage chance of being flagged as spam</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'dr': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">DR</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">DR</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Domain Rating - Ahrefs' metric for domain strength (0-100)</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'traffic': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">Traffic</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">Traffic</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Monthly organic traffic to the website</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'trafficValue': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">Traffic Value</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">Traffic Value</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Estimated monetary value of the website's organic traffic</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'locationTraffic': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">Location Traffic</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">Location Traffic</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Traffic from target geographic locations</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'primeTrafficCountries': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        Prime Traffic Countries
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">Prime Traffic Countries</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Top countries generating traffic to this website</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'rd': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">RD</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">RD</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Referring Domains - Number of unique domains linking to this site</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'greyNiche': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">Grey Niche</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">Grey Niche</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Whether this website accepts grey/niche content</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'specialNotes': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">Special Notes</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">Special Notes</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Additional information about link placement requirements</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ),
                     'actions': (
                       <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <div className="text-sm font-medium text-gray-900">Actions</div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-sm font-medium text-gray-900 cursor-help">Actions</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Available actions for this website</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     )
                   };

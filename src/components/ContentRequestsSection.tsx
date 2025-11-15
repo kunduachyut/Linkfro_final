@@ -1,3 +1,5 @@
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 export default function ContentRequestsSection({ 
   contentRequests, 
   loading, 
@@ -93,14 +95,80 @@ export default function ContentRequestsSection({
             </div>
           ) : (
             <div>
-              {/* Table Header */}
+              {/* Table Header with Tooltips */}
               <div className="grid grid-cols-18 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <div className="col-span-4 flex items-center">TOPIC</div>
-                <div className="col-span-4 flex items-center">WEBSITE</div>
-                <div className="col-span-3 flex justify-center">CONTENT TYPE</div>
-                <div className="col-span-2 flex justify-center">REQUEST DATE</div>
-                <div className="col-span-2 flex justify-center">STATUS</div>
-                <div className="col-span-2 flex justify-center">ACTIONS</div>
+                <div className="col-span-4 flex items-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help">TOPIC</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Topic or subject of the requested content</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="col-span-4 flex items-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help">WEBSITE</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Website domain for which the content is requested</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="col-span-3 flex justify-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help">CONTENT TYPE</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Type of content requested (article, blog post, etc.)</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="col-span-2 flex justify-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help">REQUEST DATE</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Date when the content request was submitted</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="col-span-2 flex justify-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help">STATUS</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Current status of the content request</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="col-span-2 flex justify-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help">ACTIONS</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>View details or edit the content request</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <div className="col-span-1"></div>
               </div>
               

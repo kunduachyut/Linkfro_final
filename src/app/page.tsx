@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import NewNavbar from "@/components/NewNavbar";
+import { HeaderWithAuth } from "@/components/ui/header-with-auth";
 import NewHero from "@/components/NewHero";
 import WhyChooseLinkfro from "@/components/WhyChooseLinkfro";
 import SpecialOffers from "@/components/SpecialOffers";
@@ -66,7 +66,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <NewNavbar />
+      <HeaderWithAuth />
       <main className="space-y-0 pt-16">
         <NewHero />
         <WhyChooseLinkfro />

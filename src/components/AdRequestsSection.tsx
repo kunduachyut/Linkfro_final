@@ -1,3 +1,5 @@
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 export default function AdRequestsSection({ 
   adRequests, 
   loading, 
@@ -75,13 +77,68 @@ export default function AdRequestsSection({
             </div>
           ) : (
             <div>
-              {/* Table Header */}
+              {/* Table Header with Tooltips */}
               <div className="grid grid-cols-16 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <div className="col-span-4 flex items-center">WEBSITE</div>
-                <div className="col-span-6 flex items-center">MESSAGE</div>
-                <div className="col-span-2 flex justify-center">REQUEST DATE</div>
-                <div className="col-span-2 flex justify-center">STATUS</div>
-                <div className="col-span-2 flex justify-center">ACTIONS</div>
+                <div className="col-span-4 flex items-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help">WEBSITE</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Website domain for which the ad request was made</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="col-span-6 flex items-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help">MESSAGE</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Custom message or instructions for the ad placement</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="col-span-2 flex justify-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help">REQUEST DATE</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Date when the ad request was submitted</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="col-span-2 flex justify-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help">STATUS</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Current status of the ad request</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="col-span-2 flex justify-center">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help">ACTIONS</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>View details or edit the ad request</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
               </div>
               
               {/* Table Body */}

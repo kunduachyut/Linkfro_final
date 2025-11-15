@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MarketplaceSection from "@/components/MarketplaceSection";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Purchase = {
   _id: string;
@@ -189,6 +190,72 @@ export default function PendingPaymentsSection({
         <p className="text-sm" style={{ color: "var(--secondary-lighter)" }}>
           You have {filtered.length} pending payment{filtered.length !== 1 ? "s" : ""}
         </p>
+      </div>
+
+      {/* Pending Payments Table */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+        <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <div className="col-span-5 flex items-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="cursor-help">Website</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Website domain for which payment is pending</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <div className="col-span-2 flex items-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="cursor-help">Category</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Content category of the website</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <div className="col-span-2 flex justify-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="cursor-help">Country</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Primary country of the website's audience</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <div className="col-span-2 flex justify-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="cursor-help">Created</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Date when the purchase was created</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <div className="col-span-1 flex justify-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="cursor-help">Actions</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Complete or cancel the pending payment</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-4">

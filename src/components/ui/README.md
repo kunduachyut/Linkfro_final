@@ -2,53 +2,81 @@
 
 This directory contains reusable UI components for the Linkfro application.
 
-## Background Paths Component
+## New Header Components
 
-The `BackgroundPaths` component provides an animated SVG background with floating paths for a dynamic hero section.
+### HeaderWithAuth (`header-with-auth.tsx`)
 
-### Installation
+A modern header component that includes:
 
-The component requires the following dependencies which should already be installed in the project:
+- Responsive design with mobile menu toggle
+- Clerk authentication integration (Login/Sign Up buttons)
+- Request Access functionality
+- Smooth scrolling navigation
+- Sticky header with scroll effects
 
-- `framer-motion`
-- `@radix-ui/react-slot`
-- `class-variance-authority`
-
-### Usage
-
-```tsx
-import { BackgroundPaths } from "@/components/ui/background-paths";
-
-// Basic usage with default content
-<BackgroundPaths title="Your Title Here" showDefaultContent />
-
-// Usage with custom children
-<BackgroundPaths>
-  <div>Your custom content here</div>
-</BackgroundPaths>
-```
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| title | string | "Background Paths" | Title text for default content |
-| children | ReactNode | undefined | Custom content to display over the background |
-| showDefaultContent | boolean | false | Whether to show the default animated title and button |
-
-### Example
+#### Usage
 
 ```tsx
-import { BackgroundPaths } from "@/components/ui/background-paths";
+import { HeaderWithAuth } from '@/components/ui/header-with-auth';
 
-export function HeroSection() {
+export default function Page() {
   return (
-    <BackgroundPaths>
-      <div className="relative z-10 container mx-auto px-4 py-16">
-        <h1 className="text-4xl font-bold text-white">Your Custom Content</h1>
-        <p className="text-blue-100">Your custom description</p>
-      </div>
-    </BackgroundPaths>
+    <div>
+      <HeaderWithAuth />
+      {/* Rest of your page content */}
+    </div>
   );
 }
 ```
+
+### Header (`header-2.tsx`)
+
+A clean, minimal header component without authentication:
+
+- Responsive design with mobile menu toggle
+- Simple navigation links
+- Sign In / Get Started buttons
+- Sticky header with scroll effects
+
+#### Usage
+
+```tsx
+import { Header } from '@/components/ui/header-2';
+
+export default function Page() {
+  return (
+    <div>
+      <Header />
+      {/* Rest of your page content */}
+    </div>
+  );
+}
+```
+
+## Dependencies
+
+These components require the following dependencies to be installed:
+
+- `@radix-ui/react-slot`
+- `class-variance-authority`
+- `lucide-react`
+
+These should already be installed in the project.
+
+## Customization
+
+You can customize the header components by modifying the following:
+
+1. Navigation links in the `links` array
+2. Styling through Tailwind CSS classes
+3. Logo by replacing the image source
+4. Button styles in the authentication sections
+
+## Mobile Support
+
+Both header components include full mobile support with:
+
+- Hamburger menu toggle
+- Slide-in mobile navigation
+- Properly styled mobile buttons
+- Scroll locking when menu is open

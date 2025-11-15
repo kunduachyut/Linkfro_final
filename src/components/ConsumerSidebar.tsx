@@ -20,6 +20,7 @@ import {
 import { useCart } from "../app/context/CartContext";
 import Link from 'next/link';
 import { useUser } from '@clerk/clerk-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const sidebarVariants = {
   open: {
@@ -168,122 +169,166 @@ export function ConsumerSidebar({
                 const isActive = activeTab === item.id;
                 
                 return (
-                  <button
-                    key={item.id}
-                    onClick={item.onClick}
-                    className={`w-full flex items-center rounded-lg px-2 py-1.5 transition-colors ${
-                      isActive
-                        ? "bg-blue-50 text-blue-600 font-medium"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4 flex-shrink-0" />
-                    <motion.div
-                      className="ml-2 flex items-center gap-2 overflow-hidden"
-                      initial={isCollapsed && !isPinned ? "closed" : "open"}
-                      animate={isCollapsed && !isPinned ? "closed" : "open"}
-                      variants={textVariants}
-                    >
-                      <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>
-                      {item.badge && (
-                        <span className="ml-auto flex h-5 items-center justify-center rounded-full bg-green-500 px-2 text-xs font-medium text-white">
-                          {item.badge}
-                        </span>
-                      )}
-                    </motion.div>
-                  </button>
+                  <TooltipProvider key={item.id}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={item.onClick}
+                          className={`w-full flex items-center rounded-lg px-2 py-1.5 transition-colors ${
+                            isActive
+                              ? "bg-blue-50 text-blue-600 font-medium"
+                              : "text-gray-600 hover:bg-gray-100"
+                          }`}
+                        >
+                          <Icon className="w-4 h-4 flex-shrink-0" />
+                          <motion.div
+                            className="ml-2 flex items-center gap-2 overflow-hidden"
+                            initial={isCollapsed && !isPinned ? "closed" : "open"}
+                            animate={isCollapsed && !isPinned ? "closed" : "open"}
+                            variants={textVariants}
+                          >
+                            <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>
+                            {item.badge && (
+                              <span className="ml-auto flex h-5 items-center justify-center rounded-full bg-green-500 px-2 text-xs font-medium text-white">
+                                {item.badge}
+                              </span>
+                            )}
+                          </motion.div>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p>{item.label}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 );
               })}
             </div>
             
             <div className="mt-auto pt-4 border-t border-gray-200">
-              <button
-                onClick={() => window.location.href = "/cart"}
-                className="w-full flex items-center rounded-lg px-2 py-1.5 text-gray-600 hover:bg-gray-100 transition-colors"
-              >
-                <ShoppingCart className="w-4 h-4 flex-shrink-0" />
-                <motion.div
-                  className="ml-2 flex items-center gap-2 overflow-hidden"
-                  initial={isCollapsed && !isPinned ? "closed" : "open"}
-                  animate={isCollapsed && !isPinned ? "closed" : "open"}
-                  variants={textVariants}
-                >
-                  <span className="text-sm font-medium whitespace-nowrap">View Cart</span>
-                  {itemCount > 0 && (
-                    <span className="ml-auto flex h-5 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
-                      {itemCount}
-                    </span>
-                  )}
-                </motion.div>
-              </button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => window.location.href = "/cart"}
+                      className="w-full flex items-center rounded-lg px-2 py-1.5 text-gray-600 hover:bg-gray-100 transition-colors"
+                    >
+                      <ShoppingCart className="w-4 h-4 flex-shrink-0" />
+                      <motion.div
+                        className="ml-2 flex items-center gap-2 overflow-hidden"
+                        initial={isCollapsed && !isPinned ? "closed" : "open"}
+                        animate={isCollapsed && !isPinned ? "closed" : "open"}
+                        variants={textVariants}
+                      >
+                        <span className="text-sm font-medium whitespace-nowrap">View Cart</span>
+                        {itemCount > 0 && (
+                          <span className="ml-auto flex h-5 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
+                            {itemCount}
+                          </span>
+                        )}
+                      </motion.div>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>View your shopping cart with selected websites</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               
-              <button
-                onClick={togglePin}
-                className="w-full flex items-center rounded-lg px-2 py-1.5 text-gray-600 hover:bg-gray-100 transition-colors mt-1"
-              >
-                <Pin className={`w-4 h-4 flex-shrink-0 ${isPinned ? "text-blue-600" : ""}`} />
-                <motion.div
-                  className="ml-2 overflow-hidden"
-                  initial={isCollapsed && !isPinned ? "closed" : "open"}
-                  animate={isCollapsed && !isPinned ? "closed" : "open"}
-                  variants={textVariants}
-                >
-                  <span className="text-sm font-medium whitespace-nowrap">
-                    {isPinned ? "Unpin Sidebar" : "Pin Sidebar"}
-                  </span>
-                </motion.div>
-              </button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={togglePin}
+                      className="w-full flex items-center rounded-lg px-2 py-1.5 text-gray-600 hover:bg-gray-100 transition-colors mt-1"
+                    >
+                      <Pin className={`w-4 h-4 flex-shrink-0 ${isPinned ? "text-blue-600" : ""}`} />
+                      <motion.div
+                        className="ml-2 overflow-hidden"
+                        initial={isCollapsed && !isPinned ? "closed" : "open"}
+                        animate={isCollapsed && !isPinned ? "closed" : "open"}
+                        variants={textVariants}
+                      >
+                        <span className="text-sm font-medium whitespace-nowrap">
+                          {isPinned ? "Unpin Sidebar" : "Pin Sidebar"}
+                        </span>
+                      </motion.div>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>{isPinned ? "Unpin sidebar to auto-collapse" : "Pin sidebar to keep it open"}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               
-              <button
-                onClick={() => window.location.href = "/"}
-                className="w-full flex items-center rounded-lg px-2 py-1.5 text-gray-600 hover:bg-gray-100 transition-colors mt-1"
-              >
-                <Home className="w-4 h-4 flex-shrink-0" />
-                <motion.div
-                  className="ml-2 overflow-hidden"
-                  initial={isCollapsed && !isPinned ? "closed" : "open"}
-                  animate={isCollapsed && !isPinned ? "closed" : "open"}
-                  variants={textVariants}
-                >
-                  <span className="text-sm font-medium whitespace-nowrap">Home</span>
-                </motion.div>
-              </button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => window.location.href = "/"}
+                      className="w-full flex items-center rounded-lg px-2 py-1.5 text-gray-600 hover:bg-gray-100 transition-colors mt-1"
+                    >
+                      <Home className="w-4 h-4 flex-shrink-0" />
+                      <motion.div
+                        className="ml-2 overflow-hidden"
+                        initial={isCollapsed && !isPinned ? "closed" : "open"}
+                        animate={isCollapsed && !isPinned ? "closed" : "open"}
+                        variants={textVariants}
+                      >
+                        <span className="text-sm font-medium whitespace-nowrap">Home</span>
+                      </motion.div>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>Return to the Linkfro homepage</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </div>
         
         {/* Profile section at the bottom */}
-        <div className="p-3 border-t border-gray-200">
-          <div className="flex items-center">
-            {/* Profile link with avatar and name */}
-            <Link href="/dashboard/profile" className="w-full">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-                  {isLoaded && user?.imageUrl ? (
-                    <img src={user.imageUrl} alt={user.fullName ?? 'Avatar'} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <User className="w-4 h-4 text-blue-600" />
-                    </div>
-                  )}
-                </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="p-3 border-t border-gray-200">
+                <div className="flex items-center">
+                  {/* Profile link with avatar and name */}
+                  <Link href="/dashboard/profile" className="w-full">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+                        {isLoaded && user?.imageUrl ? (
+                          <img src={user.imageUrl} alt={user.fullName ?? 'Avatar'} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <User className="w-4 h-4 text-blue-600" />
+                          </div>
+                        )}
+                      </div>
 
-                <motion.div 
-                  className="ml-2 overflow-hidden"
-                  initial={isCollapsed && !isPinned ? "closed" : "open"}
-                  animate={isCollapsed && !isPinned ? "closed" : "open"}
-                  variants={textVariants}
-                >
-                  {/* Name and view link text */}
-                  <p className="text-sm font-medium text-gray-800 truncate">
-                    {isLoaded ? (user?.fullName ?? 'Profile') : 'Profile'}
-                  </p>
-                  <p className="text-xs text-gray-500">View profile</p>
-                </motion.div>
+                      <motion.div 
+                        className="ml-2 overflow-hidden"
+                        initial={isCollapsed && !isPinned ? "closed" : "open"}
+                        animate={isCollapsed && !isPinned ? "closed" : "open"}
+                        variants={textVariants}
+                      >
+                        {/* Name and view link text */}
+                        <p className="text-sm font-medium text-gray-800 truncate">
+                          {isLoaded ? (user?.fullName ?? 'Profile') : 'Profile'}
+                        </p>
+                        <p className="text-xs text-gray-500">View profile</p>
+                      </motion.div>
+                    </div>
+                  </Link>
+                </div>
               </div>
-            </Link>
-          </div>
-        </div>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>View or edit your advertiser profile</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </motion.div>
   );

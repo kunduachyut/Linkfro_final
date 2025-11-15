@@ -2,3 +2,8 @@ export * from "./add-website-form";
 export * from "./multistep-form";
 export * from "./background-paths";
 export * from "./demo-background-paths";
+export * from "./tooltip";
+export * from "./header-2";
+export * from "./header-with-auth";
+export * from "./menu-toggle-icon";
+export * from "./use-scroll";

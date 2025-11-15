@@ -194,12 +194,7 @@ export default function PublisherAddWebsiteSection({
                 Cancel Edit
               </button>
             )}
-            <button
-              onClick={() => setUseMultiStepForm(false)}
-              className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm font-medium transition-colors duration-200"
-            >
-              Use Original Form
-            </button>
+
           </div>
         </div>
         

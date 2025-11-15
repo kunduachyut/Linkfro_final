@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useUser } from '@clerk/nextjs';
 import ChatWindow from './ChatWindow';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
 
 export default function PurchasesSection({ 
   purchases, 
@@ -484,17 +485,91 @@ export default function PurchasesSection({
           ) : (
             <div>
               {/* Table Header - Updated to 19 columns to accommodate Details column */}
-              <div className="grid grid-cols-22 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <div className="col-span-4 flex items-center">WEBSITE NAME</div>
-                <div className="col-span-1 flex justify-center">DETAILS</div>
-                <div className="col-span-3 flex justify-center">CONTENT TYPE</div>
-                <div className="col-span-3 flex justify-center">PURCHASE DATE</div>
-                <div className="col-span-2 flex justify-center">AMOUNT</div>
-                <div className="col-span-2 flex justify-center">STATUS</div>
-                <div className="col-span-3 flex justify-center">DOC URL</div>
-                <div className="col-span-3 flex justify-center">LIVE URL</div>
-                <div className="col-span-1"></div>
-              </div>
+              <TooltipProvider>
+                <div className="grid grid-cols-22 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <div className="col-span-4 flex items-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">WEBSITE NAME</div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Website domain you purchased link placement on</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="col-span-1 flex justify-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">DETAILS</div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>View website details</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="col-span-3 flex justify-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">CONTENT TYPE</div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Shows if you used your own article or requested content creation</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="col-span-3 flex justify-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">PURCHASE DATE</div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Date when this order was created</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="col-span-2 flex justify-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">AMOUNT</div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Total price paid or due for this order</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="col-span-2 flex justify-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">STATUS</div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Current stage of your order — pending, ongoing, payment pending, or approved</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="col-span-3 flex justify-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">DOC URL</div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>View documentation or content for your order</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="col-span-3 flex justify-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">LIVE URL</div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Open the live link where your content is published</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="col-span-1"></div>
+                </div>
+              </TooltipProvider>
               
               {/* Table Body */}
               <div className="divide-y divide-gray-200">
