@@ -1,89 +1,66 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { HeaderWithAuth } from "@/components/ui/header-with-auth";
-import NewHero from "@/components/NewHero";
-import WhyChooseLinkfro from "@/components/WhyChooseLinkfro";
-import SpecialOffers from "@/components/SpecialOffers";
-import MarketplacePreview from "@/components/MarketplacePreview";
-import AIAdvantage from "@/components/AIAdvantage";
-import ForWhom from "@/components/ForWhom";
-import PackagesOffers from "@/components/PackagesOffers";
-import SocialProof from "@/components/SocialProof";
-import FinalCTA from "@/components/FinalCTA";
-import NewFooter from "@/components/NewFooter";
-import FloatingWhatsApp from "@/components/FloatingWhatsApp";
-import ExitIntentPopup from "@/components/ExitIntentPopup";
-import SpinWheelPopup from "@/components/SpinWheelPopup";
-import GeoPersonalization from "@/components/GeoPersonalization";
-import TopRightNotification from "@/components/TopRightNotification";
+import { useState } from "react";
+import NewNavbar from '@/components/NewNavbar';
+import HeroSection from '@/components/sections/hero-section';
+import TrustLogos from '@/components/sections/trust-logos';
+import SocialProofStats from '@/components/sections/social-proof-stats';
+import IntegrationsShowcase from '@/components/sections/integrations-showcase';
+import MarketplaceFeatures from '@/components/sections/ai-features';
+import CodeUiFlexibility from '@/components/sections/code-ui-flexibility';
+import RunTweakRepeat from '@/components/sections/run-tweak-repeat';
+import CaseStudies from '@/components/sections/case-studies';
+import MarketplacePlatform from '@/components/sections/enterprise-features';
+import EmbedAutomation from '@/components/sections/embed-automation';
+import TestimonialsCarousel from '@/components/sections/testimonials-carousel';
+import Footer from '@/components/sections/footer';
+// Removed AuthModal import since we don't need it
 
 export default function Home() {
-  // Initialize intersection observer to detect when elements enter viewport
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("animate-fade-in");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    
-    const elements = document.querySelectorAll(".animate-on-scroll");
-    elements.forEach((el) => observer.observe(el));
-    
-    return () => {
-      elements.forEach((el) => observer.unobserve(el));
-    };
-  }, []);
-
-  useEffect(() => {
-    // This helps ensure smooth scrolling for the anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        
-        const targetId = this.getAttribute('href')?.substring(1);
-        if (!targetId) return;
-        
-        const targetElement = document.getElementById(targetId);
-        if (!targetElement) return;
-        
-        // Increased offset to account for mobile nav
-        const offset = window.innerWidth < 768 ? 100 : 80;
-        
-        window.scrollTo({
-          top: targetElement.offsetTop - offset,
-          behavior: 'smooth'
-        });
-      });
-    });
-  }, []);
-
+  // Removed authentication state since we don't need it
+  
   return (
-    <div className="min-h-screen">
-      <HeaderWithAuth />
-      <main className="space-y-0 pt-16">
-        <NewHero />
-        <WhyChooseLinkfro />
-        <SpecialOffers />
-        <MarketplacePreview />
-        <AIAdvantage />
-        <ForWhom />
-        <PackagesOffers />
-        <SocialProof />
-        <FinalCTA />
+    <div className="min-h-screen bg-background-base">
+      <NewNavbar />
+      
+      <main className="w-full">
+        <HeroSection />
+        
+        <div className="w-full px-8 md:px-12 lg:px-14 xl:px-[100px] pt-4">
+          <div className="mx-auto w-full max-w-section-default">
+            <TrustLogos />
+            <SocialProofStats />
+          </div>
+        </div>
+
+        <IntegrationsShowcase />
+        
+        <MarketplaceFeatures />
+        
+        <CodeUiFlexibility />
+        
+        <RunTweakRepeat />
+        
+        <div className="w-full px-8 md:px-12 lg:px-14 xl:px-[100px] pb-16 sm:pb-28 lg:pb-[95px]">
+          <div className="mx-auto w-full max-w-section-default">
+            <CaseStudies />
+          </div>
+        </div>
+        
+        <div className="w-full px-8 md:px-12 lg:px-14 xl:px-[100px] pb-16 sm:pb-28 lg:pb-[95px]">
+          <div className="mx-auto w-full max-w-section-default">
+            <MarketplacePlatform />
+          </div>
+        </div>
+        
+        <EmbedAutomation />
+        
+        <TestimonialsCarousel />
       </main>
-      <NewFooter />
-      <FloatingWhatsApp />
-      <ExitIntentPopup />
-      <SpinWheelPopup />
-      <GeoPersonalization />
-      <TopRightNotification />
+
+      <Footer />
+      
+      {/* Removed AuthModal since we don't need it */}
     </div>
   );
 }

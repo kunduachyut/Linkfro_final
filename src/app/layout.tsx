@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import {
-  ClerkProvider,
-} from "@clerk/nextjs";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { CartProvider } from "../app/context/CartContext";
+import VisualEditsMessenger from "../visual-edits/VisualEditsMessenger";
+import ErrorReporter from "@/components/ErrorReporter";
+import Script from "next/script";
+import { Geist, Geist_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { CartProvider } from "@/app/context/CartContext";
 import ToasterWrapper from "../components/ToasterWrapper";
 import FloatingAuthPanel from "../components/FloatingAuthPanel";
 
@@ -19,47 +20,42 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Metadata
 export const metadata: Metadata = {
-  title: "Marketplace",
-  description: "Publish and buy websites",
+  title: "LinkFro - Website Marketplace",
+  description: "Connect website publishers with advertisers looking for premium placements",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
   const content = (
-    <html lang="en">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
-          rel="stylesheet"
-        />
-        <style>{`
-          .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-          }
-        `}</style>
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen w-full antialiased`}
-        style={{backgroundColor: 'var(--base-primary)'}}
-      >
-        <CartProvider>
-          <div className="w-full min-h-screen flex flex-col">
-          {/* Main content */}
-          <main className="w-full">{children}</main>
-          </div>
+    <CartProvider>
+      <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+        <body className="antialiased">
+          <ErrorReporter />
+          <Script
+            src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/scripts//route-messenger.js"
+            strategy="afterInteractive"
+            data-target-origin="*"
+            data-message-type="ROUTE_CHANGE"
+            data-include-search-params="true"
+            data-only-in-iframe="true"
+            data-debug="true"
+            data-custom-data='{"appName": "LinkFro", "version": "1.0.0", "greeting": "hi"}'
+          />
+          {children}
+          <VisualEditsMessenger />
           <FloatingAuthPanel />
-        </CartProvider>
-        <ToasterWrapper />
-      </body>
-    </html>
+          <ToasterWrapper />
+        </body>
+      </html>
+    </CartProvider>
   );
+  
   if (clerkPublishableKey) {
     return (
       <ClerkProvider publishableKey={clerkPublishableKey}>

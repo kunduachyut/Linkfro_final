@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Menu, X, Search, User, ArrowRight } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 import {
   SignedIn,
   SignedOut,
@@ -77,7 +77,7 @@ const NewNavbar = () => {
           <a href="#packages" className="nav-link">Packages</a>
         </nav>
 
-        {/* Auth Buttons */}
+        {/* Auth Buttons - using original authentication functionality */}
         <div className="hidden md:flex items-center gap-4">
           <SignedOut>
             {mounted && !isSignedIn && (
@@ -203,7 +203,7 @@ const NewNavbar = () => {
             Packages
           </a>
           
-          {/* Mobile Auth Buttons */}
+          {/* Mobile Auth Buttons - using original authentication functionality */}
           <div className="flex flex-col items-center gap-4 mt-8 w-full">
             <SignedOut>
               {mounted && !isSignedIn && (
