@@ -577,6 +577,17 @@ export default function PublisherWebsitesSection({
     }
   };
 
+  // Format website title: if it looks like a domain (contains a dot, no spaces), truncate to 15 chars
+  const formatTitle = (title: any) => {
+    if (!title && title !== 0) return "";
+    const t = String(title);
+    const isDomain = /^[^\s]+\.[^\s]+$/.test(t);
+    if (isDomain) {
+      return t.length > 15 ? t.slice(0, 15) + '...' : t;
+    }
+    return t;
+  };
+
   return (
     <div className="rounded-xl border bg-card text-card-foreground shadow">
       {/* Search and Filter Controls */}
@@ -844,20 +855,22 @@ export default function PublisherWebsitesSection({
       </div>
 
       <div className="border-t">
-        <div className="grid grid-cols-11 gap-4 p-4 text-sm font-medium text-muted-foreground border-b">
+        <div className="grid grid-cols-14 gap-4 p-4 text-sm font-medium text-muted-foreground border-b">
           <div className="col-span-1">No.</div>
           <div className="col-span-4">Website</div>
+          <div className="col-span-2">Order accepted e-mail</div>
+          <div className="col-span-2">Notes</div>
           <div className="col-span-1">Price</div>
           <div className="col-span-1">Created</div>
           <div className="col-span-1">Status</div>
-          <div className="col-span-2">Available</div>
+          <div className="col-span-1">Available</div>
           <div className="col-span-1">Actions</div>
         </div>
         <div className="divide-y">
           {filteredSites.map((website, index) => (
             <motion.div
               key={website._id}
-              className="grid grid-cols-11 gap-4 p-4 items-center hover:bg-muted/50 transition-colors cursor-pointer"
+              className="grid grid-cols-14 gap-4 p-4 items-center hover:bg-muted/50 transition-colors cursor-pointer"
               onClick={() => openWebsiteModal(website)}
               onHoverStart={() => setHoveredWebsite(website._id)}
               onHoverEnd={() => setHoveredWebsite(null)}
@@ -868,14 +881,16 @@ export default function PublisherWebsitesSection({
               <div className="col-span-1">
                 <span className="font-mono">{String(index + 1).padStart(2, '0')}</span>
               </div>
+
               <div className="col-span-4">
-                <div className="font-medium">{website.title}</div>
+                <div className="font-medium">{formatTitle(website.title)}</div>
                 <div className="text-sm text-muted-foreground truncate">
-                  <a 
-                    href={website.title.startsWith('http') ? website.title : `http://${website.title}`} 
-                    target="_blank" 
+                  <a
+                    href={website.title && website.title.toString().startsWith('http') ? website.title : `http://${website.title}`}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-500 hover:text-blue-700 inline-flex items-center"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -884,17 +899,32 @@ export default function PublisherWebsitesSection({
                   </a>
                 </div>
               </div>
+
+              <div className="col-span-2 text-sm text-muted-foreground truncate">
+                { (website as any).orderAcceptedEmail ? (
+                  <a href={`mailto:${(website as any).orderAcceptedEmail}`} onClick={(e) => e.stopPropagation()} className="text-blue-600 hover:underline font-mono">{(website as any).orderAcceptedEmail}</a>
+                ) : (
+                  <span className="text-muted-foreground">N/A</span>
+                ) }
+              </div>
+
+              <div className="col-span-2 text-sm text-muted-foreground truncate">
+                {website.specialNotes ? website.specialNotes : '—'}
+              </div>
+
               <div className="col-span-1 font-medium">
                 {formatPriceNew(computePublisherVisiblePrice(website))}
               </div>
+
               <div className="col-span-1 text-sm text-muted-foreground">
                 {website.createdAt ? formatDate(website.createdAt) : 'Unknown'}
               </div>
+
               <div className="col-span-1">
                 {getStatusBadgeNew(website.status, website.rejectionReason)}
               </div>
-              <div className="col-span-2 flex items-center justify-center">
-                {/* Show availability toggle only for approved websites */}
+
+              <div className="col-span-1 flex items-center justify-center">
                 {website.status === "approved" ? (
                   <div onClick={(e) => e.stopPropagation()}>
                     <MinimalToggle
@@ -905,11 +935,10 @@ export default function PublisherWebsitesSection({
                     />
                   </div>
                 ) : (
-                  <div className="text-muted-foreground text-sm">
-                    N/A
-                  </div>
+                  <div className="text-muted-foreground text-sm">N/A</div>
                 )}
               </div>
+
               <div className="col-span-1 flex justify-end">
                 {hoveredWebsite === website._id ? (
                   <div className="flex gap-2">
