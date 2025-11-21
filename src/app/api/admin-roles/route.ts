@@ -37,23 +37,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: `Email already assigned to role '${existingByEmail.role}'` }, { status: 400 });
     }
 
-    // For websites/requests keep a single assignment (upsert)
-    if (role === "websites" || role === "requests") {
-      // For these roles keep a single assignment by role. We already checked email conflicts above.
-      const existing = await AdminRole.findOne({ role }).exec();
-      if (existing) {
-        existing.email = normalizedEmail;
-        existing.active = true;
-        await existing.save();
-        return NextResponse.json({ success: true, role: existing });
-      }
-      const created = await AdminRole.create({ email: normalizedEmail, role, active: true });
-      return NextResponse.json({ success: true, role: created });
-    }
-
-  // For super role allow multiple super admins, but we've already checked the email doesn't exist.
-  const created = await AdminRole.create({ email: normalizedEmail, role, active: true });
-  return NextResponse.json({ success: true, role: created });
+    // Allow multiple assignments per role (including 'websites' and 'requests').
+    // We've already checked that the exact email doesn't exist in any role
+    // (and returned early if the same email + role existed), so create a new entry.
+    const created = await AdminRole.create({ email: normalizedEmail, role, active: true });
+    return NextResponse.json({ success: true, role: created });
   } catch (err) {
     console.error("POST /api/admin-roles error", err);
     return NextResponse.json({ success: false, error: "Failed to save role" }, { status: 500 });
@@ -92,11 +80,11 @@ export async function DELETE(req: NextRequest) {
     let res;
     if (id) {
       res = await AdminRole.findByIdAndDelete(id).exec();
-    } else {
-      // delete by role (this deletes the first match)
-      res = await AdminRole.findOneAndDelete({ role }).exec();
+      return NextResponse.json({ success: true, deleted: !!res });
     }
-    return NextResponse.json({ success: true, deleted: !!res });
+    // delete by role: remove all assignments for the role
+    const del = await AdminRole.deleteMany({ role }).exec();
+    return NextResponse.json({ success: true, deletedCount: del.deletedCount || 0 });
   } catch (err) {
     console.error("DELETE /api/admin-roles error", err);
     return NextResponse.json({ success: false, error: "Failed to delete role" }, { status: 500 });
