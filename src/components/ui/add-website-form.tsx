@@ -455,12 +455,32 @@ export function AddWebsiteForm({
         ...step2Data,
         ...step3Data,
       };
+
+      // Normalize domain/URL: if user pasted a full URL like https://github.com/user/repo
+      // we want to extract only the hostname (e.g. github.com) and use that as domainName/websiteUrl.
+      const normalizeDomain = (val?: string) => {
+        if (!val) return val;
+        const s = String(val).trim();
+        try {
+          // Ensure URL constructor receives a protocol
+          const u = new URL(s.includes('://') ? s : `https://${s}`);
+          return u.hostname.replace(/^www\./i, '').toLowerCase();
+        } catch (e) {
+          // Fallback: strip path/query/port
+          const host = s.replace(/^.*?:\/\//, '').split('/')[0].split('?')[0].split(':')[0];
+          return host.replace(/^www\./i, '').toLowerCase();
+        }
+      };
       
       // Ensure all required fields are present
+      // Prefer a normalized domain derived from domainName; if empty, derive from websiteUrl
+      const normalizedDomain = normalizeDomain(combinedData.domainName) || normalizeDomain(combinedData.websiteUrl) || '';
+      const normalizedWebsiteUrl = normalizeDomain(combinedData.websiteUrl) || normalizedDomain;
+
       const finalSubmissionData: FormData = {
-        domainName: combinedData.domainName,
-        // websiteUrl should be the site URL or domain. Do NOT overwrite it with the order-accepted email.
-        websiteUrl: (combinedData.websiteUrl && combinedData.websiteUrl.trim() ? combinedData.websiteUrl.trim() : combinedData.domainName),
+        domainName: normalizedDomain,
+        // websiteUrl should be the site domain (normalized)
+        websiteUrl: normalizedWebsiteUrl,
         // Keep the explicit email field as well (optional) so it's available to the backend if needed
         orderAcceptedEmail: combinedData.orderAcceptedEmail?.trim ? combinedData.orderAcceptedEmail.trim() : combinedData.orderAcceptedEmail,
         category: combinedData.category, // array of selected categories
