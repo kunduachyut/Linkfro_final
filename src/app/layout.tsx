@@ -55,7 +55,7 @@ export default function RootLayout({
       </html>
     </CartProvider>
   );
-  
+
   if (clerkPublishableKey) {
     return (
       <ClerkProvider publishableKey={clerkPublishableKey}>

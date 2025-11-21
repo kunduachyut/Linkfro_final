@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 // Country flag mapping function
 const getCountryFlag = (countryName: string | undefined): string => {
   if (!countryName) return '🌐';
-  
+
   const countryFlags: Record<string, string> = {
     'United States': '🇺🇸',
     'United Kingdom': '🇬🇧',
@@ -22,7 +22,7 @@ const getCountryFlag = (countryName: string | undefined): string => {
     'Russia': '🇷🇺',
     'Other': '🌐'
   };
-  
+
   return countryFlags[countryName] || '🌐';
 };
 
@@ -309,13 +309,12 @@ interface ColumnConfig {
   id: string;
   label: string;
   visible: boolean;
-  span: number;
 }
 
-export default function MarketplaceSection({ 
-  websites, 
-  loading, 
-  error, 
+export default function MarketplaceSection({
+  websites,
+  loading,
+  error,
   refreshWebsites,
   selectedItems,
   setSelectedItems,
@@ -470,33 +469,27 @@ export default function MarketplaceSection({
     }
   };
 
-  // State for highlighting
-  const [highlightedRow, setHighlightedRow] = useState<string | null>(null);
-
   // Column visibility state
   const [columns, setColumns] = useState<ColumnConfig[]>([
-    { id: 'checkbox', label: 'Checkbox', visible: true, span: 1 },
-    { id: 'domain', label: 'Domain Name', visible: true, span: 3 },
-    { id: 'category', label: 'Category', visible: true, span: 2 },
-    { id: 'price', label: 'Price', visible: true, span: 1 },
-    { id: 'da', label: 'DA', visible: true, span: 1 },
-    { id: 'spam', label: 'Spam', visible: true, span: 1 },
-    { id: 'dr', label: 'DR', visible: true, span: 1 },
-    { id: 'traffic', label: 'Traffic', visible: true, span: 1 },
-    { id: 'trafficValue', label: 'Traffic Value', visible: true, span: 1 },
-    { id: 'locationTraffic', label: 'Location Traffic', visible: true, span: 1 },
-    { id: 'primeTrafficCountries', label: 'Prime Traffic Countries', visible: true, span: 2 },
-    { id: 'rd', label: 'RD', visible: true, span: 1 },
-    { id: 'greyNiche', label: 'Grey Niche', visible: true, span: 1 },
-    { id: 'specialNotes', label: 'Special Notes', visible: true, span: 1 },
-    { id: 'actions', label: 'Actions', visible: true, span: 1 },
+    { id: 'price', label: 'Price', visible: true },
+    { id: 'website', label: 'Website', visible: true },
+    { id: 'category', label: 'Category', visible: true },
+    { id: 'traffic', label: 'Traffic', visible: true },
+    { id: 'authority', label: 'DR | DA | RD', visible: true },
+    { id: 'pa', label: 'PA', visible: true },
+    { id: 'spam', label: 'Spam Score', visible: true },
+    { id: 'locationTraffic', label: 'Loc. Traffic', visible: true },
+    { id: 'primeCountries', label: 'Prime Countries', visible: true },
+    { id: 'greyNiche', label: 'Grey Niche', visible: true },
+    { id: 'notes', label: 'Notes', visible: true },
+    { id: 'language', label: 'Language', visible: true },
   ]);
 
   const [showColumnDropdown, setShowColumnDropdown] = useState(false);
 
   // Toggle column visibility
   const toggleColumnVisibility = (columnId: string) => {
-    setColumns(prev => prev.map(col => 
+    setColumns(prev => prev.map(col =>
       col.id === columnId ? { ...col, visible: !col.visible } : col
     ));
   };
@@ -555,8 +548,8 @@ export default function MarketplaceSection({
 
     // Search filter
     if (searchQuery) {
-      const matchesSearch = w.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           w.url.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = w.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        w.url.toLowerCase().includes(searchQuery.toLowerCase());
       if (!matchesSearch) return false;
     }
 
@@ -589,19 +582,14 @@ export default function MarketplaceSection({
       if (!matchedCat) return false;
     }
 
-    // Country filter: match against primeTrafficCountries (DB field)
-    // Accepts arrays or comma-separated strings. Uses case-insensitive
-    // partial matching so 'United States' matches 'United States of America'.
+    // Country filter
     if (filters.country) {
       const selected = filters.country.toLowerCase();
-
-      // Normalize primeTrafficCountries into an array of strings
       let primes: string[] = [];
       const rawPrimes: any = (w as any).primeTrafficCountries;
       if (Array.isArray(rawPrimes)) {
         primes = rawPrimes as string[];
       } else if (typeof rawPrimes === 'string' && rawPrimes.trim() !== '') {
-        // split on commas and trim
         primes = rawPrimes.split(',').map((s: string) => s.trim()).filter(Boolean);
       }
 
@@ -645,166 +633,131 @@ export default function MarketplaceSection({
       maxTrafficValue: '',
       greyNicheAccepted: '',
     });
+    setSearchQuery('');
   };
 
-  // Calculate total span for grid based on visible columns
-  const totalSpan = columns.filter(col => col.visible).reduce((sum, col) => sum + col.span, 0);
+  // Helper to format date
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
+    } catch (e) {
+      return dateString;
+    }
+  };
+
+  // Calculate time ago for "Added to System"
+  const timeAgo = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now.getTime() - date.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 30) return `${diffDays}d ago`;
+      if (diffDays < 365) return `${Math.floor(diffDays / 30)}m ${diffDays % 30}d`;
+      return `${Math.floor(diffDays / 365)}y ${Math.floor((diffDays % 365) / 30)}m`;
+    } catch (e) {
+      return '-';
+    }
+  };
 
   return (
-    <div>
-      {/* Table Header */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={refreshWebsites}
-            className="p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
-          <span className="text-sm font-medium text-gray-500">
-            {showWishlistOnly ? `${filteredWebsites.length} wishlist items` : `${filteredWebsites.length} websites available`}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Wishlist Toggle Button */}
-          <button
-            onClick={() => setShowWishlistOnly(!showWishlistOnly)}
-            disabled={wishlistLoading}
-            className={`p-2 rounded-md ${wishlistLoading ? 'opacity-50 cursor-not-allowed' : ''} ${showWishlistOnly ? 'bg-red-100 text-red-600' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
-            title={showWishlistOnly ? "Show all websites" : "Show wishlist only"}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill={showWishlistOnly ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4 4 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </button>
-          
-          {/* Add Selected to Cart Button */}
-          <button
-            onClick={() => {
-              const selectedCount = Object.values(selectedItems).filter(Boolean).length;
-              if (selectedCount === 0) {
-                return;
-              }
-              
-              // Add selected websites to cart
-              websites.forEach(w => {
-                const id = w._id || w.id || `${w.title}-${w.url}`;
-                if (selectedItems[id]) {
-                  addToCart({
-                    _id: id,
-                    title: w.title,
-                    priceCents: w.priceCents,
-                  });
-                }
-              });
-              
-              // Reset selection
-              setSelectedItems(prev => ({}));
-              setSelectAll(false);
-            }}
-            disabled={Object.values(selectedItems).filter(Boolean).length === 0}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center mr-4"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0H15" />
-            </svg>
-            Add Selected to Cart
-          </button>
-          
-          <div className="relative">
-            <input 
-              type="text" 
-              placeholder="Search..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
-              className="pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <svg className="w-4 h-4 absolute left-2.5 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          
-          {/* Column Visibility Dropdown */}
-          <div className="relative">
-            <button 
-              onClick={() => setShowColumnDropdown(!showColumnDropdown)}
-              className="p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100 transition-colors duration-200"
-              title="Show Columns"
+    <div className="bg-gray-50 p-4 rounded-lg">
+      {/* Header Controls */}
+      <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          {/* Search Bar */}
+          <div className="flex items-center gap-2 w-full md:w-auto flex-1">
+            <div className="relative flex-1 max-w-2xl">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="https://example.com/"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <button className="px-4 py-2 border border-blue-500 text-blue-500 rounded-md hover:bg-blue-50 text-sm font-medium">
+              Search
+            </button>
+            <button
+              onClick={clearFilters}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6v12" />
+              Clear Search
+            </button>
+          </div>
+
+          {/* Right Side Controls */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowWishlistOnly(!showWishlistOnly)}
+              className={`p-2 rounded-md border ${showWishlistOnly ? 'bg-red-50 border-red-300 text-red-600' : 'border-gray-300 text-gray-500 hover:bg-gray-50'}`}
+              title={showWishlistOnly ? "Show All" : "Show Wishlist Only"}
+            >
+              <svg className={`h-5 w-5 ${showWishlistOnly ? 'fill-current' : 'fill-none'}`} viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </button>
-            
-            {showColumnDropdown && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-10 border border-gray-200">
-                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Show Columns
-                </div>
-                <div className="max-h-60 overflow-y-auto">
-                  {columns.map((column) => (
-                    <label key={column.id} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={column.visible}
-                        onChange={() => toggleColumnVisibility(column.id)}
-                        className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 mr-3 rounded-sm"
-                      />
-                      <span className="truncate">{column.label}</span>
-                    </label>
-                  ))}
-                </div>
-                <div className="border-t border-gray-100 mt-1 pt-1">
-                  <button
-                    onClick={resetColumns}
-                    className="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-gray-50 font-medium"
-                  >
-                    Reset to Default
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          <button 
-            onClick={() => setShowFilters(!showFilters)}
-            className="p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100 relative"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-            {/* Filter indicator dot */}
-            {(filters.minPrice || filters.maxPrice || filters.minDA || filters.maxDA || 
-              filters.minDR || filters.maxDR || filters.minOrganicTraffic || filters.maxOrganicTraffic || 
-              filters.category || filters.country || filters.minTrafficValue || filters.maxTrafficValue ||
-              filters.greyNicheAccepted) && (
-              <span className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
-            )}
-          </button>
-        </div>
-      </div>
+            <div className="relative">
+              <button
+                onClick={() => setShowColumnDropdown(!showColumnDropdown)}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 text-sm font-medium"
+              >
+                Choose Columns
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+              </button>
 
-      {/* Filter Panel */}
-      {showFilters && (
-        <div className="mb-4 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="text-lg font-medium text-gray-900">Filters</h3>
-            <button 
-              onClick={clearFilters}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              {/* Column Dropdown */}
+              {showColumnDropdown && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-20 border border-gray-200">
+                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Show Columns
+                  </div>
+                  <div className="max-h-60 overflow-y-auto">
+                    {columns.map((column) => (
+                      <label key={column.id} className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={column.visible}
+                          onChange={() => toggleColumnVisibility(column.id)}
+                          className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 mr-3 rounded-sm"
+                        />
+                        <span className="truncate">{column.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Filter Toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`p-2 rounded-md border ${showFilters ? 'bg-blue-50 border-blue-300 text-blue-600' : 'border-gray-300 text-gray-500 hover:bg-gray-50'}`}
+              title="Toggle Filters"
             >
-              Clear all
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
             </button>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        </div>
+
+        {/* Filter Panel */}
+        {showFilters && (
+          <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {/* Price Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Price Range</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Price Range</label>
               <div className="flex gap-2">
                 <input
                   type="number"
@@ -812,7 +765,7 @@ export default function MarketplaceSection({
                   placeholder="Min"
                   value={filters.minPrice}
                   onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                 />
                 <input
                   type="number"
@@ -820,14 +773,14 @@ export default function MarketplaceSection({
                   placeholder="Max"
                   value={filters.maxPrice}
                   onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                 />
               </div>
             </div>
-            
+
             {/* DA Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">DA Range</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">DA Range</label>
               <div className="flex gap-2">
                 <input
                   type="number"
@@ -835,7 +788,7 @@ export default function MarketplaceSection({
                   placeholder="Min"
                   value={filters.minDA}
                   onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                 />
                 <input
                   type="number"
@@ -843,14 +796,14 @@ export default function MarketplaceSection({
                   placeholder="Max"
                   value={filters.maxDA}
                   onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                 />
               </div>
             </div>
-            
+
             {/* DR Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">DR Range</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">DR Range</label>
               <div className="flex gap-2">
                 <input
                   type="number"
@@ -858,7 +811,7 @@ export default function MarketplaceSection({
                   placeholder="Min"
                   value={filters.minDR}
                   onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                 />
                 <input
                   type="number"
@@ -866,19 +819,19 @@ export default function MarketplaceSection({
                   placeholder="Max"
                   value={filters.maxDR}
                   onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                 />
               </div>
             </div>
-            
+
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
               <select
                 name="category"
                 value={filters.category}
                 onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
               >
                 <option value="">All Categories</option>
                 {allCategories.map(category => (
@@ -886,709 +839,481 @@ export default function MarketplaceSection({
                 ))}
               </select>
             </div>
-            
-            {/* Organic Traffic Range */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Organic Traffic Range</label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  name="minOrganicTraffic"
-                  placeholder="Min"
-                  value={filters.minOrganicTraffic}
-                  onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <input
-                  type="number"
-                  name="maxOrganicTraffic"
-                  placeholder="Max"
-                  value={filters.maxOrganicTraffic}
-                  onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-            
-            {/* Traffic Value Range */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Traffic Value Range</label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  name="minTrafficValue"
-                  placeholder="Min"
-                  value={filters.minTrafficValue}
-                  onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <input
-                  type="number"
-                  name="maxTrafficValue"
-                  placeholder="Max"
-                  value={filters.maxTrafficValue}
-                  onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-            
-            {/* Country */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-              <select
-                name="country"
-                value={filters.country}
-                onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">All Countries</option>
-                {/* If a category is selected we show countries derived from DB (countryOptions), otherwise show the full countries list */}
-                {filters.category ? (
-                  countryOptions.map((country: string) => (
-                    <option key={country} value={country}>{country}</option>
-                  ))
-                ) : (
-                  (!loadingCountries ? allCountries : []).map((country: any) => (
-                    <option key={country.name} value={country.name}>{country.name}</option>
-                  ))
-                )}
-              </select>
-            </div>
-            
-            {/* Grey Niche Accepted */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Grey Niche</label>
-              <select
-                name="greyNicheAccepted"
-                value={filters.greyNicheAccepted}
-                onChange={handleFilterChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">All</option>
-                <option value="true">Accepted</option>
-                <option value="false">Not Accepted</option>
-              </select>
-            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Content */}
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="flex flex-col items-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-4"></div>
-            <p className="text-gray-600 text-sm">Loading marketplace...</p>
-          </div>
+      {/* Pagination Top */}
+      <div className="flex justify-end mb-2">
+        <div className="flex items-center gap-2">
+          <button className="p-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" disabled>
+            <svg className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <span className="px-2 py-1 border border-blue-500 text-blue-600 rounded bg-blue-50 text-sm font-medium">1</span>
+          <button className="p-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" disabled>
+            <svg className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          <select className="ml-2 border border-gray-300 rounded text-sm p-1">
+            <option>20 / page</option>
+            <option>50 / page</option>
+            <option>100 / page</option>
+          </select>
         </div>
-      ) : error ? (
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-          <div className="text-center">
-            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Marketplace</h3>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <button
-              onClick={refreshWebsites}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          {filteredWebsites.length === 0 ? (
-            <div className="p-8 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-18 0 9 9 0 0118 0z" />
+      </div>
+
+      {/* Main Table/List */}
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        {/* Table Header */}
+        <div className="bg-blue-50 border-b border-blue-100 grid grid-cols-12 gap-4 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center">
+          {columns.find(c => c.id === 'price')?.visible && (
+            <div className="col-span-2 flex items-center gap-1">
+              <div className="flex items-center cursor-pointer hover:text-blue-600">
+                Price
+                <svg className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Websites Found</h3>
-              <p className="text-gray-600">
-                {websites.length > 0 
-                  ? "Try adjusting your filters to see more results" 
-                  : "Check back later for new digital assets"}
-              </p>
-              {websites.length > 0 && (
-                <button
-                  onClick={clearFilters}
-                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium text-sm"
-                >
-                  Clear Filters
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              {/* Table Header */}
-              <div 
-                className={`grid gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-center text-xs font-medium text-gray-500 uppercase tracking-wider`}
-                style={{ gridTemplateColumns: `repeat(${columns.filter(col => col.visible).reduce((sum, col) => sum + col.span, 0)}, minmax(0, 1fr))` }}
-              >
-                {columns.filter(col => col.visible).map((col, index) => {
-                  const columnComponents: Record<string, React.ReactNode> = {
-                    'checkbox': (
-                      <div key={col.id} className="flex items-center justify-center">
-                        <input 
-                          type="checkbox" 
-                          checked={selectAll}
-                          onChange={(e) => {
-                            const isChecked = e.target.checked;
-                            setSelectAll(isChecked);
-                            const newSelectedItems: Record<string, boolean> = {};
-                            websites.forEach(w => {
-                              const id = w._id || w.id || `${w.title}-${w.url}`;
-                              newSelectedItems[id] = isChecked;
-                            });
-                            setSelectedItems(prev => newSelectedItems);
-                            
-                            // Also highlight/unhighlight all rows when select all is clicked
-                            const newHighlightedRows: Record<string, boolean> = {};
-                            if (isChecked) {
-                              websites.forEach(w => {
-                                const id = w._id || w.id || `${w.title}-${w.url}`;
-                                newHighlightedRows[id] = true;
-                              });
-                            }
-                            setHighlightedRows(newHighlightedRows);
-                          }}
-                          className="h-3 w-3 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                        />
-                      </div>
-                    ),
-                    'domain': (
-                      <div key={col.id} style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">Domain Name</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Website domain available for link placement</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'category': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">Category</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Content category of the website</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'price': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">Price</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Cost to place a link on this website</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'da': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">DA</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Domain Authority - Moz's metric for domain strength (0-100)</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'spam': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">Spam</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Spam Score - Percentage chance of being flagged as spam</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'dr': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">DR</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Domain Rating - Ahrefs' metric for domain strength (0-100)</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'traffic': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">Traffic</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Monthly organic traffic to the website</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'trafficValue': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">Traffic Value</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Estimated monetary value of the website's organic traffic</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'locationTraffic': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">Location Traffic</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Traffic from target geographic locations</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'primeTrafficCountries': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">Prime Traffic Countries</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Top countries generating traffic to this website</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'rd': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">RD</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Referring Domains - Number of unique domains linking to this site</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'greyNiche': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">Grey Niche</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Whether this website accepts grey/niche content</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'specialNotes': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">Special Notes</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Additional information about link placement requirements</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    ),
-                    'actions': (
-                      <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="text-sm font-medium text-gray-900 cursor-help">Actions</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Available actions for this website</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    )
-                  };
-                  
-                  return columnComponents[col.id] || null;
-                })}
-              </div>
-              
-              {/* Table Body */}
-              <div className="divide-y divide-gray-200">
-                {filteredWebsites.map((w) => {
-                  const stableId = w._id || w.id || `${w.title}-${w.url}`;
-                  const isPurchased = paidSiteIds.has(stableId);
-                  const isHighlighted = highlightedRows[stableId] || false;
-                  const isInWishlist = wishlist[stableId] || false;
-                  
-                  return (
-                    <div 
-                      key={stableId} 
-                      className={`grid gap-4 px-6 py-4 hover:bg-gray-50 items-center transition-all duration-200 ease-in-out rounded-lg ${isHighlighted ? 'bg-blue-50 border-l-4 border-blue-400' : ''}`}
-                      style={{ gridTemplateColumns: `repeat(${columns.filter(col => col.visible).reduce((sum, col) => sum + col.span, 0)}, minmax(0, 1fr))` }}
-                      onClick={() => {
-                        setHighlightedRows(prev => ({
-                          ...prev,
-                          [stableId]: !prev[stableId]
-                        }));
-                      }}
-                    >
-                      {columns.filter(col => col.visible).map((col, index) => {
-                        const columnComponents: Record<string, React.ReactNode> = {
-                          'checkbox': (
-                            <div key={col.id} className="flex justify-center">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedItems[stableId] || false}
-                                onChange={(e) => {
-                                  const isChecked = e.target.checked;
-                                  setSelectedItems((prev) => ({
-                                    ...prev,
-                                    [stableId]: isChecked
-                                  }));
-                                  setSelectAll(Object.keys(selectedItems).length === websites.length - 1 && isChecked);
-                                  // Highlight row when selected
-                                  setHighlightedRows(prev => ({
-                                    ...prev,
-                                    [stableId]: isChecked
-                                  }));
-                                }}
-                                className="h-3 w-3 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
-                              />
-                            </div>
-                          ),
-                          'domain': (
-                            <div key={col.id} style={{ gridColumn: `span ${col.span}` }}>
-                              <div className="flex items-center">
-                                <div className="flex-shrink-0 h-7 w-7 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
-                                  {w.title.charAt(0).toUpperCase()}
-                                </div>
-                                <div className="ml-4 flex items-center">
-                                  <div
-                                    className="text-sm font-medium text-gray-900 max-w-[15ch] truncate overflow-hidden whitespace-nowrap"
-                                    title={w.title}
-                                  >
-                                    {truncate(extractHostname(String(w.title)), 15)}
-                                  </div>
-                                  {/* Description Icon */}
-                                  {w.description && (
-                                    <div className="relative group ml-2">
-                                      <div className="text-gray-400 hover:text-gray-600 cursor-help">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                      </div>
-                                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 z-10 max-w-xs">
-                                        <div className="max-h-20 overflow-y-auto">
-                                          {w.description}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
-                                  {/* Wishlist Heart Icon */}
-                                  <button 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      const newWishlistState = !isInWishlist;
-                                      setWishlist(prev => ({
-                                        ...prev,
-                                        [stableId]: newWishlistState
-                                      }));
-                                      // Update server
-                                      updateWishlist(stableId, newWishlistState ? 'add' : 'remove');
-                                    }}
-                                    className={`ml-2 ${isInWishlist ? 'text-red-500' : 'text-gray-300 hover:text-red-400'}`}
-                                    title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
-                                    disabled={wishlistLoading}
-                                  >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill={isInWishlist ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4 4 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                    </svg>
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          ),
-                          'category': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              {w.category ? (
-                                <div className="relative group">
-                                  <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-800 font-bold cursor-help">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-4-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
-                                  </div>
-                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                                    {Array.isArray(w.category) ? w.category.join(', ') : w.category}
-                                  </div>
-                                </div>
-                              ) : (
-                                <span className="text-sm font-medium text-gray-400">-</span>
-                              )}
-                            </div>
-                          ),
-                          'price': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              <div className="text-sm font-medium text-green-600">${(w.priceCents / 100).toFixed(2)}</div>
-                            </div>
-                          ),
-                          'da': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              <div className="text-sm font-medium text-gray-900">{w.DA || 0}</div>
-                            </div>
-                          ),
-                          'spam': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              <div className="text-sm font-medium text-gray-900">{w.Spam || 0}%</div>
-                            </div>
-                          ),
-                          'dr': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              <div className="text-sm font-medium text-gray-900">{w.DR || 0}</div>
-                            </div>
-                          ),
-                          'traffic': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              <div className="text-sm font-medium text-gray-900">{w.OrganicTraffic || 0}</div>
-                            </div>
-                          ),
-                          'trafficValue': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              <div className="text-sm font-medium text-gray-900">$ {w.trafficValue || 0}</div>
-                            </div>
-                          ),
-                          'locationTraffic': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              <div className="text-sm font-medium text-gray-900">{w.locationTraffic || 0}</div>
-                            </div>
-                          ),
-                          'primeTrafficCountries': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              {w.primeTrafficCountries && w.primeTrafficCountries.length > 0 ? (
-                                <div className="flex flex-wrap gap-1 justify-center">
-                                  {w.primeTrafficCountries.slice(0, 3).map((country, index) => {
-                                    const flagUrl = countryFlags[country];
-                                    const hasFailed = failedFlags[country];
-                                    
-                                    return (
-                                      <div key={index} className="relative group">
-                                        {flagUrl && !hasFailed ? (
-                                          <img 
-                                            src={flagUrl} 
-                                            alt={country} 
-                                            className="w-6 h-4 rounded-sm object-cover cursor-help"
-                                            onError={() => {
-                                              // Mark this country's flag as failed
-                                              setFailedFlags(prev => ({ ...prev, [country]: true }));
-                                            }}
-                                          />
-                                        ) : (
-                                          <div className="w-6 h-4 rounded-sm bg-gray-100 flex items-center justify-center text-xs cursor-help overflow-hidden">
-                                            <span className="text-xs">{getCountryFlagEmoji(country)}</span>
-                                          </div>
-                                        )}
-                                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                                          {country}
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-                                  {w.primeTrafficCountries.length > 3 && (
-                                    <div className="relative group">
-                                      <div className="w-6 h-4 rounded-sm bg-gray-200 flex items-center justify-center text-xs cursor-help">
-                                        +{w.primeTrafficCountries.length - 3}
-                                      </div>
-                                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-10">
-                                        {w.primeTrafficCountries.slice(3).join(', ')}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <span className="text-sm font-medium text-gray-400">-</span>
-                              )}
-                            </div>
-                          ),
-                          'rd': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              {w.RD != null && w.RD !== '' ? (
-                                <div className="text-sm font-medium text-gray-900">{String(w.RD)}</div>
-                              ) : (
-                                <span className="text-sm font-medium text-gray-400">-</span>
-                              )}
-                            </div>
-                          ),
-                          'greyNiche': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              <div className="text-sm font-medium text-gray-900">
-                                {w.greyNicheAccepted ? 'Yes' : 'No'}
-                              </div>
-                            </div>
-                          ),
-                          'specialNotes': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              {/* Do not show special notes to consumers if grey niche is not accepted */}
-                              {w.greyNicheAccepted ? (
-                                w.specialNotes ? (
-                                  <div className="relative group">
-                                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-800 font-bold cursor-help">
-                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                      </svg>
-                                    </div>
-                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 z-10 max-w-xs">
-                                      <div className="max-h-20 overflow-y-auto">
-                                        {w.specialNotes}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <span className="text-sm font-medium text-gray-400">-</span>
-                                )
-                              ) : (
-                                <span className="text-sm font-medium text-gray-400">-</span>
-                              )}
-                            </div>
-                          ),
-                          'actions': (
-                            <div key={col.id} className="flex items-center justify-center" style={{ gridColumn: `span ${col.span}` }}>
-                              <div className="flex space-x-2">
-                                {isPurchased ? (
-                                  <div className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded font-medium">
-                                    Purchased
-                                  </div>
-                                ) : !w.available ? (
-                                  <div className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded font-medium">
-                                    Unavailable
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation(); // Prevent row click from triggering
-                                      addToCart({
-                                        _id: stableId,
-                                        title: w.title,
-                                        priceCents: typeof w.priceCents === 'number' ? w.priceCents : Math.round((w.priceCents || 0) * 100),
-                                      });
-                                      // Highlight row when "Buy Now" is clicked
-                                      setHighlightedRows(prev => ({
-                                        ...prev,
-                                        [stableId]: true
-                                      }));
-                                    }}
-                                    className="px-2 py-1 bg-blue-400 text-white text-[0.65rem] rounded hover:bg-blue-700 font-medium transition-colors"
-                                    title="Add to Cart"
-                                  >
-                                    Buy Now
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          )
-                        };
-                        
-                        return columnComponents[col.id] || null;
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
-              
-              {/* Pagination */}
-              <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm text-gray-700">
-                      Showing <span className="font-medium">1</span> to <span className="font-medium">{websites.length}</span> of{" "}
-                      <span className="font-medium">{websites.length}</span> results
-                    </p>
-                  </div>
-                  <div>
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                      <a
-                        href="#"
-                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                      >
-                        <span className="sr-only">Previous</span>
-                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </a>
-                      <a
-                        href="#"
-                        aria-current="page"
-                        className="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
-                      >
-                        1
-                      </a>
-                      <a
-                        href="#"
-                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                      >
-                        <span className="sr-only">Next</span>
-                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10l7.293-3.293a1 1 0 011.414-1.414l-4-4a1 1 0 010-1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </a>
-                    </nav>
-                  </div>
-                </div>
-              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-xs font-normal normal-case">Final price including publisher rate and platform fee.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           )}
+          {columns.find(c => c.id === 'website')?.visible && (
+            <div className="col-span-2 flex items-center gap-1">
+              Website
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-xs font-normal normal-case">Website domain available for link placement.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
+          {columns.find(c => c.id === 'category')?.visible && (
+            <div className="col-span-1 flex justify-center items-center gap-1">
+              Category
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-xs font-normal normal-case">Primary niche or content topic of the site.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
+          {columns.find(c => c.id === 'traffic')?.visible && (
+            <div className="col-span-1 flex items-center justify-center gap-1">
+              <div className="flex items-center cursor-pointer hover:text-blue-600">
+                Traffic
+                <svg className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="max-w-xs text-xs font-normal normal-case space-y-1">
+                      <p><strong>Traffic:</strong> Estimated organic and direct monthly visits.</p>
+                      <p><strong>Traffic Value:</strong> Approximate SEO traffic value in USD.</p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
+          {columns.find(c => c.id === 'authority')?.visible && (
+            <div className="col-span-1 flex justify-center items-center gap-1">
+              DR | DA | RD
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="max-w-xs text-xs font-normal normal-case space-y-1">
+                      <p><strong>DR (Domain Rating):</strong> Ahrefs metric (1–100) showing backlink quality.</p>
+                      <p><strong>DA (Domain Authority):</strong> Moz metric (1–100) showing SEO strength.</p>
+                      <p><strong>RD (Referring Domains):</strong> Number of unique websites linking to this domain.</p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
+          {/* Group remaining stats into remaining columns */}
+          <div className="col-span-5 grid grid-cols-4 gap-2 text-center">
+            {columns.find(c => c.id === 'pa')?.visible && <div>PA</div>}
+            {columns.find(c => c.id === 'spam')?.visible && (
+              <div className="flex justify-center items-center gap-1">
+                Spam
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs font-normal normal-case">Moz metric estimating likelihood of spammy links. Lower = safer.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
+            {columns.find(c => c.id === 'locationTraffic')?.visible && <div>Loc. Traffic</div>}
+            {columns.find(c => c.id === 'primeCountries')?.visible && (
+              <div className="flex justify-center items-center gap-1">
+                Prime Countries
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs font-normal normal-case">Country contributing most website visits.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
+            {columns.find(c => c.id === 'greyNiche')?.visible && (
+              <div className="flex justify-center items-center gap-1">
+                Grey Niche
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs font-normal normal-case">This site allows limited or sensitive content (e.g., gambling, CBD, adult).</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
+            {columns.find(c => c.id === 'notes')?.visible && (
+              <div className="flex justify-center items-center gap-1">
+                Notes
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs font-normal normal-case">Publisher’s remarks or placement conditions.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
+            {columns.find(c => c.id === 'language')?.visible && <div>Language</div>}
+          </div>
         </div>
-      )}
+
+        {/* Table Body */}
+        <div className="divide-y divide-gray-100">
+          {loading ? (
+            <div className="p-8 text-center text-gray-500">Loading...</div>
+          ) : filteredWebsites.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">No websites found matching your criteria.</div>
+          ) : (
+            filteredWebsites.map((w) => {
+              const stableId = w._id || w.id || `${w.title}-${w.url}`;
+              const isPurchased = paidSiteIds.has(stableId);
+              const isInWishlist = wishlist[stableId] || false;
+              const isSelected = selectedItems[stableId] || false;
+
+              return (
+                <div
+                  key={stableId}
+                  className={`grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors ${isSelected ? 'bg-blue-50' : ''}`}
+                >
+                  {/* Price Column */}
+                  {columns.find(c => c.id === 'price')?.visible && (
+                    <div className="col-span-2 flex items-center gap-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart({
+                            _id: stableId,
+                            title: w.title,
+                            priceCents: typeof w.priceCents === 'number' ? w.priceCents : Math.round((w.priceCents || 0) * 100),
+                          });
+                        }}
+                        disabled={isPurchased || !w.available}
+                        className={`px-4 py-1.5 rounded text-white text-sm font-medium shadow-sm ${isPurchased ? 'bg-green-500 cursor-default' :
+                          !w.available ? 'bg-gray-400 cursor-not-allowed' :
+                            'bg-blue-600 hover:bg-blue-700'
+                          }`}
+                      >
+                        {isPurchased ? 'Owned' : 'Buy'}
+                      </button>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-gray-900">${(w.priceCents / 100).toFixed(2)} USD</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const newWishlistState = !isInWishlist;
+                              setWishlist(prev => ({ ...prev, [stableId]: newWishlistState }));
+                              updateWishlist(stableId, newWishlistState ? 'add' : 'remove');
+                            }}
+                            className={`${isInWishlist ? 'text-orange-500' : 'text-gray-300 hover:text-orange-400'}`}
+                          >
+                            <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                            </svg>
+                          </button>
+                          <svg className="h-4 w-4 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Website Column */}
+                  {columns.find(c => c.id === 'website')?.visible && (
+                    <div className="col-span-2">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-gray-100 rounded-lg">
+                          <span className="text-xl">{getCountryFlag(w.primaryCountry)}</span>
+                        </div>
+                        <div className="overflow-hidden">
+                          <div className="font-bold text-gray-900 truncate" title={w.title || w.url}>
+                            {extractHostname(w.url)}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                            <span className="flex items-center gap-1">
+                              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              3 Days
+                            </span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <span className="flex items-center gap-1 text-blue-600 cursor-help hover:text-blue-800 transition-colors">
+                                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Description
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="max-w-xs text-xs">{w.description || "No description available."}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Category Column */}
+                  {columns.find(c => c.id === 'category')?.visible && (
+                    <div className="col-span-1 flex justify-center">
+                      {w.category && (
+                        <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-md font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
+                          {Array.isArray(w.category) ? w.category[0] : w.category}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Traffic Column */}
+                  {columns.find(c => c.id === 'traffic')?.visible && (
+                    <div className="col-span-1">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2 text-xs">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <span className="px-1.5 py-0.5 flex items-center justify-center bg-orange-100 text-orange-600 rounded text-[10px] font-bold cursor-help">OT</span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs">Organic Traffic</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          <span className="font-medium text-gray-700">{w.OrganicTraffic ? w.OrganicTraffic.toLocaleString() : '0'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <span className="px-1.5 py-0.5 flex items-center justify-center bg-blue-100 text-blue-600 rounded text-[10px] font-bold cursor-help">TV</span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs">Traffic Value</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          <span className="font-medium text-gray-700">{w.trafficValue ? `$${w.trafficValue.toLocaleString()}` : '$0'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Authority Column */}
+                  {columns.find(c => c.id === 'authority')?.visible && (
+                    <div className="col-span-1">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-gray-500">DR</span>
+                          <span className="bg-blue-600 text-white px-1.5 rounded text-[10px]">{w.DR || 0}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-gray-500">DA</span>
+                          <span className="bg-blue-400 text-white px-1.5 rounded text-[10px]">{w.DA || 0}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-gray-500">RD</span>
+                          <span className="bg-purple-500 text-white px-1.5 rounded text-[10px]">{w.RD || '-'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Stats Columns (Grid) */}
+                  <div className="col-span-5 grid grid-cols-4 gap-2 text-center items-center">
+                    {columns.find(c => c.id === 'pa')?.visible && (
+                      <div className="text-xs text-gray-600">
+                        <span className="bg-blue-100 text-blue-600 px-1 rounded mr-1">M</span>
+                        PA {w.PA || 0}
+                      </div>
+                    )}
+                    {columns.find(c => c.id === 'spam')?.visible && (
+                      <div className="text-xs text-gray-600 flex items-center justify-center gap-1">
+                        <span className="bg-blue-100 text-blue-600 px-1 rounded text-[10px]">M</span>
+                        {w.Spam || 0}%
+                      </div>
+                    )}
+                    {columns.find(c => c.id === 'locationTraffic')?.visible && (
+                      <div className="text-xs text-gray-600">
+                        {w.locationTraffic ? w.locationTraffic.toLocaleString() : '-'}
+                      </div>
+                    )}
+                    {columns.find(c => c.id === 'primeCountries')?.visible && (
+                      <div className="text-xs text-gray-600 flex flex-col items-center justify-center gap-1">
+                        {w.primeTrafficCountries && w.primeTrafficCountries.length > 0 ? (
+                          <>
+                            {w.primeTrafficCountries.slice(0, 2).map((c, i) => (
+                              <div key={i} className="flex items-center gap-1" title={c}>
+                                <span>{getCountryFlag(c)}</span>
+                                <span className="truncate max-w-[80px]">{c}</span>
+                              </div>
+                            ))}
+                            {w.primeTrafficCountries.length > 2 && (
+                              <span className="text-[10px] text-gray-400">+{w.primeTrafficCountries.length - 2} more</span>
+                            )}
+                          </>
+                        ) : (
+                          '-'
+                        )}
+                      </div>
+                    )}
+                    {columns.find(c => c.id === 'greyNiche')?.visible && (
+                      <div className="text-xs text-gray-600">
+                        {w.greyNicheAccepted ? (
+                          <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-[10px]">Yes</span>
+                        ) : (
+                          <span className="text-gray-400">No</span>
+                        )}
+                      </div>
+                    )}
+                    {columns.find(c => c.id === 'notes')?.visible && (
+                      <div className="text-xs text-gray-600 flex justify-center">
+                        {w.specialNotes ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <svg className="h-4 w-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 011.414.586l5.414 5.414a1 1 0 01.586 1.414V19a2 2 0 01-2 2z" />
+                                </svg>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="max-w-xs text-xs">{w.specialNotes}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <span className="text-gray-300">-</span>
+                        )}
+                      </div>
+                    )}
+                    {columns.find(c => c.id === 'language')?.visible && (
+                      <div className="text-xs text-gray-600">
+                        English
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* Pagination Bottom */}
+      <div className="flex justify-end mt-4">
+        <div className="flex items-center gap-2">
+          <button className="p-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" disabled>
+            <svg className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <span className="px-2 py-1 border border-blue-500 text-blue-600 rounded bg-blue-50 text-sm font-medium">1</span>
+          <button className="p-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" disabled>
+            <svg className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          <select className="ml-2 border border-gray-300 rounded text-sm p-1">
+            <option>20 / page</option>
+            <option>50 / page</option>
+            <option>100 / page</option>
+          </select>
+        </div>
+      </div>
     </div>
   );
 }
