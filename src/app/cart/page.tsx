@@ -47,6 +47,9 @@ export default function CartPage() {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  // Temporary upload confirmation popup
+  const [showTempUploadPopup, setShowTempUploadPopup] = useState(false);
+  const [tempUploadPopupMessage, setTempUploadPopupMessage] = useState("");
   const [websiteDetails, setWebsiteDetails] = useState<Record<string, any>>({}); // Store detailed website info
   const [loadingDetails, setLoadingDetails] = useState<Record<string, boolean>>({}); // Track loading state for each website
   const [activeDetailsItem, setActiveDetailsItem] = useState<string | null>(null); // Track which item's details are being shown
@@ -1280,7 +1283,11 @@ export default function CartPage() {
                      if (fileInputRef.current) {
                        fileInputRef.current.value = "";
                      }
-                     alert("File added temporarily. It will be uploaded when you proceed to checkout.");
+                     // Show in-app popup instead of native alert
+                     setTempUploadPopupMessage("File added temporarily. It will be uploaded when you proceed to checkout.");
+                     setShowTempUploadPopup(true);
+                     // Auto-close after 3 seconds
+                     setTimeout(() => setShowTempUploadPopup(false), 3000);
                   } catch (err: any) {
                     alert(`Upload failed: ${err?.message ?? "Unknown error"}`);
                   } finally {
@@ -1360,6 +1367,39 @@ export default function CartPage() {
             <div className="flex justify-end">
               <button
                 onClick={() => setShowSuccessMessage(false)}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Temp Upload Confirmation Popup */}
+      {showTempUploadPopup && (
+        <div 
+          className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          style={{ backgroundColor: "rgba(13, 17, 23, 0.3)" }}
+        >
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-gray-800">Success</h3>
+              <button
+                onClick={() => setShowTempUploadPopup(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="mb-4">
+              <p className="text-gray-600">{tempUploadPopupMessage}</p>
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowTempUploadPopup(false)}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
               >
                 OK

@@ -74,7 +74,8 @@ interface FormData {
   domainName: string;
   websiteUrl: string;
   orderAcceptedEmail?: string;
-  category: string;
+  // allow multiple categories
+  category: string[];
   price: string;
   description: string;
   
@@ -179,6 +180,7 @@ export function AddWebsiteForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [categorySearchTerm, setCategorySearchTerm] = useState(''); // New state for category search
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [countrySearchTerm, setCountrySearchTerm] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false); // New state for confirmation modal
@@ -188,10 +190,12 @@ export function AddWebsiteForm({
     domainName: editingWebsite?.title || "",
     websiteUrl: editingWebsite?.url || "",
     orderAcceptedEmail: editingWebsite?.orderAcceptedEmail || "",
-    // Ensure category is always a scalar string. If editingWebsite provides an array, join it.
+    // Ensure category is an array. If editingWebsite provides a comma string or array, normalize to array.
     category: Array.isArray(editingWebsite?.category)
-      ? editingWebsite.category.join(',')
-      : (editingWebsite?.category || ""),
+      ? editingWebsite.category
+      : (typeof editingWebsite?.category === 'string' && editingWebsite.category.trim()
+        ? editingWebsite.category.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : []),
     price: editingWebsite?.priceCents ? (editingWebsite.priceCents / 100).toString() : "",
     description: editingWebsite?.description || "",
   });
@@ -241,6 +245,18 @@ export function AddWebsiteForm({
         return newErrors;
       });
     }
+  };
+
+  const toggleCategory = (cat: string) => {
+    setStep1Data(prev => {
+      const list = Array.isArray(prev.category) ? [...prev.category] : [];
+      const idx = list.indexOf(cat);
+      if (idx === -1) list.push(cat);
+      else list.splice(idx, 1);
+      return { ...prev, category: list };
+    });
+    // clear category error if any
+    if (step1Errors.category) setStep1Errors(prev => { const n = { ...prev }; delete n.category; return n; });
   };
 
   // Update functions for step 2 and step 3
@@ -302,8 +318,8 @@ export function AddWebsiteForm({
     if (!step1Data.price || isNaN(Number(step1Data.price)) || Number(step1Data.price) < 0) {
       errors.price = 'Price is required and must be a positive number';
     }
-    if (!step1Data.category || !step1Data.category.trim()) {
-      errors.category = 'Category is required';
+    if (!step1Data.category || !Array.isArray(step1Data.category) || step1Data.category.length === 0) {
+      errors.category = 'At least one category is required';
     }
     // websiteUrl and description are optional per requirements
     // orderAcceptedEmail is optional but if provided must be a valid email
@@ -447,7 +463,7 @@ export function AddWebsiteForm({
         websiteUrl: (combinedData.websiteUrl && combinedData.websiteUrl.trim() ? combinedData.websiteUrl.trim() : combinedData.domainName),
         // Keep the explicit email field as well (optional) so it's available to the backend if needed
         orderAcceptedEmail: combinedData.orderAcceptedEmail?.trim ? combinedData.orderAcceptedEmail.trim() : combinedData.orderAcceptedEmail,
-        category: combinedData.category,
+        category: combinedData.category, // array of selected categories
         price: combinedData.price,
         description: combinedData.description,
         DA: combinedData.DA,
@@ -603,35 +619,47 @@ export function AddWebsiteForm({
                     <motion.div variants={fadeInUp} className="space-y-2">
                       <Label htmlFor="category">Category *</Label>
                       <div className="relative">
-                        <Select 
-                          value={step1Data.category} 
-                          onValueChange={(value) => updateStep1Data("category", value)}
+                        <div
+                          className={`h-12 px-3 py-2 border rounded-lg flex items-center justify-start gap-2 cursor-pointer ${step1Errors.category ? 'border-red-500' : 'border-gray-300'}`}
+                          onClick={() => setShowCategoryDropdown(prev => !prev)}
                         >
-                          <SelectTrigger className={`h-12 ${step1Errors.category ? "border-red-500" : ""}`}>
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white">
+                          <div className="flex flex-wrap gap-2">
+                            {Array.isArray(step1Data.category) && step1Data.category.length > 0 ? (
+                              step1Data.category.map((c, i) => (
+                                <span key={i} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                                  {c}
+                                  <button type="button" onClick={(e) => { e.stopPropagation(); toggleCategory(c); }} className="ml-1 text-blue-600 hover:text-blue-900">×</button>
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-gray-500">Select one or more categories</span>
+                            )}
+                          </div>
+                          <div className="ml-auto text-gray-400">▾</div>
+                        </div>
+
+                        {showCategoryDropdown && (
+                          <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
                             <div className="p-2 border-b">
                               <input
                                 type="text"
                                 placeholder="Search categories..."
-                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-3 py-1.5 text-sm border border-gray-100 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 value={categorySearchTerm}
                                 onChange={(e) => setCategorySearchTerm(e.target.value)}
                                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
                               />
                             </div>
-                            <div className="max-h-60 overflow-y-auto">
-                              {CATEGORIES.filter(cat => 
-                                cat.name.toLowerCase().includes(categorySearchTerm.toLowerCase())
-                              ).map((cat) => (
-                                <SelectItem key={cat.id} value={cat.name}>
-                                  {cat.name}
-                                </SelectItem>
+                            <div>
+                              {CATEGORIES.filter(cat => cat.name.toLowerCase().includes(categorySearchTerm.toLowerCase())).map((cat) => (
+                                <label key={cat.id} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer">
+                                  <input type="checkbox" checked={Array.isArray(step1Data.category) && step1Data.category.includes(cat.name)} onChange={() => toggleCategory(cat.name)} />
+                                  <span className="text-sm">{cat.name}</span>
+                                </label>
                               ))}
                             </div>
-                          </SelectContent>
-                        </Select>
+                          </div>
+                        )}
                       </div>
                       {step1Errors.category && (
                         <p className="text-sm text-red-500">{step1Errors.category}</p>
@@ -1078,7 +1106,7 @@ export function AddWebsiteForm({
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Category</p>
-                        <p className="font-medium">{submissionData.category}</p>
+                        <p className="font-medium">{Array.isArray(submissionData.category) ? submissionData.category.join(', ') : submissionData.category}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Price</p>

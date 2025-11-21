@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import ChatWindow from './ChatWindow';
+import { useChatWebSocket } from '../hooks/useChatWebSocket';
 
 // Type definitions
 type PurchaseRequest = {
@@ -85,6 +86,11 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isChatMinimized, setIsChatMinimized] = useState(false);
+  // track unread counts per purchase (in-memory)
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
+
+  // subscribe to websocket messages
+  const { lastMessage } = useChatWebSocket();
 
   const handleChatClick = (purchaseId: string) => {
     if (activeChatId === purchaseId) {
@@ -93,12 +99,36 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
       setActiveChatId(purchaseId);
       setIsChatMinimized(false);
     }
+    // clear unread for this purchase when opening
+    setUnreadCounts(prev => ({ ...prev, [purchaseId]: 0 }));
   };
 
   const handleCloseChat = () => {
     setActiveChatId(null);
     setIsChatMinimized(false);
   };
+
+  // mark unread counts based on incoming websocket messages
+  useEffect(() => {
+    if (!lastMessage) return;
+    try {
+      const data = JSON.parse(lastMessage);
+      // Expecting { type: 'chat', purchaseId, message: { sender, ... } }
+      if (data?.type === 'chat' && data?.purchaseId) {
+        const pid = String(data.purchaseId);
+        const sender = data.message?.sender;
+        // ignore messages from current user (we show only incoming)
+        if (!sender || sender === currentUserId) return;
+
+        // if the chat is open, do not increment unread
+        if (activeChatId === pid) return;
+
+        setUnreadCounts(prev => ({ ...prev, [pid]: (prev[pid] || 0) + 1 }));
+      }
+    } catch (err) {
+      // ignore malformed WS messages
+    }
+  }, [lastMessage, activeChatId, currentUserId]);
   const statusLabelMap: Record<string, string> = {
     ongoing: "Mark as Ongoing",
     pendingPayment: "Move to Pending Payment",
@@ -410,12 +440,18 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                           <button
                             onClick={() => handleChatClick(request.id)}
-                            className="text-indigo-600 hover:text-indigo-900 flex items-center gap-2"
+                            className="relative text-indigo-600 hover:text-indigo-900 flex items-center gap-2"
+                            title={unreadCounts[request.id] ? `${unreadCounts[request.id]} new message(s)` : 'Open chat'}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
                             Chat
+                            {unreadCounts[request.id] > 0 && (
+                              <span className="absolute -top-1 -right-3 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-semibold bg-amber-400 text-white rounded-full border-2 border-white">
+                                {unreadCounts[request.id] > 9 ? '9+' : unreadCounts[request.id]}
+                              </span>
+                            )}
                           </button>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">

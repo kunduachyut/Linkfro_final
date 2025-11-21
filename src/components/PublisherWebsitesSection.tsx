@@ -571,7 +571,7 @@ export default function PublisherWebsitesSection({
 
   const formatDate = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString();
+      return new Date(dateString).toLocaleString();
     } catch {
       return "Unknown";
     }
@@ -844,10 +844,11 @@ export default function PublisherWebsitesSection({
       </div>
 
       <div className="border-t">
-        <div className="grid grid-cols-10 gap-4 p-4 text-sm font-medium text-muted-foreground border-b">
+        <div className="grid grid-cols-11 gap-4 p-4 text-sm font-medium text-muted-foreground border-b">
           <div className="col-span-1">No.</div>
           <div className="col-span-4">Website</div>
           <div className="col-span-1">Price</div>
+          <div className="col-span-1">Created</div>
           <div className="col-span-1">Status</div>
           <div className="col-span-2">Available</div>
           <div className="col-span-1">Actions</div>
@@ -856,7 +857,7 @@ export default function PublisherWebsitesSection({
           {filteredSites.map((website, index) => (
             <motion.div
               key={website._id}
-              className="grid grid-cols-10 gap-4 p-4 items-center hover:bg-muted/50 transition-colors cursor-pointer"
+              className="grid grid-cols-11 gap-4 p-4 items-center hover:bg-muted/50 transition-colors cursor-pointer"
               onClick={() => openWebsiteModal(website)}
               onHoverStart={() => setHoveredWebsite(website._id)}
               onHoverEnd={() => setHoveredWebsite(null)}
@@ -885,6 +886,9 @@ export default function PublisherWebsitesSection({
               </div>
               <div className="col-span-1 font-medium">
                 {formatPriceNew(computePublisherVisiblePrice(website))}
+              </div>
+              <div className="col-span-1 text-sm text-muted-foreground">
+                {website.createdAt ? formatDate(website.createdAt) : 'Unknown'}
               </div>
               <div className="col-span-1">
                 {getStatusBadgeNew(website.status, website.rejectionReason)}

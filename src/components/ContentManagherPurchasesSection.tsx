@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import ChatWindow from './ChatWindow';
+// Chat feature removed for Content Manager view
 
 // Type definitions
 type PurchaseRequest = {
@@ -84,22 +84,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
   userRole
 }) => {
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
-  const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [isChatMinimized, setIsChatMinimized] = useState(false);
 
-  const handleChatClick = (purchaseId: string) => {
-    if (activeChatId === purchaseId) {
-      setIsChatMinimized(!isChatMinimized);
-    } else {
-      setActiveChatId(purchaseId);
-      setIsChatMinimized(false);
-    }
-  };
-
-  const handleCloseChat = () => {
-    setActiveChatId(null);
-    setIsChatMinimized(false);
-  };
   const statusLabelMap: Record<string, string> = {
     ongoing: "Mark as Ongoing",
     pendingPayment: "Move to Pending Payment",
@@ -358,9 +343,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Date
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Chat
-                    </th>
+                    {/* Chat column removed per request */}
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
@@ -393,17 +376,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(request.createdAt)}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => handleChatClick(request.id)}
-                            className="text-indigo-600 hover:text-indigo-900 flex items-center gap-2"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                            Chat
-                          </button>
-                        </td>
+                        {/* Chat cell removed */}
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                           <div className="flex items-center gap-2">
                             {(request.status || 'pending') === 'pending' && (
@@ -492,7 +465,8 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                       {expandedRows[request.id] && (
                         <tr>
                           {/* Adjust colspan since Customer and Price columns removed */}
-                          <td colSpan={purchaseFilter === "pending" ? 6 : 5} className="px-4 py-2 bg-gray-50">
+                          {/* Adjust colspan after removing Chat and Customer/Price columns for Content Manager view */}
+                          <td colSpan={purchaseFilter === "pending" ? 5 : 4} className="px-4 py-2 bg-gray-50">
                             <div className="flex justify-end">
                               <div className="flex flex-col gap-2 w-full max-w-md">
                                 <div className="flex flex-col">
@@ -744,18 +718,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
         )}
       </div>
       
-      {/* Chat Window */}
-      {activeChatId && (
-        <div className="fixed bottom-4 right-4 z-50">
-          <ChatWindow
-            purchaseId={activeChatId}
-            currentUserRole={userRole}
-            currentUserId={currentUserId}
-            onClose={handleCloseChat}
-            isMinimized={isChatMinimized}
-          />
-        </div>
-      )}
+      {/* Chat removed from this view */}
 
       {/* Confirmation Modal */}
       {showConfirmationModal && (

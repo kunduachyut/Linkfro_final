@@ -18,6 +18,10 @@ export async function GET(
   const params = context?.params;
   const purchaseId = (params as { purchaseId: string })?.purchaseId;
 
+  if (!purchaseId || typeof purchaseId !== 'string') {
+    return new NextResponse('Invalid purchaseId', { status: 400 });
+  }
+
     // Find existing chat
   const chat = await Chat.findOne<IChat>({ purchaseId }).exec();
     
@@ -78,6 +82,10 @@ export async function POST(
   // Access route params
   const params = context?.params;
   const purchaseId = (params as { purchaseId: string })?.purchaseId;
+
+  if (!purchaseId || typeof purchaseId !== 'string') {
+    return new NextResponse('Invalid purchaseId', { status: 400 });
+  }
 
     if (!message || typeof message.content !== 'string' || !message.content.trim()) {
       return new NextResponse('Valid message content is required', { status: 400 });
