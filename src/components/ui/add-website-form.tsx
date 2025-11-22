@@ -587,7 +587,19 @@ export function AddWebsiteForm({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <Card className="border shadow-lg rounded-xl overflow-hidden">
+        <Card className="border shadow-lg rounded-xl overflow-hidden relative">
+          {/* Close button */}
+          <button
+            onClick={onCancel}
+            className="absolute top-4 right-4 p-1 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-300"
+            aria-label="Close form"
+            title="Cancel and close form"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
@@ -664,7 +676,7 @@ export function AddWebsiteForm({
                               <input
                                 type="text"
                                 placeholder="Search categories..."
-                                className="w-full px-3 py-1.5 text-sm border border-gray-100 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-3 py-1.5 text-sm border border-gray-100 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-700"
                                 value={categorySearchTerm}
                                 onChange={(e) => setCategorySearchTerm(e.target.value)}
                                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
@@ -672,9 +684,9 @@ export function AddWebsiteForm({
                             </div>
                             <div>
                               {CATEGORIES.filter(cat => cat.name.toLowerCase().includes(categorySearchTerm.toLowerCase())).map((cat) => (
-                                <label key={cat.id} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer">
-                                  <input type="checkbox" checked={Array.isArray(step1Data.category) && step1Data.category.includes(cat.name)} onChange={() => toggleCategory(cat.name)} />
-                                  <span className="text-sm">{cat.name}</span>
+                                <label key={cat.id} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer text-gray-700">
+                                  <input type="checkbox" checked={Array.isArray(step1Data.category) && step1Data.category.includes(cat.name)} onChange={() => toggleCategory(cat.name)} className="text-gray-700" />
+                                  <span className="text-sm text-gray-700">{cat.name}</span>
                                 </label>
                               ))}
                             </div>
@@ -885,11 +897,11 @@ export function AddWebsiteForm({
                         onValueChange={(value) => updateStep3Data("greyNicheAccepted", value)}
                       >
                         <SelectTrigger className={`h-12 ${step3Errors.greyNicheAccepted ? "border-red-500" : ""}`}>
-                          <SelectValue placeholder="Select an option" />
+                          <SelectValue placeholder="Select an option" className="text-gray-700" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white">
-                          <SelectItem value="true">Yes</SelectItem>
-                          <SelectItem value="false">No</SelectItem>
+                        <SelectContent className="bg-white text-gray-700">
+                          <SelectItem value="true" className="text-gray-700">Yes</SelectItem>
+                          <SelectItem value="false" className="text-gray-700">No</SelectItem>
                         </SelectContent>
                       </Select>
                       {step3Errors.greyNicheAccepted && (
@@ -912,50 +924,11 @@ export function AddWebsiteForm({
                     <motion.div variants={fadeInUp} className="space-y-2">
                       <Label htmlFor="primeTrafficCountries">Prime Traffic Countries *</Label>
                       <div className="space-y-2">
-                        {/* Selected Countries Display */}
-                        <div className={`border rounded-lg p-4 min-h-[50px] bg-white shadow-sm ${step3Errors.primeTrafficCountries ? "border-red-500" : "border-gray-300"}`}>
-                          {step3Data.primeTrafficCountries.length > 0 ? (
-                            <div className="flex flex-wrap gap-2">
-                              {step3Data.primeTrafficCountries.map((country, index) => {
-                                // Find the country object to get the flag
-                                const countryObj = allCountries.find(c => c.name === country);
-                                return (
-                                  <div key={index} className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm flex items-center font-medium">
-                                    {countryObj?.flag && (
-                                      <img 
-                                        src={countryObj.flag} 
-                                        alt={countryObj.name} 
-                                        className="w-4 h-3 mr-2 object-contain" 
-                                        onError={(e) => {
-                                          const target = e.target as HTMLImageElement;
-                                          target.style.display = 'none';
-                                        }}
-                                      />
-                                    )}
-                                    <span>{country}</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        removeCountry(index);
-                                      }}
-                                      className="ml-2 text-blue-600 hover:text-blue-900 font-bold"
-                                    >
-                                      ×
-                                    </button>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            <span className="text-gray-500 text-sm">No countries selected</span>
-                          )}
-                        </div>
-                        
-                        {/* Add Country Input with Dropdown */}
-                        <div className="mt-2 relative">
+                        {/* Add Country Input with Dropdown first */}
+                        <div className="relative">
                           <Input
                             id="primeTrafficCountries"
-                            placeholder="Search and select countries..."
+                            placeholder="Search countries..."
                             value={searchTerm}
                             onChange={(e) => {
                               setSearchTerm(e.target.value);
@@ -1013,6 +986,45 @@ export function AddWebsiteForm({
                                 )}
                               </div>
                             </div>
+                          )}
+                        </div>
+                        
+                        {/* Selected Countries Display below the search input */}
+                        <div className={`border rounded-lg p-4 min-h-[50px] bg-white shadow-sm ${step3Errors.primeTrafficCountries ? "border-red-500" : "border-gray-300"}`}>
+                          {step3Data.primeTrafficCountries.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                              {step3Data.primeTrafficCountries.map((country, index) => {
+                                // Find the country object to get the flag
+                                const countryObj = allCountries.find(c => c.name === country);
+                                return (
+                                  <div key={index} className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm flex items-center font-medium">
+                                    {countryObj?.flag && (
+                                      <img 
+                                        src={countryObj.flag} 
+                                        alt={countryObj.name} 
+                                        className="w-4 h-3 mr-2 object-contain" 
+                                        onError={(e) => {
+                                          const target = e.target as HTMLImageElement;
+                                          target.style.display = 'none';
+                                        }}
+                                      />
+                                    )}
+                                    <span>{country}</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        removeCountry(index);
+                                      }}
+                                      className="ml-2 text-blue-600 hover:text-blue-900 font-bold"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <span className="text-gray-500 text-sm">No countries selected</span>
                           )}
                         </div>
                         
