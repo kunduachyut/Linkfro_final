@@ -243,7 +243,7 @@ type Website = {
   primeTrafficCountries?: string[]; // Add this missing property
 };
 
-export default function PublisherWebsitesSection({ 
+export default function PublisherWebsitesSection({
   mySites,
   refresh,
   statusFilter,
@@ -314,7 +314,7 @@ export default function PublisherWebsitesSection({
 
   // Get unique categories from websites
   const uniqueCategories = Array.from(
-    new Set(mySites.flatMap(site => 
+    new Set(mySites.flatMap(site =>
       site.category ? (Array.isArray(site.category) ? site.category : [site.category]) : []
     ))
   ).filter(Boolean) as string[];
@@ -400,35 +400,35 @@ export default function PublisherWebsitesSection({
   const filteredSites = mySites.filter(site => {
     // Status filter (existing)
     if (statusFilter !== "all" && site.status !== statusFilter) return false;
-    
+
     // Search filter - now works from 1st character
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      const matchesSearch = 
+      const matchesSearch =
         site.title.toLowerCase().includes(query) ||
         site.url.toLowerCase().includes(query) ||
         site.description.toLowerCase().includes(query) ||
-        (site.category && (Array.isArray(site.category) 
+        (site.category && (Array.isArray(site.category)
           ? site.category.some(cat => cat.toLowerCase().includes(query))
           : site.category.toLowerCase().includes(query)));
       if (!matchesSearch) return false;
     }
-    
+
     // Availability filter
     if (availabilityFilter !== "all") {
       const isAvailable = site.available ?? true;
       if (availabilityFilter === "available" && !isAvailable) return false;
       if (availabilityFilter === "unavailable" && isAvailable) return false;
     }
-    
+
     // Category filter
     if (categoryFilter !== "all") {
-      const siteCategories = site.category 
-        ? (Array.isArray(site.category) ? site.category : [site.category]) 
+      const siteCategories = site.category
+        ? (Array.isArray(site.category) ? site.category : [site.category])
         : [];
       if (!siteCategories.includes(categoryFilter)) return false;
     }
-    
+
     // Price filters - use the publisher-visible price so publisher sees their listed price
     const priceToUse = computePublisherVisiblePrice(site as any);
     if (minPrice && priceToUse < parseFloat(minPrice) * 100) return false;
@@ -477,19 +477,19 @@ export default function PublisherWebsitesSection({
       const filterValue = greyNicheFilter === 'true';
       if (site.greyNicheAccepted !== filterValue) return false;
     }
-    
+
     // Date filters
     if (startDate || endDate) {
       // Get the date to compare (prefer createdAt, fallback to approvedAt)
-      const siteDate = site.createdAt ? new Date(site.createdAt) : 
-                      site.approvedAt ? new Date(site.approvedAt) : null;
-      
+      const siteDate = site.createdAt ? new Date(site.createdAt) :
+        site.approvedAt ? new Date(site.approvedAt) : null;
+
       if (siteDate) {
         // Set time to start of day for startDate
         if (startDate && siteDate < new Date(new Date(startDate).setHours(0, 0, 0, 0))) {
           return false;
         }
-        
+
         // Set time to end of day for endDate
         if (endDate && siteDate > new Date(new Date(endDate).setHours(23, 59, 59, 999))) {
           return false;
@@ -499,7 +499,7 @@ export default function PublisherWebsitesSection({
         return false;
       }
     }
-    
+
     return true;
   });
 
@@ -606,8 +606,8 @@ export default function PublisherWebsitesSection({
             </button>
           </div>
         </div>
-        
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4">
+
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mt-4">
           <div className="flex items-center gap-3">
             <div>
               <span className="text-sm font-medium text-gray-700">{mySites.length} websites</span>
@@ -619,55 +619,66 @@ export default function PublisherWebsitesSection({
           
           <div className="flex items-center gap-2 flex-wrap">
             <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <span className="material-symbols-outlined text-gray-400 text-base">search</span>
+              </div>
               <input
                 type="text"
-                placeholder="Search websites..."
+                placeholder=""
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
-                className="pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-40"
               />
-              <span className="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-base">search</span>
+            </div>
+            
+            <div className="relative">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as "all" | "pending" | "approved" | "rejected")}
+                className="pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white appearance-none text-gray-700"
+              >
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </div>
             
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="p-2 text-gray-500 hover:text-gray-700 rounded-md hover:bg-gray-100 transition-colors relative"
+              className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors relative border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               title="Filters"
             >
-              <span className="material-symbols-outlined">filter_list</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
               {/* Filter indicator dot */}
               {(availabilityFilter !== "all" || categoryFilter !== "all" || minPrice || maxPrice || minDA || maxDA || startDate || endDate || minDR || maxDR || minOrganicTraffic || maxOrganicTraffic || countryFilter || minTrafficValue || maxTrafficValue || greyNicheFilter) && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
               )}
             </button>
-            
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as "all" | "pending" | "approved" | "rejected")}
-              className="pl-3 pr-8 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
-            >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
           </div>
         </div>
-        
+
         {/* Advanced Filters */}
         {showFilters && (
           <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-4 mt-4">
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-md font-medium text-gray-900">Filters</h3>
-              <button 
+              <button
                 onClick={clearFilters}
                 className="text-sm text-blue-600 hover:text-blue-800"
               >
                 Clear all
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Availability Filter */}
               <div>
@@ -682,7 +693,7 @@ export default function PublisherWebsitesSection({
                   <option value="unavailable">Unavailable</option>
                 </select>
               </div>
-              
+
               {/* Category Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
@@ -697,7 +708,7 @@ export default function PublisherWebsitesSection({
                   ))}
                 </select>
               </div>
-              
+
               {/* Price Range */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Price Range ($)</label>
@@ -718,7 +729,7 @@ export default function PublisherWebsitesSection({
                   />
                 </div>
               </div>
-              
+
               {/* DA Range */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">DA Range</label>
@@ -830,7 +841,7 @@ export default function PublisherWebsitesSection({
                   <option value="false">No</option>
                 </select>
               </div>
-              
+
               {/* Date Range */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
@@ -865,13 +876,14 @@ export default function PublisherWebsitesSection({
           <div className="col-span-1">Status</div>
           <div className="col-span-1">Metrics</div>
           <div className="col-span-2">Actions</div>
-        </div>
+        </div >
         <div className="divide-y">
           {filteredSites.map((website, index) => (
             <motion.div
               key={website._id}
               className="grid grid-cols-14 gap-2 p-4 items-center hover:bg-muted/50 transition-colors cursor-pointer"
-              onClick={() => openWebsiteModal(website)}
+              onClick={() => openWebsiteModal(website)
+              }
               onHoverStart={() => setHoveredWebsite(website._id)}
               onHoverEnd={() => setHoveredWebsite(null)}
               initial={{ opacity: 0, y: 20 }}
@@ -898,14 +910,14 @@ export default function PublisherWebsitesSection({
                     Visit Site
                   </a>
                 </div>
-              </div>
+              </div >
 
               <div className="col-span-2 text-sm text-muted-foreground truncate">
-                { (website as any).orderAcceptedEmail ? (
+                {(website as any).orderAcceptedEmail ? (
                   <a href={`mailto:${(website as any).orderAcceptedEmail}`} onClick={(e) => e.stopPropagation()} className="text-blue-600 hover:underline font-mono">{(website as any).orderAcceptedEmail}</a>
                 ) : (
                   <span className="text-muted-foreground">N/A</span>
-                ) }
+                )}
               </div>
 
               <div className="col-span-2 text-sm text-muted-foreground truncate">
@@ -996,37 +1008,40 @@ export default function PublisherWebsitesSection({
                   </button>
                 )}
               </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
+            </motion.div >
+          ))
+          }
+        </div >
+      </div >
 
       {/* Empty State */}
-      {filteredSites.length === 0 && (
-        <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-200 text-center">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="material-symbols-outlined text-blue-600 text-3xl">web</span>
+      {
+        filteredSites.length === 0 && (
+          <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-200 text-center">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="material-symbols-outlined text-blue-600 text-3xl">web</span>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Websites Found</h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              {mySites.length === 0
+                ? "You haven't added any websites yet. Get started by adding your first website!"
+                : "No websites match your current filters. Try adjusting your search or filters."}
+            </p>
+            {mySites.length === 0 && (
+              <button
+                onClick={() => {
+                  const event = new CustomEvent('switchTab', { detail: 'add-website' });
+                  window.dispatchEvent(event);
+                }}
+                className="px-5 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium inline-flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined">add</span>
+                Add Website
+              </button>
+            )}
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Websites Found</h3>
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            {mySites.length === 0 
-              ? "You haven't added any websites yet. Get started by adding your first website!" 
-              : "No websites match your current filters. Try adjusting your search or filters."}
-          </p>
-          {mySites.length === 0 && (
-            <button
-              onClick={() => {
-                const event = new CustomEvent('switchTab', { detail: 'add-website' });
-                window.dispatchEvent(event);
-              }}
-              className="px-5 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium inline-flex items-center gap-2"
-            >
-              <span className="material-symbols-outlined">add</span>
-              Add Website
-            </button>
-          )}
-        </div>
-      )}
+        )
+      }
 
       {/* Website Detail Modal */}
       <AnimatePresence>
@@ -1060,7 +1075,7 @@ export default function PublisherWebsitesSection({
                     </svg>
                   </button>
                 </div>
-                
+
                 <div className="mt-6 grid grid-cols-2 gap-6">
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Website Information</h3>
@@ -1094,7 +1109,7 @@ export default function PublisherWebsitesSection({
                       )}
                     </div>
                   </div>
-                  
+
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Status & Dates</h3>
                     <div className="space-y-3">
@@ -1144,7 +1159,7 @@ export default function PublisherWebsitesSection({
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="col-span-2">
                     <h3 className="text-lg font-semibold mb-4">SEO Metrics</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1201,7 +1216,7 @@ export default function PublisherWebsitesSection({
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="col-span-2 flex justify-end gap-3 pt-4 border-t">
                     <button
                       onClick={closeWebsiteModal}
@@ -1236,6 +1251,6 @@ export default function PublisherWebsitesSection({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </div >
   );
 }
