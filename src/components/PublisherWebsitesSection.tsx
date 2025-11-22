@@ -855,22 +855,22 @@ export default function PublisherWebsitesSection({
       </div>
 
       <div className="border-t">
-        <div className="grid grid-cols-14 gap-4 p-4 text-sm font-medium text-muted-foreground border-b">
+        <div className="grid grid-cols-14 gap-2 p-4 text-sm font-medium text-muted-foreground border-b">
           <div className="col-span-1">No.</div>
-          <div className="col-span-4">Website</div>
+          <div className="col-span-3">Website</div>
           <div className="col-span-2">Order accepted e-mail</div>
           <div className="col-span-2">Notes</div>
           <div className="col-span-1">Price</div>
           <div className="col-span-1">Created</div>
           <div className="col-span-1">Status</div>
-          <div className="col-span-1">Available</div>
-          <div className="col-span-1">Actions</div>
+          <div className="col-span-1">Metrics</div>
+          <div className="col-span-2">Actions</div>
         </div>
         <div className="divide-y">
           {filteredSites.map((website, index) => (
             <motion.div
               key={website._id}
-              className="grid grid-cols-14 gap-4 p-4 items-center hover:bg-muted/50 transition-colors cursor-pointer"
+              className="grid grid-cols-14 gap-2 p-4 items-center hover:bg-muted/50 transition-colors cursor-pointer"
               onClick={() => openWebsiteModal(website)}
               onHoverStart={() => setHoveredWebsite(website._id)}
               onHoverEnd={() => setHoveredWebsite(null)}
@@ -882,7 +882,7 @@ export default function PublisherWebsitesSection({
                 <span className="font-mono">{String(index + 1).padStart(2, '0')}</span>
               </div>
 
-              <div className="col-span-4">
+              <div className="col-span-3">
                 <div className="font-medium">{formatTitle(website.title)}</div>
                 <div className="text-sm text-muted-foreground truncate">
                   <a
@@ -924,9 +924,29 @@ export default function PublisherWebsitesSection({
                 {getStatusBadgeNew(website.status, website.rejectionReason)}
               </div>
 
-              <div className="col-span-1 flex items-center justify-center">
-                {website.status === "approved" ? (
-                  <div onClick={(e) => e.stopPropagation()}>
+              <div className="col-span-1 text-sm">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1">
+                    <span className="font-medium">DR:</span>
+                    <span>{website.DR || "N/A"}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="font-medium">OT:</span>
+                    <span>{website.OrganicTraffic || "N/A"}</span>
+                  </div>
+                  {website.primeTrafficCountries && website.primeTrafficCountries.length > 0 && (
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium">PTC:</span>
+                      <span className="truncate">{Array.isArray(website.primeTrafficCountries) ? website.primeTrafficCountries.join(', ') : website.primeTrafficCountries}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="col-span-2 flex items-center gap-2">
+                {website.status === "approved" && (
+                  <div onClick={(e) => e.stopPropagation()} className="flex items-center">
+                    <span className="text-sm mr-2 text-muted-foreground">Available:</span>
                     <MinimalToggle
                       checked={website.available}
                       onChange={(e) => {
@@ -934,12 +954,7 @@ export default function PublisherWebsitesSection({
                       }}
                     />
                   </div>
-                ) : (
-                  <div className="text-muted-foreground text-sm">N/A</div>
                 )}
-              </div>
-
-              <div className="col-span-1 flex justify-end">
                 {hoveredWebsite === website._id ? (
                   <div className="flex gap-2">
                     <button
