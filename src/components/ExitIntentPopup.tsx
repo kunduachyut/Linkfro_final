@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 const ExitIntentPopup = () => {
@@ -41,16 +42,18 @@ const ExitIntentPopup = () => {
 
   if (!isVisible) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
       <div className="bg-white rounded-2xl max-w-md w-full p-6 relative">
-        <button 
+        <button
           onClick={handleClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
         >
           <X className="w-6 h-6" />
         </button>
-        
+
         <div className="text-center mb-6">
           <div className="w-16 h-16 bg-pulse-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl">🎁</span>
@@ -60,7 +63,7 @@ const ExitIntentPopup = () => {
             Grab our free list of 10 DA90+ domains before you go!
           </p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <input
@@ -79,12 +82,13 @@ const ExitIntentPopup = () => {
             Get My Free List
           </button>
         </form>
-        
+
         <p className="text-center text-xs text-gray-500 mt-4">
           We respect your privacy. Unsubscribe at any time.
         </p>
       </div>
     </div>
+    , document.body
   );
 };
 

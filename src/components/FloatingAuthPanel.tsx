@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useUser, SignInButton, SignUpButton, SignOutButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -28,12 +29,12 @@ const FloatingAuthPanel = () => {
           setAllowed(false);
           return;
         }
-  const j = await res.json();
-    // j: { role: 'websites'|'requests'|null, isSuper: boolean }
-  const isAllowed = !!(j?.isSuper) || (j?.role === 'websites') || (j?.role === 'requests');
-  setAllowed(Boolean(isAllowed));
-  setAdminRole(typeof j?.role === 'string' ? j.role : null);
-  setIsSuperRole(Boolean(j?.isSuper));
+        const j = await res.json();
+        // j: { role: 'websites'|'requests'|null, isSuper: boolean }
+        const isAllowed = !!(j?.isSuper) || (j?.role === 'websites') || (j?.role === 'requests');
+        setAllowed(Boolean(isAllowed));
+        setAdminRole(typeof j?.role === 'string' ? j.role : null);
+        setIsSuperRole(Boolean(j?.isSuper));
       } catch (e) {
         setAllowed(false);
       } finally {
@@ -45,7 +46,7 @@ const FloatingAuthPanel = () => {
     if (isSignedIn) checkRole();
     else setChecking(false);
 
-    return () => { 
+    return () => {
       mounted = false;
       if (closeTimeoutRef.current) {
         clearTimeout(closeTimeoutRef.current);
@@ -99,12 +100,15 @@ const FloatingAuthPanel = () => {
     if (checking) return null;
     // Don't show the panel to users who are not signed in or not allowed.
     if (!isSignedIn || !allowed) return null;
-    return (
+
+    if (typeof document === 'undefined') return null;
+
+    return createPortal(
       <button
         ref={openButtonRef}
         onMouseEnter={handleMouseEnter}
         onClick={() => setIsOpen(true)}
-        className="fixed top-4 right-4 z-50 text-gray-700 p-3 rounded-full shadow-lg hover:scale-105 transition-all duration-300 hover:text-gray-800"
+        className="fixed top-4 right-4 z-[9999] text-gray-700 p-3 rounded-full shadow-lg hover:scale-105 transition-all duration-300 hover:text-gray-800"
         style={{
           background: "rgba(255, 255, 255, 0.15)",
           backdropFilter: "blur(12px)",
@@ -118,7 +122,8 @@ const FloatingAuthPanel = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-      </button>
+      </button>,
+      document.body
     );
   }
 
@@ -130,12 +135,14 @@ const FloatingAuthPanel = () => {
   // Helper boolean: when true show all options
   const isSuper = isSuperRole || adminRole === 'super';
 
-  return (
-    <div 
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
       ref={panelRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="fixed top-4 right-4 z-50 p-6 w-80 rounded-2xl border shadow-2xl"
+      className="fixed top-4 right-4 z-[9999] p-6 w-80 rounded-2xl border shadow-2xl"
       style={{
         background: "rgba(255, 255, 255, 0.15)",
         backdropFilter: "blur(12px)",
@@ -147,7 +154,7 @@ const FloatingAuthPanel = () => {
     >
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-800">Development Panel</h3>
-        <button 
+        <button
           onClick={() => setIsOpen(false)}
           className="text-gray-500 hover:text-gray-700 rounded-full p-1 hover:bg-white/10 transition-colors"
           aria-label="Close panel"
@@ -162,7 +169,7 @@ const FloatingAuthPanel = () => {
         <div>
           <h4 className="font-medium text-gray-700 mb-2">User Roles</h4>
           <div className="grid grid-cols-2 gap-2">
-            <Button 
+            <Button
               className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
               onClick={() => router.push('/')}
             >
@@ -170,7 +177,7 @@ const FloatingAuthPanel = () => {
             </Button>
 
             {(isSuper || adminRole === 'publisher') && (
-              <Button 
+              <Button
                 className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
                 onClick={() => navigateToRole('publisher')}
               >
@@ -179,7 +186,7 @@ const FloatingAuthPanel = () => {
             )}
 
             {(isSuper || adminRole === 'requests') && (
-              <Button 
+              <Button
                 className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
                 onClick={() => router.push('/dashboard/Content_Manager')}
               >
@@ -188,7 +195,7 @@ const FloatingAuthPanel = () => {
             )}
 
             {isSuper && (
-              <Button 
+              <Button
                 className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
                 onClick={() => navigateToRole('superadmin')}
               >
@@ -197,7 +204,7 @@ const FloatingAuthPanel = () => {
             )}
 
             {(isSuper || adminRole === 'websites') && (
-              <Button 
+              <Button
                 className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
                 onClick={() => router.push('/dashboard/Website_analyst')}
               >
@@ -206,7 +213,7 @@ const FloatingAuthPanel = () => {
             )}
 
             {(isSuper || adminRole === 'consumer') && (
-              <Button 
+              <Button
                 className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
                 onClick={() => navigateToRole('consumer')}
               >
@@ -246,7 +253,8 @@ const FloatingAuthPanel = () => {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

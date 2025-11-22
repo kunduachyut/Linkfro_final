@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, RotateCcw } from "lucide-react";
 
 const SpinWheelPopup = () => {
@@ -33,18 +34,18 @@ const SpinWheelPopup = () => {
 
   const spinWheel = () => {
     if (isSpinning) return;
-    
+
     setIsSpinning(true);
     setShowResult(false);
-    
+
     // Generate random result
     const randomPrize = Math.floor(Math.random() * prizes.length);
     setResult(randomPrize);
-    
+
     // Calculate rotation (5 full rotations + offset to prize)
     const newRotation = 5 * 360 + (360 / prizes.length) * randomPrize;
     setRotation(newRotation);
-    
+
     // Show result after animation
     setTimeout(() => {
       setIsSpinning(false);
@@ -58,28 +59,30 @@ const SpinWheelPopup = () => {
 
   if (!isVisible) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
       <div className="bg-white rounded-2xl max-w-md w-full p-6 relative">
-        <button 
+        <button
           onClick={handleClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
         >
           <X className="w-6 h-6" />
         </button>
-        
+
         <div className="text-center mb-6">
           <h3 className="text-2xl font-bold mb-2">Spin to Win!</h3>
           <p className="text-gray-600">
             Win 5-15% off today's package
           </p>
         </div>
-        
+
         {/* Wheel */}
         <div className="relative mx-auto w-64 h-64 mb-8">
-          <div 
+          <div
             className="relative w-full h-full rounded-full border-4 border-gray-200 overflow-hidden transition-transform duration-3000 ease-out"
-            style={{ 
+            style={{
               transform: `rotate(${rotation}deg)`,
               transitionTimingFunction: isSpinning ? 'cubic-bezier(0.2, 0.8, 0.3, 1)' : 'ease-out'
             }}
@@ -87,14 +90,14 @@ const SpinWheelPopup = () => {
             {prizes.map((prize, index) => {
               const angle = (360 / prizes.length) * index;
               return (
-                <div 
+                <div
                   key={prize.id}
                   className={`absolute top-0 left-0 w-full h-full ${prize.color}`}
                   style={{
-                    clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos((angle + 360/prizes.length - 90) * Math.PI/180)}% ${50 + 50 * Math.sin((angle + 360/prizes.length - 90) * Math.PI/180)}%, ${50 + 50 * Math.cos((angle - 90) * Math.PI/180)}% ${50 + 50 * Math.sin((angle - 90) * Math.PI/180)}%)`
+                    clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos((angle + 360 / prizes.length - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((angle + 360 / prizes.length - 90) * Math.PI / 180)}%, ${50 + 50 * Math.cos((angle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((angle - 90) * Math.PI / 180)}%)`
                   }}
                 >
-                  <div 
+                  <div
                     className="absolute top-1/2 left-3/4 transform -translate-y-1/2 -translate-x-1/2 text-white text-xs font-bold rotate-90"
                     style={{ transformOrigin: 'center' }}
                   >
@@ -104,26 +107,25 @@ const SpinWheelPopup = () => {
               );
             })}
           </div>
-          
+
           {/* Wheel center */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white rounded-full border-4 border-gray-300 z-10 flex items-center justify-center">
             <RotateCcw className="w-8 h-8 text-gray-500" />
           </div>
-          
+
           {/* Pointer */}
           <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-red-500 rounded-b-full z-20"></div>
         </div>
-        
+
         {/* Spin button or result */}
         {!showResult ? (
           <button
             onClick={spinWheel}
             disabled={isSpinning}
-            className={`w-full py-3 px-4 rounded-lg font-bold transition-colors ${
-              isSpinning 
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed" 
-                : "bg-pulse-500 hover:bg-pulse-600 text-white"
-            }`}
+            className={`w-full py-3 px-4 rounded-lg font-bold transition-colors ${isSpinning
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-pulse-500 hover:bg-pulse-600 text-white"
+              }`}
           >
             {isSpinning ? "Spinning..." : "SPIN WHEEL"}
           </button>
@@ -145,6 +147,7 @@ const SpinWheelPopup = () => {
         )}
       </div>
     </div>
+    , document.body
   );
 };
 

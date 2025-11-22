@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, User, Building } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 
@@ -170,9 +171,11 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   // User type selection screen
   if (showUserTypeSelection) {
-    return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-        <div 
+    if (typeof document === 'undefined') return null;
+
+    return createPortal(
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
+        <div
           className="relative w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden"
           style={{
             background: "rgba(255, 255, 255, 0.1)",
@@ -241,12 +244,14 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           </div>
         </div>
       </div>
-    );
+      , document.body);
   }
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-      <div 
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
+      <div
         className="relative w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden"
         style={{
           background: "rgba(255, 255, 255, 0.1)",
@@ -314,21 +319,19 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           <div className="flex mb-6 bg-white/10 rounded-full p-1">
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
-                isLogin 
-                  ? "bg-white text-orange-500 shadow" 
-                  : "text-white/70 hover:text-white"
-              }`}
+              className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${isLogin
+                ? "bg-white text-orange-500 shadow"
+                : "text-white/70 hover:text-white"
+                }`}
             >
               Login
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
-                !isLogin 
-                  ? "bg-white text-orange-500 shadow" 
-                  : "text-white/70 hover:text-white"
-              }`}
+              className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${!isLogin
+                ? "bg-white text-orange-500 shadow"
+                : "text-white/70 hover:text-white"
+                }`}
             >
               Sign Up
             </button>
@@ -363,7 +366,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             )}
 
             {/* Company and Website fields removed per request */}
-            
+
             {/* Password and confirmation fields - only for signup or non-signed-in users */}
             {!isLogin && (
               <>
@@ -388,7 +391,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <input
                     type="tel"
@@ -441,7 +444,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 </div>
               </>
             )}
-            
+
             {/* Password field for login */}
             {isLogin && !forgotMode && (
               <div>
@@ -562,7 +565,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 </div>
               </div>
             )}
-            
+
             <button
               type="submit"
               className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg"
@@ -588,6 +591,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         </div>
       </div>
     </div>
+    , document.body
   );
 };
 
