@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, Edit, Trash2, CheckCircle, Clock, XCircle } from "lucide-react";
@@ -588,6 +588,25 @@ export default function PublisherWebsitesSection({
     return t;
   };
 
+  // Add state and ref for handling outside clicks
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  // Handle clicks outside the filter box
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (showFilters && filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setShowFilters(false);
+      }
+    }
+
+    // Add event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Remove event listener on cleanup
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showFilters]);
+
   return (
     <div className="rounded-xl border bg-card text-card-foreground shadow">
       {/* Search and Filter Controls */}
@@ -616,7 +635,7 @@ export default function PublisherWebsitesSection({
               )}
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 flex-wrap">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -631,7 +650,7 @@ export default function PublisherWebsitesSection({
                 className="pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-40"
               />
             </div>
-            
+
             <div className="relative">
               <select
                 value={statusFilter}
@@ -649,7 +668,7 @@ export default function PublisherWebsitesSection({
                 </svg>
               </div>
             </div>
-            
+
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors relative border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -668,39 +687,40 @@ export default function PublisherWebsitesSection({
 
         {/* Advanced Filters */}
         {showFilters && (
-          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-4 mt-4">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-md font-medium text-gray-900">Filters</h3>
+          <div ref={filterRef} className="bg-gray-50 rounded-lg p-4 shadow-sm border border-gray-200 mb-4 mt-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-md font-medium text-gray-900">Filter Options</h3>
               <button 
                 onClick={clearFilters}
-                className="text-sm text-blue-600 hover:text-blue-800"
+                className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center gap-1"
               >
-                Clear all
+                <span className="material-symbols-outlined text-base">refresh</span>
+                Reset Filters
               </button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Availability Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Availability</label>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-gray-700">Availability</label>
                 <select
                   value={availabilityFilter}
                   onChange={(e) => setAvailabilityFilter(e.target.value as "all" | "available" | "unavailable")}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
+                  className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 shadow-sm transition-all duration-200"
                 >
-                  <option value="all" className="text-gray-700">All</option>
+                  <option value="all" className="text-gray-700">All Status</option>
                   <option value="available" className="text-gray-700">Available</option>
                   <option value="unavailable" className="text-gray-700">Unavailable</option>
                 </select>
               </div>
               
               {/* Category Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-gray-700">Category</label>
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
+                  className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700 shadow-sm transition-all duration-200"
                 >
                   <option value="all" className="text-gray-700">All Categories</option>
                   {allCategories.map((category) => (
@@ -710,116 +730,117 @@ export default function PublisherWebsitesSection({
               </div>
               
               {/* Price Range */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Price Range ($)</label>
-                <div className="flex gap-2">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-gray-700">Price Range ($)</label>
+                <div className="flex gap-1.5">
                   <input
                     type="number"
                     placeholder="Min"
                     value={minPrice}
                     onChange={(e) => setMinPrice(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
+                    className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500 shadow-sm transition-all duration-200"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
+                    className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500 shadow-sm transition-all duration-200"
                   />
                 </div>
               </div>
               
               {/* DA Range */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">DA Range</label>
-                <div className="flex gap-2">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-gray-700">DA Range</label>
+                <div className="flex gap-1.5">
                   <input
                     type="number"
                     placeholder="Min"
                     value={minDA}
                     onChange={(e) => setMinDA(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
+                    className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500 shadow-sm transition-all duration-200"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={maxDA}
                     onChange={(e) => setMaxDA(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
+                    className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500 shadow-sm transition-all duration-200"
                   />
                 </div>
               </div>
+              
               {/* DR Range */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">DR Range</label>
-                <div className="flex gap-2">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-gray-700">DR Range</label>
+                <div className="flex gap-1.5">
                   <input
                     type="number"
                     placeholder="Min"
                     value={minDR}
                     onChange={(e) => setMinDR(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
+                    className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500 shadow-sm transition-all duration-200"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={maxDR}
                     onChange={(e) => setMaxDR(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
+                    className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500 shadow-sm transition-all duration-200"
                   />
                 </div>
               </div>
 
               {/* Organic Traffic Range */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Organic Traffic</label>
-                <div className="flex gap-2">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-gray-700">Organic Traffic</label>
+                <div className="flex gap-1.5">
                   <input
                     type="number"
                     placeholder="Min"
                     value={minOrganicTraffic}
                     onChange={(e) => setMinOrganicTraffic(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
+                    className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500 shadow-sm transition-all duration-200"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={maxOrganicTraffic}
                     onChange={(e) => setMaxOrganicTraffic(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
+                    className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500 shadow-sm transition-all duration-200"
                   />
                 </div>
               </div>
 
               {/* Traffic Value Range */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Traffic Value</label>
-                <div className="flex gap-2">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-gray-700">Traffic Value</label>
+                <div className="flex gap-1.5">
                   <input
                     type="number"
                     placeholder="Min"
                     value={minTrafficValue}
                     onChange={(e) => setMinTrafficValue(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
+                    className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500 shadow-sm transition-all duration-200"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={maxTrafficValue}
                     onChange={(e) => setMaxTrafficValue(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
+                    className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500 shadow-sm transition-all duration-200"
                   />
                 </div>
               </div>
 
               {/* Country Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-gray-700">Country</label>
                 <select
                   value={countryFilter}
                   onChange={(e) => setCountryFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 bg-white"
+                  className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 bg-white shadow-sm transition-all duration-200"
                 >
                   <option value="" className="text-gray-700">All Countries</option>
                   {countryOptions.map((c) => (
@@ -829,34 +850,34 @@ export default function PublisherWebsitesSection({
               </div>
 
               {/* Grey Niche Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Grey Niche</label>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-gray-700">Grey Niche</label>
                 <select
                   value={greyNicheFilter}
                   onChange={(e) => setGreyNicheFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 bg-white"
+                  className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 bg-white shadow-sm transition-all duration-200"
                 >
-                  <option value="" className="text-gray-700">All</option>
+                  <option value="" className="text-gray-700">All Options</option>
                   <option value="true" className="text-gray-700">Yes</option>
                   <option value="false" className="text-gray-700">No</option>
                 </select>
               </div>
               
               {/* Date Range */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-                <div className="flex gap-2">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-gray-700">Date Range</label>
+                <div className="flex gap-1.5">
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700"
+                    className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 shadow-sm transition-all duration-200"
                   />
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700"
+                    className="w-full px-2.5 py-1.5 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 shadow-sm transition-all duration-200"
                   />
                 </div>
               </div>
@@ -866,6 +887,154 @@ export default function PublisherWebsitesSection({
       </div>
 
       <div className="border-t">
+        {/* Active Filters Display */}
+        {(availabilityFilter !== "all" || categoryFilter !== "all" || minPrice || maxPrice || minDA || maxDA || minDR || maxDR || minOrganicTraffic || maxOrganicTraffic || countryFilter || minTrafficValue || maxTrafficValue || greyNicheFilter !== "" || startDate || endDate) && (
+          <div className="p-3 border-b bg-gray-50">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-gray-600 mr-2">Filters:</span>
+              {availabilityFilter !== "all" && (
+                <div className="flex items-center bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-xs">
+                  <span>Availability: {availabilityFilter}</span>
+                  <button 
+                    onClick={() => setAvailabilityFilter("all")}
+                    className="ml-1 text-red-500 hover:text-red-700 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              {categoryFilter !== "all" && (
+                <div className="flex items-center bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-xs">
+                  <span>Category: {categoryFilter}</span>
+                  <button 
+                    onClick={() => setCategoryFilter("all")}
+                    className="ml-1 text-red-500 hover:text-red-700 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              {(minPrice || maxPrice) && (
+                <div className="flex items-center bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-xs">
+                  <span>Price: {minPrice || '0'} - {maxPrice || '∞'}</span>
+                  <button 
+                    onClick={() => { setMinPrice(""); setMaxPrice(""); }}
+                    className="ml-1 text-red-500 hover:text-red-700 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              {(minDA || maxDA) && (
+                <div className="flex items-center bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-xs">
+                  <span>DA: {minDA || '0'} - {maxDA || '∞'}</span>
+                  <button 
+                    onClick={() => { setMinDA(""); setMaxDA(""); }}
+                    className="ml-1 text-red-500 hover:text-red-700 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              {(minDR || maxDR) && (
+                <div className="flex items-center bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-xs">
+                  <span>DR: {minDR || '0'} - {maxDR || '∞'}</span>
+                  <button 
+                    onClick={() => { setMinDR(""); setMaxDR(""); }}
+                    className="ml-1 text-red-500 hover:text-red-700 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              {(minOrganicTraffic || maxOrganicTraffic) && (
+                <div className="flex items-center bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-xs">
+                  <span>Organic: {minOrganicTraffic || '0'} - {maxOrganicTraffic || '∞'}</span>
+                  <button 
+                    onClick={() => { setMinOrganicTraffic(""); setMaxOrganicTraffic(""); }}
+                    className="ml-1 text-red-500 hover:text-red-700 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              {(minTrafficValue || maxTrafficValue) && (
+                <div className="flex items-center bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-xs">
+                  <span>Traffic: {minTrafficValue || '0'} - {maxTrafficValue || '∞'}</span>
+                  <button 
+                    onClick={() => { setMinTrafficValue(""); setMaxTrafficValue(""); }}
+                    className="ml-1 text-red-500 hover:text-red-700 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              {countryFilter && (
+                <div className="flex items-center bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-xs">
+                  <span>Country: {countryFilter}</span>
+                  <button 
+                    onClick={() => setCountryFilter("")}
+                    className="ml-1 text-red-500 hover:text-red-700 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              {greyNicheFilter !== "" && (
+                <div className="flex items-center bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-xs">
+                  <span>Grey Niche: {greyNicheFilter === "true" ? "Yes" : "No"}</span>
+                  <button 
+                    onClick={() => setGreyNicheFilter("")}
+                    className="ml-1 text-red-500 hover:text-red-700 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              {(startDate || endDate) && (
+                <div className="flex items-center bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-xs">
+                  <span>Date: {startDate || 'Start'} - {endDate || 'End'}</span>
+                  <button 
+                    onClick={() => { setStartDate(""); setEndDate(""); }}
+                    className="ml-1 text-red-500 hover:text-red-700 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              <button 
+                onClick={clearFilters}
+                className="text-xs font-medium text-red-600 hover:text-red-800 focus:outline-none flex items-center"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Clear all
+              </button>
+            </div>
+          </div>
+        )}
+        
         <div className="grid grid-cols-14 gap-2 p-4 text-sm font-medium text-muted-foreground border-b">
           <div className="col-span-1">No.</div>
           <div className="col-span-3">Website</div>
