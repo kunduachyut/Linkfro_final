@@ -86,7 +86,7 @@ export function PublisherSidebar({
   onCollapseChange
 }: PublisherSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const [isPinned, setIsPinned] = useState(false);
+  const [isPinned, setIsPinned] = useState(true);
   const { user, isLoaded } = useUser();
   
   // Notify parent component when collapse state changes
