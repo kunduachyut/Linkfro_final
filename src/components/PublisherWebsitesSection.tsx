@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, Edit, Trash2, CheckCircle, Clock, XCircle } from "lucide-react";
+import { Eye, Edit, Trash2, CheckCircle, Clock, XCircle, Copy } from "lucide-react";
 import { MinimalToggle } from "./ui/toggle";
 import useCountries from "../hooks/useCountries";
 import { CATEGORIES } from "../lib/categories";
@@ -311,6 +311,7 @@ export default function PublisherWebsitesSection({
   const [showFilters, setShowFilters] = useState(false);
   const [selectedWebsite, setSelectedWebsite] = useState<Website | null>(null);
   const [hoveredWebsite, setHoveredWebsite] = useState<string | null>(null);
+  const [copiedEmailId, setCopiedEmailId] = useState<string | null>(null);
 
   // Get unique categories from websites
   const uniqueCategories = Array.from(
@@ -1042,10 +1043,10 @@ export default function PublisherWebsitesSection({
           <div className="col-span-2">Notes</div>
           <div className="col-span-1">Price</div>
           <div className="col-span-1">Created</div>
-          <div className="col-span-1">Status</div>
           <div className="col-span-1">Metrics</div>
+          <div className="col-span-1">Status</div>
           <div className="col-span-2">Actions</div>
-        </div >
+        </div>
         <div className="divide-y">
           {filteredSites.map((website, index) => (
             <motion.div
@@ -1079,11 +1080,41 @@ export default function PublisherWebsitesSection({
                     Visit Site
                   </a>
                 </div>
-              </div >
+              </div>
 
               <div className="col-span-2 text-sm text-muted-foreground truncate">
                 {(website as any).orderAcceptedEmail ? (
-                  <a href={`mailto:${(website as any).orderAcceptedEmail}`} onClick={(e) => e.stopPropagation()} className="text-blue-600 hover:underline font-mono">{(website as any).orderAcceptedEmail}</a>
+                  <div className="flex items-center gap-2">
+                    <a 
+                      href={`mailto:${(website as any).orderAcceptedEmail}`} 
+                      onClick={(e) => e.stopPropagation()} 
+                      className="text-blue-600 hover:underline font-mono truncate flex-1"
+                      title={(website as any).orderAcceptedEmail}
+                    >
+                      {(website as any).orderAcceptedEmail.length > 15 
+                        ? `${(website as any).orderAcceptedEmail.substring(0, 15)}...` 
+                        : (website as any).orderAcceptedEmail}
+                    </a>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigator.clipboard.writeText((website as any).orderAcceptedEmail);
+                        setCopiedEmailId(website._id);
+                        // Reset the copied state after 2 seconds
+                        setTimeout(() => {
+                          setCopiedEmailId(null);
+                        }, 2000);
+                      }}
+                      className="p-1 rounded hover:bg-muted transition-colors"
+                      title={`Copy ${(website as any).orderAcceptedEmail}`}
+                    >
+                      {copiedEmailId === website._id ? (
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </button>
+                  </div>
                 ) : (
                   <span className="text-muted-foreground">N/A</span>
                 )}
@@ -1099,10 +1130,6 @@ export default function PublisherWebsitesSection({
 
               <div className="col-span-1 text-sm text-muted-foreground">
                 {website.createdAt ? formatDate(website.createdAt) : 'Unknown'}
-              </div>
-
-              <div className="col-span-1">
-                {getStatusBadgeNew(website.status, website.rejectionReason)}
               </div>
 
               <div className="col-span-1 text-sm">
@@ -1124,16 +1151,22 @@ export default function PublisherWebsitesSection({
                 </div>
               </div>
 
+              <div className="col-span-1">
+                {getStatusBadgeNew(website.status, website.rejectionReason)}
+              </div>
+
               <div className="col-span-2 flex items-center gap-2">
                 {website.status === "approved" && (
                   <div onClick={(e) => e.stopPropagation()} className="flex items-center">
-                    <span className="text-sm mr-2 text-muted-foreground">Available:</span>
-                    <MinimalToggle
-                      checked={website.available}
-                      onChange={(e) => {
-                        toggleAvailability(website._id, website.available);
-                      }}
-                    />
+                    <div title={website.available ? "Click to pause the website" : "Click to activate the website"}>
+                      <MinimalToggle
+                        checked={website.available}
+                        onChange={(e) => {
+                          toggleAvailability(website._id, website.available);
+                        }}
+                        className="h-[1.4em] w-[3em] text-[14px]"
+                      />
+                    </div>
                   </div>
                 )}
                 {hoveredWebsite === website._id ? (
@@ -1177,40 +1210,37 @@ export default function PublisherWebsitesSection({
                   </button>
                 )}
               </div>
-            </motion.div >
-          ))
-          }
-        </div >
-      </div >
+            </motion.div>
+          ))}
+        </div>
+      </div>
 
       {/* Empty State */}
-      {
-        filteredSites.length === 0 && (
-          <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-200 text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="material-symbols-outlined text-blue-600 text-3xl">web</span>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Websites Found</h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              {mySites.length === 0
-                ? "You haven't added any websites yet. Get started by adding your first website!"
-                : "No websites match your current filters. Try adjusting your search or filters."}
-            </p>
-            {mySites.length === 0 && (
-              <button
-                onClick={() => {
-                  const event = new CustomEvent('switchTab', { detail: 'add-website' });
-                  window.dispatchEvent(event);
-                }}
-                className="px-5 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium inline-flex items-center gap-2"
-              >
-                <span className="material-symbols-outlined">add</span>
-                Add Website
-              </button>
-            )}
+      {filteredSites.length === 0 && (
+        <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-200 text-center">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-blue-600 text-3xl">web</span>
           </div>
-        )
-      }
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Websites Found</h3>
+          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            {mySites.length === 0
+              ? "You haven't added any websites yet. Get started by adding your first website!"
+              : "No websites match your current filters. Try adjusting your search or filters."}
+          </p>
+          {mySites.length === 0 && (
+            <button
+              onClick={() => {
+                const event = new CustomEvent('switchTab', { detail: 'add-website' });
+                window.dispatchEvent(event);
+              }}
+              className="px-5 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium inline-flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined">add</span>
+              Add Website
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Website Detail Modal */}
       <AnimatePresence>
