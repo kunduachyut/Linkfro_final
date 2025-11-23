@@ -671,14 +671,14 @@ export default function PublisherWebsitesSection({
           <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-4 mt-4">
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-md font-medium text-gray-900">Filters</h3>
-              <button
+              <button 
                 onClick={clearFilters}
                 className="text-sm text-blue-600 hover:text-blue-800"
               >
                 Clear all
               </button>
             </div>
-
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Availability Filter */}
               <div>
@@ -686,29 +686,29 @@ export default function PublisherWebsitesSection({
                 <select
                   value={availabilityFilter}
                   onChange={(e) => setAvailabilityFilter(e.target.value as "all" | "available" | "unavailable")}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
                 >
-                  <option value="all">All</option>
-                  <option value="available">Available</option>
-                  <option value="unavailable">Unavailable</option>
+                  <option value="all" className="text-gray-700">All</option>
+                  <option value="available" className="text-gray-700">Available</option>
+                  <option value="unavailable" className="text-gray-700">Unavailable</option>
                 </select>
               </div>
-
+              
               {/* Category Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
                 >
-                  <option value="all">All Categories</option>
+                  <option value="all" className="text-gray-700">All Categories</option>
                   {allCategories.map((category) => (
-                    <option key={category} value={category}>{category}</option>
+                    <option key={category} value={category} className="text-gray-700">{category}</option>
                   ))}
                 </select>
               </div>
-
+              
               {/* Price Range */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Price Range ($)</label>
@@ -718,18 +718,18 @@ export default function PublisherWebsitesSection({
                     placeholder="Min"
                     value={minPrice}
                     onChange={(e) => setMinPrice(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
                   />
                 </div>
               </div>
-
+              
               {/* DA Range */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">DA Range</label>
@@ -739,14 +739,14 @@ export default function PublisherWebsitesSection({
                     placeholder="Min"
                     value={minDA}
                     onChange={(e) => setMinDA(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={maxDA}
                     onChange={(e) => setMaxDA(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
                   />
                 </div>
               </div>
@@ -759,14 +759,14 @@ export default function PublisherWebsitesSection({
                     placeholder="Min"
                     value={minDR}
                     onChange={(e) => setMinDR(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={maxDR}
                     onChange={(e) => setMaxDR(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
                   />
                 </div>
               </div>
@@ -780,14 +780,14 @@ export default function PublisherWebsitesSection({
                     placeholder="Min"
                     value={minOrganicTraffic}
                     onChange={(e) => setMinOrganicTraffic(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={maxOrganicTraffic}
                     onChange={(e) => setMaxOrganicTraffic(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
                   />
                 </div>
               </div>
@@ -801,14 +801,14 @@ export default function PublisherWebsitesSection({
                     placeholder="Min"
                     value={minTrafficValue}
                     onChange={(e) => setMinTrafficValue(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={maxTrafficValue}
                     onChange={(e) => setMaxTrafficValue(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 placeholder-gray-500"
                   />
                 </div>
               </div>
@@ -819,11 +819,11 @@ export default function PublisherWebsitesSection({
                 <select
                   value={countryFilter}
                   onChange={(e) => setCountryFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 bg-white"
                 >
-                  <option value="">All Countries</option>
+                  <option value="" className="text-gray-700">All Countries</option>
                   {countryOptions.map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                    <option key={c} value={c} className="text-gray-700">{c}</option>
                   ))}
                 </select>
               </div>
@@ -834,14 +834,14 @@ export default function PublisherWebsitesSection({
                 <select
                   value={greyNicheFilter}
                   onChange={(e) => setGreyNicheFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 bg-white"
                 >
-                  <option value="">All</option>
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
+                  <option value="" className="text-gray-700">All</option>
+                  <option value="true" className="text-gray-700">Yes</option>
+                  <option value="false" className="text-gray-700">No</option>
                 </select>
               </div>
-
+              
               {/* Date Range */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
@@ -850,13 +850,13 @@ export default function PublisherWebsitesSection({
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700"
                   />
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700"
                   />
                 </div>
               </div>
