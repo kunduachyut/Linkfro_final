@@ -1040,9 +1040,9 @@ export default function PublisherWebsitesSection({
           <div className="col-span-1">No.</div>
           <div className="col-span-3">Website</div>
           <div className="col-span-2">Order accepted e-mail</div>
-          <div className="col-span-2">Notes</div>
+          <div className="col-span-1">Notes</div>
           <div className="col-span-1">Price</div>
-          <div className="col-span-1">Created</div>
+          <div className="col-span-2">Created</div>
           <div className="col-span-1">Metrics</div>
           <div className="col-span-1">Status</div>
           <div className="col-span-2">Actions</div>
@@ -1120,16 +1120,16 @@ export default function PublisherWebsitesSection({
                 )}
               </div>
 
-              <div className="col-span-2 text-sm text-muted-foreground truncate">
+              <div className="col-span-1 text-sm text-muted-foreground truncate">
                 {website.specialNotes ? website.specialNotes : '—'}
               </div>
 
-              <div className="col-span-1 font-medium">
-                {formatPriceNew(computePublisherVisiblePrice(website))}
-              </div>
+              <div className="col-span-1 font-medium"> {/* Price column now closer to Notes */}
+      {formatPriceNew(computePublisherVisiblePrice(website))}
+    </div>
 
-              <div className="col-span-1 text-sm text-muted-foreground">
-                {website.createdAt ? formatDate(website.createdAt) : 'Unknown'}
+              <div className="col-span-2 text-sm text-muted-foreground">
+                {website.updatedAt ? formatDate(website.updatedAt) : 'Unknown'}
               </div>
 
               <div className="col-span-1 text-sm">
@@ -1323,7 +1323,7 @@ export default function PublisherWebsitesSection({
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Created</p>
-                        <p>{formatDate(selectedWebsite.createdAt)}</p>
+                        <p>{formatDate(selectedWebsite.updatedAt)}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Last Updated</p>
