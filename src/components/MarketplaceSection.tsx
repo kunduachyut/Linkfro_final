@@ -3,6 +3,7 @@ import { useCart } from "../app/context/CartContext";
 import useCountries from "../hooks/useCountries";
 import { CATEGORIES } from "../lib/categories";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 
 // Country flag mapping function
 const getCountryFlag = (countryName: string | undefined): string => {
@@ -337,6 +338,7 @@ export default function MarketplaceSection({
   paidSiteIds: Set<string>;
 }) {
   const { addToCart } = useCart();
+  const { toast } = useToast();
   // Use the central countries hook (same as PublisherAddWebsiteSection)
   const { countries: allCountries, loading: loadingCountries } = useCountries();
   const [showFilters, setShowFilters] = useState(false);
@@ -1109,6 +1111,11 @@ export default function MarketplaceSection({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          // Show confirmation toast
+                          toast({
+                            title: "Added to Cart",
+                            description: `${w.title} has been added to your cart.`,
+                          });
                           addToCart({
                             _id: stableId,
                             title: w.title,
@@ -1119,7 +1126,7 @@ export default function MarketplaceSection({
                         className={`px-4 py-1.5 rounded text-white text-sm font-medium shadow-sm ${isPurchased ? 'bg-green-500 cursor-default' :
                           !w.available ? 'bg-gray-400 cursor-not-allowed' :
                             'bg-blue-600 hover:bg-blue-700'
-                          }`}
+                        }`}
                       >
                         {isPurchased ? 'Owned' : 'Buy'}
                       </button>
@@ -1151,9 +1158,34 @@ export default function MarketplaceSection({
                   {columns.find(c => c.id === 'website')?.visible && (
                     <div className="col-span-2">
                       <div className="flex items-center gap-2">
-                        <div className="p-2 bg-gray-100 rounded-lg">
-                          <span className="text-xl">{getCountryFlag(w.primaryCountry)}</span>
-                        </div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="p-2 bg-gray-100 rounded-lg cursor-pointer">
+                                <span className="text-xl">{getCountryFlag(w.primaryCountry)}</span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent className="p-0 border-0 shadow-none bg-transparent">
+                              <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden w-80">
+                                <div className="p-2 bg-gray-100 border-b border-gray-200">
+                                  <p className="text-xs font-medium truncate">{w.url}</p>
+                                </div>
+                                <div className="h-48 overflow-hidden">
+                                  <iframe 
+                                    src={w.url} 
+                                    className="w-full h-full"
+                                    title={`Preview of ${w.url}`}
+                                    sandbox="allow-same-origin allow-scripts"
+                                    loading="lazy"
+                                  />
+                                </div>
+                                <div className="p-2 bg-gray-50 text-xs text-gray-500">
+                                  Website Preview
+                                </div>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                         <div className="overflow-hidden">
                           <div className="font-bold text-gray-900 truncate" title={w.title || w.url}>
                             {extractHostname(w.url)}
