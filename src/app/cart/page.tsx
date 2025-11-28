@@ -214,8 +214,13 @@ export default function CartPage() {
             }
             return res.json();
           } else if (link) {
-            const payload = { link, requirements, websiteId, purchaseId };
-            const res = await fetch("/api/my-content/link", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            // Link uploads are stored on the purchase docLink field. Use existing purchase doc-link route.
+            if (!purchaseId) {
+              // If we don't have a purchaseId for some reason, skip and throw an error so the consumer sees a problem.
+              throw new Error('Missing purchaseId for link upload');
+            }
+            const payload = { docLink: link };
+            const res = await fetch(`/api/purchases/${purchaseId}/doc-link`, { method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: 'same-origin', body: JSON.stringify(payload) });
             if (!res.ok) {
               let msg = `HTTP ${res.status}`;
               try { const j = await res.json(); if (j?.error) msg = j.error; } catch {}
@@ -267,10 +272,11 @@ export default function CartPage() {
       // Show success popup
       setShowSuccessMessage(true);
       
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to complete purchase:", err);
       setShowErrorMessage(true);
-      setErrorMessage("Failed to complete purchase. Please try again.");
+      const msg = (err && err.message) ? err.message : "Failed to complete purchase. Please try again.";
+      setErrorMessage(msg);
     } finally {
       setIsProcessing(false);
     }
