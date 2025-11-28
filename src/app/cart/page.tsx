@@ -17,6 +17,17 @@ export default function CartPage() {
       delete newOptions[itemId];
       return newOptions;
     });
+    // Also clear any temporary uploads and file data for this cart item
+    setTempUploadsByCartItem(prev => {
+      const newPrev = { ...prev };
+      delete newPrev[itemId];
+      return newPrev;
+    });
+    setFileDataByCartItem(prev => {
+      const newPrev = { ...prev };
+      delete newPrev[itemId];
+      return newPrev;
+    });
     // Call the original removeFromCart function
     originalRemoveFromCart(itemId);
   };
@@ -25,6 +36,9 @@ export default function CartPage() {
   const clearCart = () => {
     // Clear all selected options
     setSelectedOptions({});
+    // Clear any temporary uploads & fileData stored per cart item
+    setTempUploadsByCartItem({});
+    setFileDataByCartItem({});
     // Call the original clearCart function
     originalClearCart();
   };
@@ -38,6 +52,8 @@ export default function CartPage() {
   const [uploading, setUploading] = useState(false);
   const [requirements, setRequirements] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [docLink, setDocLink] = useState<string>("");
+  const [uploadType, setUploadType] = useState<"file" | "link">("file");
   const [myUploads, setMyUploads] = useState<any[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [uploadsByWebsite, setUploadsByWebsite] = useState<Record<string, number>>({});
@@ -61,7 +77,7 @@ export default function CartPage() {
   const [tempUploadsByCartItem, setTempUploadsByCartItem] = useState<Record<string, any[]>>({});
 
   // State to track file data per cart item
-  const [fileDataByCartItem, setFileDataByCartItem] = useState<Record<string, {file: File, requirements: string}[]>>({});
+  const [fileDataByCartItem, setFileDataByCartItem] = useState<Record<string, {file?: File, link?: string, requirements: string}[]>>({});
 
   // Create ref for file input
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -103,6 +119,13 @@ export default function CartPage() {
     
     setUploadsByWebsite(map);
   }, [isSignedIn, tempUploadsByCartItem]);
+
+  // Keep `myUploads` in sync with the selected item's temp uploads
+  useEffect(() => {
+    if (selectedItem) {
+      setMyUploads(tempUploadsByCartItem[selectedItem._id] || []);
+    }
+  }, [tempUploadsByCartItem, selectedItem]);
 
   // Reset file input when modal opens/closes
   useEffect(() => {
@@ -174,22 +197,35 @@ export default function CartPage() {
         
         // Process each file for this cart item
         return Promise.all(files.map(async (fileData) => {
-          const { file, requirements } = fileData;
-          const fd = new FormData();
-          fd.append("pdfFile", file);
-          fd.append("requirements", requirements);
-          fd.append("websiteId", websiteId);
-          if (purchaseId) {
-            fd.append("purchaseId", purchaseId); // Associate with purchase ID
+          const { file, link, requirements } = fileData as { file?: File, link?: string, requirements: string };
+          if (file) {
+            const fd = new FormData();
+            fd.append("pdfFile", file);
+            fd.append("requirements", requirements);
+            fd.append("websiteId", websiteId);
+            if (purchaseId) {
+              fd.append("purchaseId", purchaseId); // Associate with purchase ID
+            }
+            const res = await fetch("/api/my-content", { method: "POST", body: fd });
+            if (!res.ok) {
+              let msg = `HTTP ${res.status}`;
+              try { const j = await res.json(); if (j?.error) msg = j.error; } catch {}
+              throw new Error(msg);
+            }
+            return res.json();
+          } else if (link) {
+            const payload = { link, requirements, websiteId, purchaseId };
+            const res = await fetch("/api/my-content/link", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            if (!res.ok) {
+              let msg = `HTTP ${res.status}`;
+              try { const j = await res.json(); if (j?.error) msg = j.error; } catch {}
+              throw new Error(msg);
+            }
+            return res.json();
+          } else {
+            // Skip unknown entry
+            return Promise.resolve(null);
           }
-          
-          const res = await fetch("/api/my-content", { method: "POST", body: fd });
-          if (!res.ok) {
-            let msg = `HTTP ${res.status}`;
-            try { const j = await res.json(); if (j?.error) msg = j.error; } catch {}
-            throw new Error(msg);
-          }
-          return res.json();
         }));
       });
       
@@ -253,7 +289,36 @@ export default function CartPage() {
       resetFileInput();
     }, 100);
     // Use temporary uploads for this specific cart item, or start with empty array
-    setMyUploads(tempUploadsByCartItem[item._id] || []);
+    const existing = tempUploadsByCartItem[item._id] || [];
+    setMyUploads(existing);
+    // Set uploadType based on existing uploads (prefer file if first exists)
+    if (existing.length > 0) {
+      setUploadType(existing[0].link ? 'link' : 'file');
+    } else {
+      setUploadType('file');
+    }
+  };
+
+  // Remove a temporary upload for a specific cart item (both from tempUploadsByCartItem and fileDataByCartItem)
+  const removeTempUpload = (websiteId: string, index: number) => {
+    setTempUploadsByCartItem(prev => {
+      const arr = [...(prev[websiteId] || [])];
+      arr.splice(index, 1);
+      return { ...prev, [websiteId]: arr };
+    });
+    setFileDataByCartItem(prev => {
+      const arr = [...(prev[websiteId] || [])];
+      arr.splice(index, 1);
+      return { ...prev, [websiteId]: arr };
+    });
+    // Update shared myUploads if modal is open for this item
+    if (selectedItem && selectedItem._id === websiteId) {
+      setMyUploads(prev => {
+        const arr = [...prev];
+        arr.splice(index, 1);
+        return arr;
+      });
+    }
   };
 
   const openRequestModal = (item: any) => {
@@ -381,6 +446,8 @@ export default function CartPage() {
     // Reset file state
     setPdfFile(null);
     setRequirements("");
+    setDocLink("");
+    setUploadType("file");
     
     // Reset file input using ref - with additional safety checks
     if (fileInputRef.current) {
@@ -867,17 +934,35 @@ export default function CartPage() {
               onSubmit={async (e) => {
                 e.preventDefault();
                 if (!isSignedIn) { alert("Please sign in first"); return; }
-                if (!pdfFile) { alert("Please select a PDF file"); return; }
+                if (uploadType === "file") {
+                  if (!pdfFile) { alert("Please select a PDF file"); return; }
+                } else {
+                  if (!docLink.trim()) { alert("Please provide a document link"); return; }
+                  // Basic URL validation
+                  try { new URL(docLink); } catch (err) { alert("Please provide a valid URL"); return; }
+                }
                 if (!requirements.trim()) { alert("Enter requirements"); return; }
                 setShowConfirmModal(true);
               }}
               className="space-y-4 mb-6"
             >
+              <div className="flex gap-3 items-center">
+                <label className={`px-3 py-1 rounded-full cursor-pointer ${uploadType === 'file' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}>
+                  <input type="radio" name="uploadType" value="file" checked={uploadType === 'file'} onChange={() => setUploadType('file')} className="sr-only" />
+                  Upload File
+                </label>
+                <label className={`px-3 py-1 rounded-full cursor-pointer ${uploadType === 'link' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}>
+                  <input type="radio" name="uploadType" value="link" checked={uploadType === 'link'} onChange={() => setUploadType('link')} className="sr-only" />
+                  Add Link
+                </label>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Upload Your Document</label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors">
-                  {!pdfFile ? (
-                    <div className="text-center">
+                  {uploadType === 'file' ? (
+                    <>
+                      {!pdfFile ? (
+                      <div className="text-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                       </svg>
@@ -902,8 +987,8 @@ export default function CartPage() {
                       </div>
                       <p className="mt-1 text-xs text-gray-500">PDF files only, up to 10MB</p>
                     </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
+                      ) : (
+                        <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -912,7 +997,7 @@ export default function CartPage() {
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-900">{pdfFile.name}</p>
-                          <p className="text-xs text-gray-500">{(pdfFile.size / 1024).toFixed(1)} KB</p>
+                            <p className="text-xs text-gray-500">{(pdfFile.size / 1024).toFixed(1)} KB</p>
                         </div>
                       </div>
                       <button
@@ -929,6 +1014,22 @@ export default function CartPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       </button>
+                      </div>
+                    )}
+                    </>
+                  ) : (
+                    <div className="text-center">
+                      <div className="text-sm text-gray-700">Add a link to a document or cloud file (Google Drive, Dropbox, etc.)</div>
+                      <div className="mt-3 flex gap-2">
+                        <input
+                          type="url"
+                          value={docLink}
+                          onChange={(e) => setDocLink(e.target.value)}
+                          placeholder="https://example.com/your-doc.pdf"
+                          className="w-full p-2 border rounded-md"
+                        />
+                      </div>
+                      <p className="mt-1 text-xs text-gray-500">Provide a full link to your document; make sure the file is accessible.</p>
                     </div>
                   )}
                 </div>
@@ -958,7 +1059,7 @@ export default function CartPage() {
                  </button>
                 <button
                   type="submit"
-                  disabled={!pdfFile || !requirements.trim()}
+                  disabled={(uploadType === 'file' ? !pdfFile : !docLink.trim()) || !requirements.trim()}
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   Upload
@@ -984,11 +1085,30 @@ export default function CartPage() {
                           </svg>
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900 truncate max-w-xs">{u.pdf?.filename ?? "PDF Document"}</div>
+                          <div className="font-medium text-gray-900 truncate max-w-xs">
+                            {u.pdf?.filename ? (
+                              u.pdf.filename
+                            ) : u.link ? (
+                              <a href={u.link} target="_blank" rel="noreferrer" className="text-blue-600 underline break-all">{u.link}</a>
+                            ) : (
+                              "Document"
+                            )}
+                          </div>
                           <div className="text-gray-600 mt-1">{u.requirements?.slice(0, 80)}{u.requirements && u.requirements.length > 80 ? "…" : ""}</div>
                         </div>
                       </div>
-                      <div className="text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{u.pdf?.size ? `${Math.round(u.pdf.size / 1024)} KB` : ""}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{u.pdf?.size ? `${Math.round(u.pdf.size / 1024)} KB` : (u.link ? 'Link' : '')}</div>
+                        <button
+                          onClick={() => { if (selectedItem) removeTempUpload(selectedItem._id, i); }}
+                          className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                          title="Remove upload"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -1235,8 +1355,14 @@ export default function CartPage() {
               <p className="text-gray-600 mb-3">Please confirm your upload details:</p>
               <div className="space-y-2 text-sm">
                 <div><strong>Website:</strong> {selectedItem.title}</div>
-                <div><strong>File:</strong> {pdfFile?.name}</div>
-                <div><strong>Size:</strong> {pdfFile ? `${(pdfFile.size / 1024).toFixed(1)} KB` : ""}</div>
+                {uploadType === 'file' ? (
+                  <>
+                    <div><strong>File:</strong> {pdfFile?.name}</div>
+                    <div><strong>Size:</strong> {pdfFile ? `${(pdfFile.size / 1024).toFixed(1)} KB` : ""}</div>
+                  </>
+                ) : (
+                  <div><strong>Link:</strong> <a href={docLink} target="_blank" rel="noreferrer" className="text-blue-600 underline break-all">{docLink}</a></div>
+                )}
                 <div><strong>Requirements:</strong> {requirements}</div>
               </div>
             </div>
@@ -1255,24 +1381,25 @@ export default function CartPage() {
                     setShowConfirmModal(false);
                     
                     // Store uploads temporarily per cart item instead of saving to database immediately
-                    const newUpload = {
+                    const newUpload: any = {
                       requirements,
                       createdAt: new Date(),
-                      pdf: {
-                        filename: pdfFile?.name,
-                        size: pdfFile?.size,
-                      },
                       tempId: Date.now() // Temporary ID for frontend tracking
                     };
+                    if (uploadType === 'file' && pdfFile) {
+                      newUpload.pdf = { filename: pdfFile.name, size: pdfFile.size };
+                    } else if (uploadType === 'link') {
+                      newUpload.link = docLink;
+                    }
 
                     setTempUploadsByCartItem(prev => ({
                       ...prev,
                       [selectedItem._id]: [...(prev[selectedItem._id] || []), newUpload]
                     }));
-                    // Store file data for later upload with purchase ID
+                    // Store data for later upload with purchase ID
                     setFileDataByCartItem(prev => ({
                       ...prev,
-                      [selectedItem._id]: [...(prev[selectedItem._id] || []), { file: pdfFile, requirements }]
+                      [selectedItem._id]: [...(prev[selectedItem._id] || []), uploadType === 'file' ? { file: pdfFile, requirements } : { link: docLink, requirements }]
                     }));
                     // Update the shared myUploads state to show current temporary uploads
                     setMyUploads(prev => [...prev, newUpload]);
@@ -1280,11 +1407,12 @@ export default function CartPage() {
                     // The useEffect will now automatically update uploadsByWebsite based on tempUploadsByCartItem
                      setRequirements("");
                      setPdfFile(null);
+                     setDocLink("");
                      if (fileInputRef.current) {
                        fileInputRef.current.value = "";
                      }
                      // Show in-app popup instead of native alert
-                     setTempUploadPopupMessage("File added temporarily. It will be uploaded when you proceed to checkout.");
+                     setTempUploadPopupMessage("Document added temporarily. It will be uploaded when you proceed to checkout.");
                      setShowTempUploadPopup(true);
                      // Auto-close after 3 seconds
                      setTimeout(() => setShowTempUploadPopup(false), 3000);
