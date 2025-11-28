@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useCart } from "../app/context/CartContext";
 import useCountries from "../hooks/useCountries";
 import { CATEGORIES } from "../lib/categories";
@@ -363,6 +363,7 @@ export default function MarketplaceSection({
   
   // Create ref for column dropdown
   const columnDropdownRef = useRef<HTMLDivElement>(null);
+  const groupByRef = useRef<HTMLDivElement>(null);
 
   // Wishlist state with server-side persistence
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
@@ -494,6 +495,14 @@ export default function MarketplaceSection({
   ]);
 
   const [showColumnDropdown, setShowColumnDropdown] = useState(false);
+  const [showGroupByDropdown, setShowGroupByDropdown] = useState(false);
+  const [groupBy, setGroupBy] = useState<'mostRecent' | 'oldest' | 'priceLowHigh' | 'priceHighLow'>('mostRecent');
+  const groupByLabels: Record<string, string> = {
+    mostRecent: 'Most recent',
+    oldest: 'Oldest',
+    priceLowHigh: 'Price: low → high',
+    priceHighLow: 'Price: high → low',
+  };
 
   // Add useEffect to handle outside clicks for filter panel
   useEffect(() => {
@@ -526,6 +535,18 @@ export default function MarketplaceSection({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showColumnDropdown]);
+
+  // Add useEffect to handle outside clicks for Group By dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (showGroupByDropdown && groupByRef.current && !groupByRef.current.contains(event.target as Node)) {
+        setShowGroupByDropdown(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showGroupByDropdown]);
 
   // Toggle column visibility
   const toggleColumnVisibility = (columnId: string) => {
@@ -651,6 +672,38 @@ export default function MarketplaceSection({
 
     return true;
   });
+
+  const sortedWebsites = useMemo(() => {
+    const list = [...filteredWebsites];
+    switch (groupBy) {
+      case 'mostRecent':
+        return list.sort((a, b) => {
+          const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return db - da; // newest first
+        });
+      case 'oldest':
+        return list.sort((a, b) => {
+          const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return da - db; // oldest first
+        });
+      case 'priceLowHigh':
+        return list.sort((a, b) => {
+          const pa = typeof a.priceCents === 'number' ? a.priceCents : Math.round((a.priceCents || 0) * 100);
+          const pb = typeof b.priceCents === 'number' ? b.priceCents : Math.round((b.priceCents || 0) * 100);
+          return pa - pb;
+        });
+      case 'priceHighLow':
+        return list.sort((a, b) => {
+          const pa = typeof a.priceCents === 'number' ? a.priceCents : Math.round((a.priceCents || 0) * 100);
+          const pb = typeof b.priceCents === 'number' ? b.priceCents : Math.round((b.priceCents || 0) * 100);
+          return pb - pa;
+        });
+      default:
+        return list;
+    }
+  }, [filteredWebsites, groupBy]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -789,6 +842,44 @@ export default function MarketplaceSection({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
               </svg>
             </button>
+            {/* Group By button */}
+            <div className="relative">
+              <button
+                onClick={() => setShowGroupByDropdown(!showGroupByDropdown)}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 text-sm font-medium"
+                title="Group By"
+              >
+                Group By: {groupByLabels[groupBy]}
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Dropdown for group by options */}
+              {showGroupByDropdown && (
+                <div ref={groupByRef} className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-20 border border-gray-200">
+                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sort By</div>
+                  <div className="max-h-60 overflow-y-auto">
+                    <label className={`flex items-center px-4 py-2 text-sm text-gray-700 cursor-pointer ${groupBy === 'mostRecent' ? 'bg-blue-50' : ''}`}>
+                      <input type="radio" checked={groupBy === 'mostRecent'} onChange={() => { setGroupBy('mostRecent'); setShowGroupByDropdown(false); }} className="h-4 w-4 text-blue-600 mr-3" />
+                      Most recent
+                    </label>
+                    <label className={`flex items-center px-4 py-2 text-sm text-gray-700 cursor-pointer ${groupBy === 'oldest' ? 'bg-blue-50' : ''}`}>
+                      <input type="radio" checked={groupBy === 'oldest'} onChange={() => { setGroupBy('oldest'); setShowGroupByDropdown(false); }} className="h-4 w-4 text-blue-600 mr-3" />
+                      Oldest
+                    </label>
+                    <label className={`flex items-center px-4 py-2 text-sm text-gray-700 cursor-pointer ${groupBy === 'priceLowHigh' ? 'bg-blue-50' : ''}`}>
+                      <input type="radio" checked={groupBy === 'priceLowHigh'} onChange={() => { setGroupBy('priceLowHigh'); setShowGroupByDropdown(false); }} className="h-4 w-4 text-blue-600 mr-3" />
+                      Price: low to high
+                    </label>
+                    <label className={`flex items-center px-4 py-2 text-sm text-gray-700 cursor-pointer ${groupBy === 'priceHighLow' ? 'bg-blue-50' : ''}`}>
+                      <input type="radio" checked={groupBy === 'priceHighLow'} onChange={() => { setGroupBy('priceHighLow'); setShowGroupByDropdown(false); }} className="h-4 w-4 text-blue-600 mr-3" />
+                      Price: high to low
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -1091,10 +1182,10 @@ export default function MarketplaceSection({
         <div className="divide-y divide-gray-100">
           {loading ? (
             <div className="p-8 text-center text-gray-500">Loading...</div>
-          ) : filteredWebsites.length === 0 ? (
+          ) : sortedWebsites.length === 0 ? (
             <div className="p-8 text-center text-gray-500">No websites found matching your criteria.</div>
           ) : (
-            filteredWebsites.map((w) => {
+            sortedWebsites.map((w) => {
               const stableId = w._id || w.id || `${w.title}-${w.url}`;
               const isPurchased = paidSiteIds.has(stableId);
               const isInWishlist = wishlist[stableId] || false;
