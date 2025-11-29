@@ -493,6 +493,20 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                                 </button>
                               )}
                             </div>
+                            {request.liveLink && userRole === 'superadmin' && (
+                              <button
+                                onClick={() => {
+                                  setLinkModalType('live');
+                                  setLinkModalPurchaseId(request.id);
+                                  setLinkModalValue(messages?.[`liveLink:${request.id}`] || request.liveLink || '');
+                                  setLinkModalOpen(true);
+                                }}
+                                title="Edit live link"
+                                className="text-indigo-600 hover:text-indigo-800 text-xs font-medium mt-1"
+                              >
+                                Edit
+                              </button>
+                            )}
                           </div>
                         </td>
                         {/* Doc Link column */}
@@ -523,6 +537,20 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                                 </button>
                               )}
                             </div>
+                            {request.docLink && userRole === 'superadmin' && (
+                              <button
+                                onClick={() => {
+                                  setLinkModalType('doc');
+                                  setLinkModalPurchaseId(request.id);
+                                  setLinkModalValue(messages?.[`docLink:${request.id}`] || request.docLink || '');
+                                  setLinkModalOpen(true);
+                                }}
+                                title="Edit document"
+                                className="text-indigo-600 hover:text-indigo-800 text-xs font-medium mt-1"
+                              >
+                                Edit
+                              </button>
+                            )}
                           </div>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">

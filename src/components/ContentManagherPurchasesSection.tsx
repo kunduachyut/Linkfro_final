@@ -390,53 +390,89 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                         {/* Chat cell removed */}
                         {/* Live link column (separate cell) */}
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                          {request.liveLink ? (
-                            <button
-                              onClick={() => window.open(request.liveLink, '_blank')}
-                              title="Visit live link"
-                              className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
-                            >
-                              Live
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => {
-                                setLinkModalType('live');
-                                setLinkModalPurchaseId(request.id);
-                                setLinkModalValue(messages?.[`liveLink:${request.id}`] || request.liveLink || '');
-                                setLinkModalOpen(true);
-                              }}
-                              title="Add live link"
-                              className="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
-                            >
-                              Add Live
-                            </button>
-                          )}
+                          <div className="flex flex-col items-start gap-1">
+                            <div>
+                              {request.liveLink ? (
+                                <button
+                                  onClick={() => window.open(request.liveLink, '_blank')}
+                                  title="Visit live link"
+                                  className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                                >
+                                  Live
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                    setLinkModalType('live');
+                                    setLinkModalPurchaseId(request.id);
+                                    setLinkModalValue(messages?.[`liveLink:${request.id}`] || request.liveLink || '');
+                                    setLinkModalOpen(true);
+                                  }}
+                                  title="Add live link"
+                                  className="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
+                                >
+                                  Add Live
+                                </button>
+                              )}
+                            </div>
+                            {request.liveLink && userRole === 'superadmin' && (
+                              <button
+                                onClick={() => {
+                                  setLinkModalType('live');
+                                  setLinkModalPurchaseId(request.id);
+                                  setLinkModalValue(messages?.[`liveLink:${request.id}`] || request.liveLink || '');
+                                  setLinkModalOpen(true);
+                                }}
+                                title="Edit live link"
+                                className="text-indigo-600 hover:text-indigo-800 text-xs font-medium mt-1"
+                              >
+                                Edit
+                              </button>
+                            )}
+                          </div>
                         </td>
                         {/* Doc link column (separate cell) */}
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                          {request.docLink ? (
-                            <button
-                              onClick={() => window.open(request.docLink, '_blank')}
-                              title="Visit document"
-                              className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
-                            >
-                              Doc
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => {
-                                setLinkModalType('doc');
-                                setLinkModalPurchaseId(request.id);
-                                setLinkModalValue(messages?.[`docLink:${request.id}`] || request.docLink || '');
-                                setLinkModalOpen(true);
-                              }}
-                              title="Add document"
-                              className="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
-                            >
-                              Add Doc
-                            </button>
-                          )}
+                          <div className="flex flex-col items-start gap-1">
+                            <div>
+                              {request.docLink ? (
+                                <button
+                                  onClick={() => window.open(request.docLink, '_blank')}
+                                  title="Visit document"
+                                  className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                                >
+                                  Doc
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                    setLinkModalType('doc');
+                                    setLinkModalPurchaseId(request.id);
+                                    setLinkModalValue(messages?.[`docLink:${request.id}`] || request.docLink || '');
+                                    setLinkModalOpen(true);
+                                  }}
+                                  title="Add document"
+                                  className="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
+                                >
+                                  Add Doc
+                                </button>
+                              )}
+                            </div>
+                            {request.docLink && userRole === 'superadmin' && (
+                              <button
+                                onClick={() => {
+                                  setLinkModalType('doc');
+                                  setLinkModalPurchaseId(request.id);
+                                  setLinkModalValue(messages?.[`docLink:${request.id}`] || request.docLink || '');
+                                  setLinkModalOpen(true);
+                                }}
+                                title="Edit document"
+                                className="text-indigo-600 hover:text-indigo-800 text-xs font-medium mt-1"
+                              >
+                                Edit
+                              </button>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                           <div className="flex items-center gap-2">
