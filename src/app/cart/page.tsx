@@ -174,22 +174,35 @@ export default function CartPage() {
         
         // Process each file for this cart item
         return Promise.all(files.map(async (fileData) => {
-          const { file, requirements } = fileData;
-          const fd = new FormData();
-          fd.append("pdfFile", file);
-          fd.append("requirements", requirements);
-          fd.append("websiteId", websiteId);
-          if (purchaseId) {
-            fd.append("purchaseId", purchaseId); // Associate with purchase ID
+          const { file, link, requirements } = fileData as { file?: File, link?: string, requirements: string };
+          if (file) {
+            const fd = new FormData();
+            fd.append("pdfFile", file);
+            fd.append("requirements", requirements);
+            fd.append("websiteId", websiteId);
+            if (purchaseId) {
+              fd.append("purchaseId", purchaseId); // Associate with purchase ID
+            }
+            const res = await fetch("/api/my-content", { method: "POST", body: fd });
+            if (!res.ok) {
+              let msg = `HTTP ${res.status}`;
+              try { const j = await res.json(); if (j?.error) msg = j.error; } catch {}
+              throw new Error(msg);
+            }
+            return res.json();
+          } else if (link) {
+            const payload = { link, requirements, websiteId, purchaseId };
+            const res = await fetch("/api/my-content/link", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            if (!res.ok) {
+              let msg = `HTTP ${res.status}`;
+              try { const j = await res.json(); if (j?.error) msg = j.error; } catch {}
+              throw new Error(msg);
+            }
+            return res.json();
+          } else {
+            // Skip unknown entry
+            return Promise.resolve(null);
           }
-          
-          const res = await fetch("/api/my-content", { method: "POST", body: fd });
-          if (!res.ok) {
-            let msg = `HTTP ${res.status}`;
-            try { const j = await res.json(); if (j?.error) msg = j.error; } catch {}
-            throw new Error(msg);
-          }
-          return res.json();
         }));
       });
       
@@ -231,10 +244,11 @@ export default function CartPage() {
       // Show success popup
       setShowSuccessMessage(true);
       
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to complete purchase:", err);
       setShowErrorMessage(true);
-      setErrorMessage("Failed to complete purchase. Please try again.");
+      const msg = (err && err.message) ? err.message : "Failed to complete purchase. Please try again.";
+      setErrorMessage(msg);
     } finally {
       setIsProcessing(false);
     }

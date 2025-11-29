@@ -808,14 +808,10 @@ const SuperAdminWebsitesSection: React.FC<SuperAdminWebsitesSectionProps> = ({
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                   >
                     <option value="all">All Countries</option>
-                    {/* Show DB-derived countries when a category filter is active, otherwise show full list */}
-                    {categoryFilter && categoryFilter !== 'all' ? (
-                      countryOptions.map((c) => <option key={c} value={c}>{c}</option>)
-                    ) : (
-                      (!loadingCountries ? allCountries : []).map((country: any) => (
-                        <option key={country.name} value={country.name}>{country.name}</option>
-                      ))
-                    )}
+                    {/* Use countryOptions which contains either DB-derived countries (when category filter is active) or the full countries list */}
+                    {countryOptions.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
                   </select>
                 </div>
 
