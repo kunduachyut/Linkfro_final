@@ -597,15 +597,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                                 </svg>
                               </button>
                             )}
-                            <button
-                              onClick={() => toggleRowExpansion(request.id)}
-                              className="text-gray-500 hover:text-gray-700 p-1 rounded transition-colors"
-                              title="Toggle payment options"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transform transition-transform ${expandedRows[request.id] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                              </svg>
-                            </button>
+                           
                           </div>
                         </td>
                       </tr>
@@ -696,7 +688,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
 
       {/* Link Edit Modal (Doc/Live) */}
       {linkModalOpen && linkModalType && linkModalPurchaseId && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-transparent bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">{linkModalType === 'doc' ? 'Edit Document Link' : 'Edit Live Link'}</h3>
