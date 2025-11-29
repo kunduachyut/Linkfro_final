@@ -1115,10 +1115,10 @@ setPurchaseStats(stats);
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
                 <h4 className="font-semibold text-gray-800 mb-3">Purchase Information</h4>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-600">Customer:</span>
+                  {/* <div>
+                    <span className="font-medium text-gray-600">Customer lll:</span>
                     <div className="text-gray-800">{selectedPurchase.customerEmail}</div>
-                  </div>
+                  </div> */}
                   <div>
                     <span className="font-medium text-gray-600">Purchase Date:</span>
                     <div className="text-gray-800">{formatDate(selectedPurchase.createdAt)}</div>
