@@ -350,10 +350,10 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                     </th>
                     {/* Chat column removed per request */}
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Live Link
+                      Live link
                     </th>
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Doc Link
+                      Doc link
                     </th>
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -388,32 +388,55 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                           {formatDate(request.createdAt)}
                         </td>
                         {/* Chat cell removed */}
+                        {/* Live link column (separate cell) */}
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                          {/* Live Link single-button */}
-                          <div className="flex items-center gap-2">
-                            {request.liveLink ? (
-                              <button
-                                onClick={() => window.open(request.liveLink, '_blank')}
-                                title="Visit live link"
-                                className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
-                              >
-                                Visit
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => {
-                                  setLinkModalType('live');
-                                  setLinkModalPurchaseId(request.id);
-                                  setLinkModalValue(messages?.[`liveLink:${request.id}`] || request.liveLink || '');
-                                  setLinkModalOpen(true);
-                                }}
-                                title="Add live link"
-                                className="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
-                              >
-                                Add
-                              </button>
-                            )}
-                          </div>
+                          {request.liveLink ? (
+                            <button
+                              onClick={() => window.open(request.liveLink, '_blank')}
+                              title="Visit live link"
+                              className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                            >
+                              Live
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setLinkModalType('live');
+                                setLinkModalPurchaseId(request.id);
+                                setLinkModalValue(messages?.[`liveLink:${request.id}`] || request.liveLink || '');
+                                setLinkModalOpen(true);
+                              }}
+                              title="Add live link"
+                              className="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
+                            >
+                              Add Live
+                            </button>
+                          )}
+                        </td>
+                        {/* Doc link column (separate cell) */}
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                          {request.docLink ? (
+                            <button
+                              onClick={() => window.open(request.docLink, '_blank')}
+                              title="Visit document"
+                              className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                            >
+                              Doc
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setLinkModalType('doc');
+                                setLinkModalPurchaseId(request.id);
+                                setLinkModalValue(messages?.[`docLink:${request.id}`] || request.docLink || '');
+                                setLinkModalOpen(true);
+                              }}
+                              title="Add document"
+                              className="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
+                            >
+                              Add Doc
+                            </button>
+                          )}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                           <div className="flex items-center gap-2">
@@ -487,15 +510,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                                 </svg>
                               </button>
                             )}
-                            <button
-                              onClick={() => toggleRowExpansion(request.id)}
-                              className="text-gray-500 hover:text-gray-700 p-1 rounded transition-colors"
-                              title="Toggle payment options"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transform transition-transform ${expandedRows[request.id] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                              </svg>
-                            </button>
+                            
                           </div>
                         </td>
                       </tr>
@@ -555,218 +570,6 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                                         </button>
                                       </div>
 
-                                      {/* Doc Link */}
-                                      <label className="text-xs text-gray-500 mb-1">Document Link</label>
-                                      <div className="flex gap-2 mb-2">
-                                        <textarea
-                                          value={messages?.[`docLink:${request.id}`] || ''}
-                                          onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`docLink:${request.id}`]: e.target.value }))}
-                                          placeholder="Enter document URL"
-                                          className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
-                                          rows={1}
-                                        />
-                                        <button
-                                          onClick={async () => {
-                                            if (!setMessages) {
-                                              alert('Cannot update document link - message handler not initialized');
-                                              return;
-                                            }
-                                            const link = messages?.[`docLink:${request.id}`] || '';
-                                            try {
-                                              const res = await fetch(`/api/purchases/${request.id}/doc-link`, {
-                                                method: 'PATCH',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify({ docLink: link })
-                                              });
-
-                                              const body = await res.json();
-                                              if (!res.ok) {
-                                                const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
-                                                console.error('Push doc link failed', { status: res.status, body });
-                                                alert(`Failed to push document link: ${serverMsg}`);
-                                                return;
-                                              }
-
-                                              // Update UI state
-                                              request.docLink = body.docLink;
-                                              // Clear input
-                                              setMessages(prev => ({ ...prev, [`docLink:${request.id}`]: '' }));
-                                              alert('Document link saved successfully');
-                                            } catch (err) {
-                                              console.error('Push doc link failed (network)', err);
-                                              alert('Failed to push document link (network error)');
-                                            }
-                                          }}
-                                          className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 whitespace-nowrap"
-                                        >
-                                          Push Doc
-                                        </button>
-                                      </div>
-
-                                      {/* Live Link */}
-                                      <label className="text-xs text-gray-500 mb-1">Live Link</label>
-                                      <div className="flex gap-2 mb-2">
-                                        <textarea
-                                          value={messages?.[`liveLink:${request.id}`] || ''}
-                                          onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`liveLink:${request.id}`]: e.target.value }))}
-                                          placeholder="Enter live URL"
-                                          className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
-                                          rows={1}
-                                        />
-                                        <button
-                                          onClick={async () => {
-                                            if (!setMessages) {
-                                              alert('Cannot update live link - message handler not initialized');
-                                              return;
-                                            }
-                                            const link = messages?.[`liveLink:${request.id}`] || '';
-                                            try {
-                                              const res = await fetch(`/api/purchases/${request.id}/live-link`, {
-                                                method: 'PATCH',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify({ liveLink: link })
-                                              });
-
-                                              const body = await res.json();
-                                              if (!res.ok) {
-                                                const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
-                                                console.error('Push live link failed', { status: res.status, body });
-                                                alert(`Failed to push live link: ${serverMsg}`);
-                                                return;
-                                              }
-
-                                              // Update UI state
-                                              request.liveLink = body.liveLink;
-                                              // Clear input
-                                              setMessages(prev => ({ ...prev, [`liveLink:${request.id}`]: '' }));
-                                              alert('Live link saved successfully');
-                                            } catch (err) {
-                                              console.error('Push live link failed (network)', err);
-                                              alert('Failed to push live link (network error)');
-                                            }
-                                          }}
-                                          className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 whitespace-nowrap"
-                                        >
-                                          Push Live
-                                        </button>
-                                      </div>
-                                    </>
-                                  )}
-
-                                  {/* Doc Link column - single action button (Visit/Add) */}
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                                    <div className="flex items-center gap-2">
-                                      {request.docLink ? (
-                                        <button
-                                          onClick={() => window.open(request.docLink, '_blank')}
-                                          title="Visit document"
-                                          className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
-                                        >
-                                          Visit
-                                        </button>
-                                      ) : (
-                                        <button
-                                          onClick={() => {
-                                            setLinkModalType('doc');
-                                            setLinkModalPurchaseId(request.id);
-                                            setLinkModalValue(messages?.[`docLink:${request.id}`] || request.docLink || '');
-                                            setLinkModalOpen(true);
-                                          }}
-                                          title="Add document"
-                                          className="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
-                                        >
-                                          Add
-                                        </button>
-                                      )}
-                                    </div>
-                                  </td>
-
-                                  {/* Doc URL and Live URL: visible when the purchase is in pending or ongoing state */}
-                                  {(request.status === 'pending' || request.status === 'ongoing') && (
-                                    <>
-                                      {/* Doc URL field */}
-                                      <label className="text-xs text-gray-500 mb-1">Doc URL</label>
-                                      <div className="flex gap-2 mb-2">
-                                        <input
-                                          value={messages?.[`docUrl:${request.id}`] || ''}
-                                          onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`docUrl:${request.id}`]: e.target.value }))}
-                                          placeholder="Enter document URL (e.g., Google Drive link)"
-                                          className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
-                                        />
-                                        <button
-                                          onClick={async () => {
-                                            const link = messages?.[`docUrl:${request.id}`] || '';
-                                            try {
-                                              const res = await fetch(`/api/purchases/${request.id}/links`, {
-                                                method: 'PATCH',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify({ docUrl: link }),
-                                                credentials: 'same-origin',
-                                              });
-
-                                              let body: any = null;
-                                              try { body = await res.json(); } catch (e) { }
-
-                                              if (!res.ok) {
-                                                const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
-                                                console.error('Push doc link failed', { status: res.status, body });
-                                                alert(`Failed to push doc URL: ${serverMsg}`);
-                                                return;
-                                              }
-
-                                              alert('Doc URL pushed successfully');
-                                            } catch (err) {
-                                              console.error('Push doc link failed (network)', err);
-                                              alert('Failed to push doc URL (network error)');
-                                            }
-                                          }}
-                                          className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 whitespace-nowrap"
-                                        >
-                                          Push Doc
-                                        </button>
-                                      </div>
-
-                                      {/* Live URL field */}
-                                      <label className="text-xs text-gray-500 mb-1">Live URL</label>
-                                      <div className="flex gap-2">
-                                        <input
-                                          value={messages?.[`liveUrl:${request.id}`] || ''}
-                                          onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`liveUrl:${request.id}`]: e.target.value }))}
-                                          placeholder="Enter live site URL (e.g., https://example.com)"
-                                          className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
-                                        />
-                                        <button
-                                          onClick={async () => {
-                                            const link = messages?.[`liveUrl:${request.id}`] || '';
-                                            try {
-                                              const res = await fetch(`/api/purchases/${request.id}/links`, {
-                                                method: 'PATCH',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify({ liveUrl: link }),
-                                                credentials: 'same-origin',
-                                              });
-
-                                              let body: any = null;
-                                              try { body = await res.json(); } catch (e) { }
-
-                                              if (!res.ok) {
-                                                const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
-                                                console.error('Push live link failed', { status: res.status, body });
-                                                alert(`Failed to push live URL: ${serverMsg}`);
-                                                return;
-                                              }
-
-                                              alert('Live URL pushed successfully');
-                                            } catch (err) {
-                                              console.error('Push live link failed (network)', err);
-                                              alert('Failed to push live URL (network error)');
-                                            }
-                                          }}
-                                          className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 whitespace-nowrap"
-                                        >
-                                          Push Live
-                                        </button>
-                                      </div>
                                     </>
                                   )}
                                 </div>
