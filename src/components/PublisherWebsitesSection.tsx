@@ -359,6 +359,10 @@ export default function PublisherWebsitesSection({
       return Array.from(set).filter(Boolean) as string[];
     }
 
+    // default: prefer the central countries list (from the hook) so the dropdown shows all countries
+    if (!loadingCountries && allCountries && allCountries.length > 0) {
+      return allCountries.map((c: any) => c.name);
+    }
     return uniqueCountries;
   })();
 
