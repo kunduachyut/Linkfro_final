@@ -84,6 +84,11 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
   userRole
 }) => {
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  // Modal state for editing doc/live links (match SuperAdmin behavior)
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [linkModalType, setLinkModalType] = useState<'doc' | 'live' | null>(null);
+  const [linkModalPurchaseId, setLinkModalPurchaseId] = useState<string | null>(null);
+  const [linkModalValue, setLinkModalValue] = useState<string>('');
 
   const statusLabelMap: Record<string, string> = {
     ongoing: "Mark as Ongoing",
@@ -345,6 +350,12 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                     </th>
                     {/* Chat column removed per request */}
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Live Link
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Doc Link
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -377,6 +388,33 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                           {formatDate(request.createdAt)}
                         </td>
                         {/* Chat cell removed */}
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                          {/* Live Link single-button */}
+                          <div className="flex items-center gap-2">
+                            {request.liveLink ? (
+                              <button
+                                onClick={() => window.open(request.liveLink, '_blank')}
+                                title="Visit live link"
+                                className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                              >
+                                Visit
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  setLinkModalType('live');
+                                  setLinkModalPurchaseId(request.id);
+                                  setLinkModalValue(messages?.[`liveLink:${request.id}`] || request.liveLink || '');
+                                  setLinkModalOpen(true);
+                                }}
+                                title="Add live link"
+                                className="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
+                              >
+                                Add
+                              </button>
+                            )}
+                          </div>
+                        </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                           <div className="flex items-center gap-2">
                             {(request.status || 'pending') === 'pending' && (
@@ -466,7 +504,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                         <tr>
                           {/* Adjust colspan since Customer and Price columns removed */}
                           {/* Adjust colspan after removing Chat and Customer/Price columns for Content Manager view */}
-                          <td colSpan={purchaseFilter === "pending" ? 5 : 4} className="px-4 py-2 bg-gray-50">
+                          <td colSpan={purchaseFilter === "pending" ? 7 : 6} className="px-4 py-2 bg-gray-50">
                             <div className="flex justify-end">
                               <div className="flex flex-col gap-2 w-full max-w-md">
                                 <div className="flex flex-col">
@@ -615,6 +653,34 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                                     </>
                                   )}
 
+                                  {/* Doc Link column - single action button (Visit/Add) */}
+                                  <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                                    <div className="flex items-center gap-2">
+                                      {request.docLink ? (
+                                        <button
+                                          onClick={() => window.open(request.docLink, '_blank')}
+                                          title="Visit document"
+                                          className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                                        >
+                                          Visit
+                                        </button>
+                                      ) : (
+                                        <button
+                                          onClick={() => {
+                                            setLinkModalType('doc');
+                                            setLinkModalPurchaseId(request.id);
+                                            setLinkModalValue(messages?.[`docLink:${request.id}`] || request.docLink || '');
+                                            setLinkModalOpen(true);
+                                          }}
+                                          title="Add document"
+                                          className="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
+                                        >
+                                          Add
+                                        </button>
+                                      )}
+                                    </div>
+                                  </td>
+
                                   {/* Doc URL and Live URL: visible when the purchase is in pending or ongoing state */}
                                   {(request.status === 'pending' || request.status === 'ongoing') && (
                                     <>
@@ -721,6 +787,74 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
       {/* Chat removed from this view */}
 
       {/* Confirmation Modal */}
+      {/* Link Edit Modal (Doc/Live) */}
+      {linkModalOpen && linkModalType && linkModalPurchaseId && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">{linkModalType === 'doc' ? 'Edit Document Link' : 'Edit Live Link'}</h3>
+              <button onClick={() => setLinkModalOpen(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm text-gray-700 mb-2">{linkModalType === 'doc' ? 'Document URL' : 'Live URL'}</label>
+              <input
+                type="url"
+                value={linkModalValue}
+                onChange={(e) => setLinkModalValue(e.target.value)}
+                placeholder="https://example.com"
+                className="w-full p-2 border rounded-md"
+              />
+            </div>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => { setLinkModalOpen(false); }} className="px-4 py-2 bg-gray-200 rounded-md">Cancel</button>
+              <button
+                onClick={async () => {
+                  // validate
+                  if (!linkModalValue || !linkModalValue.trim()) { alert('Please enter a valid URL'); return; }
+                  try {
+                    const id = linkModalPurchaseId;
+                    if (linkModalType === 'doc') {
+                      const res = await fetch(`/api/purchases/${id}/doc-link`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ docLink: linkModalValue })
+                      });
+                      const body = await res.json().catch(() => ({}));
+                      if (!res.ok) { const serverMsg = body?.error || body?.message || `HTTP ${res.status}`; alert(`Failed to save doc link: ${serverMsg}`); return; }
+                      const idx = filteredPurchaseRequests.findIndex(p => p.id === id);
+                      if (idx >= 0) filteredPurchaseRequests[idx].docLink = body.docLink;
+                      setMessages && setMessages(prev => ({ ...prev, [`docLink:${id}`]: '' }));
+                      setLinkModalOpen(false);
+                      alert('Document link saved successfully');
+                    } else if (linkModalType === 'live') {
+                      const res = await fetch(`/api/purchases/${id}/live-link`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ liveLink: linkModalValue })
+                      });
+                      const body = await res.json().catch(() => ({}));
+                      if (!res.ok) { const serverMsg = body?.error || body?.message || `HTTP ${res.status}`; alert(`Failed to save live link: ${serverMsg}`); return; }
+                      const idx = filteredPurchaseRequests.findIndex(p => p.id === id);
+                      if (idx >= 0) filteredPurchaseRequests[idx].liveLink = body.liveLink;
+                      setMessages && setMessages(prev => ({ ...prev, [`liveLink:${id}`]: '' }));
+                      setLinkModalOpen(false);
+                      alert('Live link saved successfully');
+                    }
+                  } catch (err) {
+                    console.error('Failed saving link', err);
+                    alert('Failed to save link (network or server error)');
+                  }
+                }}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {showConfirmationModal && (
         <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-xl max-w-md w-full shadow-xl">
