@@ -6,10 +6,10 @@ import { useUser } from '@clerk/nextjs';
 import ChatWindow from './ChatWindow';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
 
-export default function PurchasesSection({ 
-  purchases, 
-  loading, 
-  error, 
+export default function PurchasesSection({
+  purchases,
+  loading,
+  error,
   refreshPurchases,
   messages,
   setMessages
@@ -76,7 +76,7 @@ export default function PurchasesSection({
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  
+
   // State for website details functionality
   const [websiteDetails, setWebsiteDetails] = useState<Record<string, any>>({});
   const [loadingDetails, setLoadingDetails] = useState<Record<string, boolean>>({});
@@ -94,18 +94,18 @@ export default function PurchasesSection({
   // Filter purchases based on search and filters
   const filteredPurchases = purchases.filter(purchase => {
     // Search filter
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       getWebsiteTitle(purchase).toLowerCase().includes(searchQuery.toLowerCase()) ||
       getWebsiteUrl(purchase).toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     // Status filter
     const matchesStatus = statusFilter === "all" || purchase.status === statusFilter;
-    
+
     // Content type filter
-    const matchesContentType = contentTypeFilter === "all" || 
+    const matchesContentType = contentTypeFilter === "all" ||
       (contentTypeFilter === "request" && purchase.contentType === "request") ||
       (contentTypeFilter === "content" && purchase.contentType !== "request");
-    
+
     // Date range filter
     let matchesDateRange = true;
     if (startDate || endDate) {
@@ -117,7 +117,7 @@ export default function PurchasesSection({
         matchesDateRange = false;
       }
     }
-    
+
     return matchesSearch && matchesStatus && matchesContentType && matchesDateRange;
   });
 
@@ -154,7 +154,7 @@ export default function PurchasesSection({
       try {
         const fetchPromises = Object.keys(purchaseMap).map(async (purchaseId) => {
           if (!isSubscribed) return;
-          
+
           try {
             const res = await fetch(`/api/my-content?purchaseId=${purchaseId}`);
             if (res.ok && isSubscribed) {
@@ -211,7 +211,7 @@ export default function PurchasesSection({
 
     try {
       const res = await fetch(`/api/websites/${websiteId}`);
-      
+
       if (res.ok) {
         const data = await res.json();
         setWebsiteDetails(prev => ({ ...prev, [websiteId]: data }));
@@ -278,14 +278,14 @@ export default function PurchasesSection({
   const handleContentTypeClick = async (purchase: any) => {
     setModalLoading(true);
     setIsModalOpen(true);
-    
+
     // For content requests, we would need to fetch the request details
     // For uploaded content, we already have the uploads data
     setSelectedContent({
       purchase,
       uploads: contentUploads[purchase._id] || []
     });
-    
+
     setModalLoading(false);
   };
 
@@ -321,12 +321,12 @@ export default function PurchasesSection({
           </button>
           <span className="text-sm font-medium text-gray-500">{filteredPurchases.length} of {purchases.length} purchases</span>
         </div>
-        
+
         <div className="flex flex-wrap gap-2">
           <div className="relative">
-            <input 
-              type="text" 
-              placeholder="Search purchases..." 
+            <input
+              type="text"
+              placeholder="Search purchases..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
@@ -336,14 +336,13 @@ export default function PurchasesSection({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          
-          <button 
+
+          <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-1 ${
-              (statusFilter !== "all" || contentTypeFilter !== "all" || startDate || endDate) 
-                ? "bg-green-50 border-green-300 text-green-700" 
-                : ""
-            }`}
+            className={`px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-1 ${(statusFilter !== "all" || contentTypeFilter !== "all" || startDate || endDate)
+              ? "bg-green-50 border-green-300 text-green-700"
+              : ""
+              }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -358,14 +357,14 @@ export default function PurchasesSection({
         <div className="mb-4 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="flex justify-between items-center mb-3">
             <h3 className="text-lg font-medium text-gray-900">Filters</h3>
-            <button 
+            <button
               onClick={clearFilters}
               className="text-sm text-green-600 hover:text-green-800"
             >
               Clear all
             </button>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Status Filter */}
             <div>
@@ -386,7 +385,7 @@ export default function PurchasesSection({
                 <option value="rejected">Rejected</option>
               </select>
             </div>
-            
+
             {/* Content Type Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -402,7 +401,7 @@ export default function PurchasesSection({
                 <option value="content">My Content</option>
               </select>
             </div>
-            
+
             {/* Start Date Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -415,7 +414,7 @@ export default function PurchasesSection({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
               />
             </div>
-            
+
             {/* End Date Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -469,8 +468,8 @@ export default function PurchasesSection({
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Purchases Found</h3>
               <p className="text-gray-600 mb-4">
-                {purchases.length === 0 
-                  ? "You haven't made any purchases yet." 
+                {purchases.length === 0
+                  ? "You haven't made any purchases yet."
                   : "No purchases match your search criteria. Try adjusting your filters."}
               </p>
               {purchases.length > 0 && (
@@ -527,7 +526,7 @@ export default function PurchasesSection({
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <div className="col-span-2 flex justify-center">
+                  <div className="col-span-1 flex justify-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="cursor-help">AMOUNT</div>
@@ -547,7 +546,7 @@ export default function PurchasesSection({
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <div className="col-span-3 flex justify-center">
+                  <div className="col-span-2 flex justify-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="cursor-help">DOC URL</div>
@@ -557,7 +556,7 @@ export default function PurchasesSection({
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <div className="col-span-3 flex justify-center">
+                  <div className="col-span-2 flex justify-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="cursor-help">LIVE URL</div>
@@ -567,10 +566,30 @@ export default function PurchasesSection({
                       </TooltipContent>
                     </Tooltip>
                   </div>
+                  <div className="col-span-1 flex justify-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">Action</div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Visit the website</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="col-span-2 flex justify-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">Chat</div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Chat with Admin</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <div className="col-span-1"></div>
                 </div>
               </TooltipProvider>
-              
+
               {/* Table Body */}
               <div className="divide-y divide-gray-200">
                 {filteredPurchases.map((purchase, index) => {
@@ -580,7 +599,7 @@ export default function PurchasesSection({
                   const websiteId = getWebsiteId(purchase);
                   const uploads = contentUploads[purchase._id] || [];
                   const isLoadingUploads = loadingUploads[purchase._id] || false;
-                  
+
                   return (
                     <div key={purchase._id || index} className="grid grid-cols-22 gap-4 px-6 py-4 hover:bg-gray-50 items-center">
                       {/* Website Info */}
@@ -597,11 +616,11 @@ export default function PurchasesSection({
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Details Column with Eye Icon */}
                       <div className="col-span-1 flex items-center justify-center">
                         <div className="relative">
-                          <button 
+                          <button
                             className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100 transition-colors"
                             onMouseEnter={async (e) => {
                               // Fetch details on hover if not already loaded
@@ -636,7 +655,7 @@ export default function PurchasesSection({
                               </svg>
                             )}
                           </button>
-                          
+
                           {/* Floating tooltip with website details rendered into a portal so it isn't clipped */}
                           {activeDetailsItem === purchase._id && tooltipRect && typeof document !== 'undefined' && createPortal(
                             <div
@@ -695,50 +714,48 @@ export default function PurchasesSection({
                           )}
                         </div>
                       </div>
-                      
+
                       {/* Content Type - Updated to show "My Content" with blue color */}
                       <div className="col-span-3 flex justify-center">
-                        <button 
+                        <button
                           onClick={() => handleContentTypeClick(purchase)}
-                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            purchase.contentType === 'request' 
-                              ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                              : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                          } transition-colors cursor-pointer`}
+                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${purchase.contentType === 'request'
+                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                            : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                            } transition-colors cursor-pointer`}
                         >
                           {purchase.contentType === 'request' ? 'Content Request' : 'My Content'}
                         </button>
                       </div>
-                      
+
                       {/* Purchase Date */}
                       <div className="col-span-3 flex justify-center">
                         <div className="text-sm text-gray-900">
                           {purchase.createdAt ? new Date(purchase.createdAt).toLocaleDateString() : 'N/A'}
                         </div>
                       </div>
-                      
+
                       {/* Amount */}
-                      <div className="col-span-2 flex justify-center">
+                      <div className="col-span-1 flex justify-center">
                         <div className="text-sm font-medium text-gray-900">${(amountCents / 100).toFixed(2)}</div>
                       </div>
-                      
+
                       {/* Status */}
                       <div className="col-span-2 flex justify-center">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          purchase.status === 'paid' || purchase.status === 'completed' || purchase.status === 'approved'
-                            ? 'bg-green-100 text-green-800'
-                            : purchase.status === 'pending' || purchase.status === 'ongoing'
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${purchase.status === 'paid' || purchase.status === 'completed' || purchase.status === 'approved'
+                          ? 'bg-green-100 text-green-800'
+                          : purchase.status === 'pending' || purchase.status === 'ongoing'
                             ? (purchase.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800')
                             : purchase.status === 'rejected'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
                           {purchase.status || 'Unknown'}
                         </span>
                       </div>
-                      
+
                       {/* Doc URL column - show button if provided, otherwise show disabled state */}
-                      <div className="col-span-3 flex justify-center">
+                      <div className="col-span-2 flex justify-center">
                         {purchase.docLink ? (
                           <button
                             onClick={() => window.open(purchase.docLink, '_blank')}
@@ -763,7 +780,7 @@ export default function PurchasesSection({
                       </div>
 
                       {/* Live URL column - show button if provided, otherwise show disabled state */}
-                      <div className="col-span-3 flex justify-center">
+                      <div className="col-span-2 flex justify-center">
                         {purchase.liveLink ? (
                           <button
                             onClick={() => window.open(purchase.liveLink, '_blank')}
@@ -788,7 +805,7 @@ export default function PurchasesSection({
                       </div>
 
                       {/* Actions */}
-                      <div className="col-span-3 flex justify-center">
+                      <div className="col-span-2 flex justify-center">
                         <div className="flex space-x-2">
                           <a
                             href={websiteUrl}
@@ -801,7 +818,7 @@ export default function PurchasesSection({
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
                           </a>
-                          
+
                           {/* Ad Request Button */}
                           {(purchase.status === 'paid' || purchase.status === 'completed') && (
                             <div className="flex items-center space-x-2">
@@ -824,27 +841,29 @@ export default function PurchasesSection({
                             </div>
                           )}
                           {/* Chat Button - always available */}
-                          <button
-                            onClick={() => handleChatClick(purchase._id)}
-                            className="text-indigo-600 hover:text-indigo-900 p-1"
-                            title="Chat"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                          </button>
+                          <div className="flex items-center space-x-3">
+                            <button
+                              onClick={() => handleChatClick(purchase._id)}
+                              className="text-indigo-600 hover:text-indigo-900 p-1"
+                              title="Chat"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                              </svg>
+                            </button>
+                          </div>
                           {/* Payment link input - visible only when purchase is ongoing */}
-                          
+
                         </div>
                       </div>
-                      
+
                       {/* More Options */}
                       <div className="col-span-1 flex justify-end">
                         <button className="text-gray-400 hover:text-gray-500">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                            </svg>
-                          </button>
+                          </svg>
+                        </button>
                       </div>
                     </div>
                   );
@@ -884,7 +903,7 @@ export default function PurchasesSection({
                 </svg>
               </button>
             </div>
-            
+
             {modalLoading ? (
               <div className="flex justify-center py-12">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600"></div>
@@ -901,7 +920,7 @@ export default function PurchasesSection({
                           You requested custom content for this purchase. The publisher will create content based on your requirements.
                         </p>
                       </div>
-                      
+
                       <div className="border border-gray-200 rounded-lg p-4 mb-6">
                         <h5 className="font-medium text-gray-900 mb-2">Website Information</h5>
                         <div className="grid grid-cols-2 gap-4">
@@ -917,7 +936,7 @@ export default function PurchasesSection({
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="border border-gray-200 rounded-lg p-4">
                         <h5 className="font-medium text-gray-900 mb-2">Next Steps</h5>
                         <ul className="list-disc pl-5 space-y-2 text-gray-600">
@@ -936,7 +955,7 @@ export default function PurchasesSection({
                           You uploaded content for this purchase. Here are the details of your uploads.
                         </p>
                       </div>
-                      
+
                       {selectedContent.uploads.length === 0 ? (
                         <div className="text-center py-8">
                           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -974,12 +993,12 @@ export default function PurchasesSection({
                                   </a>
                                 )}
                               </div>
-                              
+
                               <div className="mb-3">
                                 <p className="text-sm text-gray-500 mb-1">Requirements</p>
                                 <p className="text-gray-900">{upload.requirements || 'No requirements specified'}</p>
                               </div>
-                              
+
                               {upload.pdf && (
                                 <div className="bg-gray-50 rounded-lg p-3">
                                   <div className="flex items-center justify-between">
