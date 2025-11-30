@@ -4,14 +4,15 @@
 
 import { useEffect, useState } from "react";
 import { useUser } from '@clerk/clerk-react';
+import dynamic from 'next/dynamic';
 import WebsiteAnalystSidePanel from "@/components/WebsiteAnalystSidePanel";
-import SuperAdminWebsitesSection from "@/components/SuperAdminWebsitesSection";
-import ContentManagherPurchasesSection from "@/components/ContentManagherPurchasesSection";
-import ContentMangerUserContentSection from "@/components/ContentMangerUserContentSection";
-import SuperAdminContentRequestsSection from "@/components/SuperAdminContentRequestsSection";
-import SuperAdminPriceConflictsSection from "@/components/SuperAdminPriceConflictsSection";
-import SuperAdminUserRequestsSection from "@/components/SuperAdminUserRequestsSection";
-import SuperAdminRolesSection from "@/components/SuperAdminRolesSection";
+const SuperAdminWebsitesSection = dynamic(() => import("@/components/SuperAdminWebsitesSection"), { ssr: false });
+const ContentManagherPurchasesSection = dynamic(() => import("@/components/ContentManagherPurchasesSection"), { ssr: false });
+const ContentMangerUserContentSection = dynamic(() => import("@/components/ContentMangerUserContentSection"), { ssr: false });
+const SuperAdminContentRequestsSection = dynamic(() => import("@/components/SuperAdminContentRequestsSection"), { ssr: false });
+const SuperAdminPriceConflictsSection = dynamic(() => import("@/components/SuperAdminPriceConflictsSection"), { ssr: false });
+const SuperAdminUserRequestsSection = dynamic(() => import("@/components/SuperAdminUserRequestsSection"), { ssr: false });
+const SuperAdminRolesSection = dynamic(() => import("@/components/SuperAdminRolesSection"), { ssr: false });
 
 // add Tab type to align with sidebar
 type Tab = "websites" | "purchases" | "contentRequests" | "userContent" | "priceConflicts" | "userRequests" | "roles";

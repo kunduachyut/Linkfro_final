@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import ChatWindow from './ChatWindow';
+import dynamic from 'next/dynamic';
+const ChatWindow = dynamic(() => import('./ChatWindow'), { ssr: false });
 import { useChatWebSocket } from '../hooks/useChatWebSocket';
 
 // Type definitions

@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useUser } from '@clerk/nextjs';
-import ChatWindow from './ChatWindow';
+import dynamic from 'next/dynamic';
+const ChatWindow = dynamic(() => import('./ChatWindow'), { ssr: false });
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
 
 export default function PurchasesSection({
