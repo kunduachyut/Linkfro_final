@@ -582,7 +582,7 @@ export default function CartPage() {
 
       {/* Modals */}
       {showContentModal && selectedItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
+        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-xl">
           <div className="bg-white p-6 rounded-xl w-full max-w-2xl max-h-[80vh] overflow-auto border border-gray-200 shadow-xl">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold text-blue-700">Content for {selectedItem.title}</h3>
@@ -733,7 +733,7 @@ export default function CartPage() {
       )}
 
       {showRequestModal && selectedItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 backdrop-blur-xl">
           <div className="bg-white p-6 rounded-xl w-full max-w-3xl max-h-[90vh] overflow-auto border border-gray-200 shadow-xl">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold text-blue-700">Request Content for {selectedItem.title}</h3>
