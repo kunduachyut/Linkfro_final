@@ -859,7 +859,7 @@ setPurchaseStats(stats);
   }
 
   return (
-    <div className="flex min-h-screen w-screen overflow-x-hidden" style={{ backgroundColor: 'var(--base-primary)' }}>
+    <div className="flex min-h-screen w-screen overflow-x-hidden bg-blue-50">
       <WebsiteAnalystSidePanel
         activeTab={activeTab as any}
         setActiveTab={setActiveTab as any}
@@ -877,7 +877,7 @@ setPurchaseStats(stats);
       >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 lg:mb-8 w-full">
           <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold" style={{ color: 'var(--secondary-primary)' }}>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900">
               {activeTab === "websites" && "Website Moderation"}
               {activeTab === "purchases" && "Purchase Requests"}
               {activeTab === "contentRequests" && "Content Requests"}
@@ -886,7 +886,7 @@ setPurchaseStats(stats);
               {activeTab === "userRequests" && "User Access Requests"}
               {activeTab === "roles" && "User Roles Management"} {/* <-- added */}
             </h1>
-            <p className="mt-1 sm:mt-2 text-sm sm:text-base lg:text-lg" style={{ color: 'var(--secondary-lighter)' }}>
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base lg:text-lg text-gray-700">
               {activeTab === "priceConflicts"
                 ? "Resolve conflicts when multiple users submit the same URL with different prices"
                 : "Manage websites, purchases, and content requests"}
