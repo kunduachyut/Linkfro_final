@@ -323,7 +323,7 @@ export default function ConsumerDashboard() {
   );
 
   return (
-    <div className="flex min-h-screen w-screen overflow-x-hidden" style={{backgroundColor: 'var(--base-primary)'}}>
+    <div className="flex min-h-screen w-screen overflow-x-hidden bg-blue-50">
       <ConsumerSidebar 
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -334,7 +334,7 @@ export default function ConsumerDashboard() {
       <main className={`flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto overflow-x-hidden min-w-0 max-w-none w-full transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 lg:mb-8 w-full">
           <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold" style={{color: 'var(--secondary-primary)'}}>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900">
               {activeTab === "marketplace" && "Marketplace"}
               {activeTab === "purchases" && "My Purchases"}
               {activeTab === "pendingPayments" && "Pending Payments"} {/* New title */}
@@ -342,7 +342,7 @@ export default function ConsumerDashboard() {
               {activeTab === "contentRequests" && "Content Requests"}
               {activeTab === "analytics" && "Analytics Dashboard"}
             </h1>
-            <p className="mt-1 sm:mt-2 text-sm sm:text-base lg:text-lg" style={{color: 'var(--secondary-lighter)'}}>
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base lg:text-lg text-gray-700">
               {activeTab === "marketplace" && "Browse and purchase digital assets"}
               {activeTab === "purchases" && "Manage your purchased websites"}
               {activeTab === "pendingPayments" && "Complete payment for your pending purchases"} {/* New description */}

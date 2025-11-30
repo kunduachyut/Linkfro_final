@@ -756,7 +756,7 @@ export default function MarketplaceSection({
   };
 
   return (
-    <div className="bg-gray-50 p-4 rounded-lg">
+    <div className="bg-gray-300 p-4 rounded-lg">
       {/* Header Controls */}
       <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
