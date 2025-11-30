@@ -549,7 +549,7 @@ export default function PublisherDashboard() {
       <main 
         className="flex-1 overflow-x-hidden transition-all duration-200"
         style={{ 
-          marginLeft: isSidebarCollapsed ? '3.05rem' : '15rem',
+          marginLeft: isSidebarCollapsed ? '2.75rem' : '13rem',
           transition: 'margin-left 0.2s ease-out'
         }}
       >

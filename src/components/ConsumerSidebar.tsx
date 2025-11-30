@@ -24,10 +24,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 const sidebarVariants = {
   open: {
-    width: "15rem",
+    width: "13rem",
   },
   closed: {
-    width: "3.05rem",
+    width: "2.75rem",
   },
 };
 
