@@ -871,7 +871,7 @@ setPurchaseStats(stats);
       <main 
         className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto overflow-x-hidden min-w-0 max-w-none w-full transition-all duration-200"
         style={{ 
-          marginLeft: isSidebarCollapsed ? '3.05rem' : '15rem',
+          marginLeft: isSidebarCollapsed ? '2.75rem' : '13rem',
           transition: 'margin-left 0.2s ease-out'
         }}
       >
