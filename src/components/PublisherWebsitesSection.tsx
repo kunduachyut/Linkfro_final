@@ -1367,35 +1367,35 @@ export default function PublisherWebsitesSection({
                     <h3 className="text-lg font-semibold mb-4">SEO Metrics</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="bg-muted p-3 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Domain Authority</p>
+                        <p className="text-sm text-gray-700">Domain Authority</p>
                         <p className="text-lg font-bold">{selectedWebsite.DA || "N/A"}</p>
                       </div>
                       <div className="bg-muted p-3 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Page Authority</p>
+                        <p className="text-sm text-gray-700">Page Authority</p>
                         <p className="text-lg font-bold">{selectedWebsite.PA || "N/A"}</p>
                       </div>
                       <div className="bg-muted p-3 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Organic Traffic</p>
+                        <p className="text-sm text-gray-700">Organic Traffic</p>
                         <p className="text-lg font-bold">{selectedWebsite.OrganicTraffic || "N/A"}</p>
                       </div>
                       <div className="bg-muted p-3 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Spam Score</p>
+                        <p className="text-sm text-gray-700">Spam Score</p>
                         <p className="text-lg font-bold">{selectedWebsite.Spam || "N/A"}</p>
                       </div>
                       <div className="bg-muted p-3 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Domain Rating</p>
+                        <p className="text-sm text-gray-700">Domain Rating</p>
                         <p className="text-lg font-bold">{selectedWebsite.DR || "N/A"}</p>
                       </div>
                       <div className="bg-muted p-3 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Referring Domains</p>
+                        <p className="text-sm text-gray-700">Referring Domains</p>
                         <p className="text-lg font-bold">{selectedWebsite.RD || "N/A"}</p>
                       </div>
                       <div className="bg-muted p-3 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Traffic Value</p>
+                        <p className="text-sm text-gray-700">Traffic Value</p>
                         <p className="text-lg font-bold">{selectedWebsite.trafficValue || "N/A"}</p>
                       </div>
                       <div className="bg-muted p-3 rounded-lg">
-                        <p className="text-sm text-muted-foreground">Location Traffic</p>
+                        <p className="text-sm text-gray-700">Location Traffic</p>
                         <p className="text-lg font-bold">{selectedWebsite.locationTraffic || "N/A"}</p>
                       </div>
                     </div>

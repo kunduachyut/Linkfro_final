@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Check, Loader2, Info, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -185,6 +185,10 @@ export function AddWebsiteForm({
   const [countrySearchTerm, setCountrySearchTerm] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false); // New state for confirmation modal
   const [submissionData, setSubmissionData] = useState<FormData | null>(null); // New state to store data for confirmation
+  
+  // Refs for detecting clicks outside dropdowns
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+  
   // Temporary storage for step data
   const [step1Data, setStep1Data] = useState({
     domainName: editingWebsite?.title || "",
@@ -523,6 +527,24 @@ export function AddWebsiteForm({
     }
   };
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Close category dropdown if click is outside of it
+      if (showCategoryDropdown && categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setShowCategoryDropdown(false);
+      }
+    };
+
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // Clean up event listener
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCategoryDropdown]);
+  
   return (
     <div className="w-full max-w-4xl mx-auto py-8">
       {/* Progress indicator */}
@@ -650,7 +672,7 @@ export function AddWebsiteForm({
                     
                     <motion.div variants={fadeInUp} className="space-y-2">
                       <Label htmlFor="category">Category *</Label>
-                      <div className="relative">
+                      <div className="relative" ref={categoryDropdownRef}>
                         <div
                           className={`h-12 px-3 py-2 border rounded-lg flex items-center justify-start gap-2 cursor-pointer ${step1Errors.category ? 'border-red-500' : 'border-gray-300'}`}
                           onClick={() => setShowCategoryDropdown(prev => !prev)}
@@ -978,7 +1000,7 @@ export function AddWebsiteForm({
                                           }}
                                         />
                                       )}
-                                      <span>{country.name}</span>
+                                      <span className="text-gray-700">{country.name}</span>
                                     </div>
                                   ))
                                 ) : (

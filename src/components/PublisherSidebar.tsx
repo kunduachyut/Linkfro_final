@@ -85,7 +85,7 @@ export function PublisherSidebar({
   stats,
   onCollapseChange
 }: PublisherSidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isPinned, setIsPinned] = useState(true);
   const { user, isLoaded } = useUser();
   
