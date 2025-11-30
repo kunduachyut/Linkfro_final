@@ -1222,7 +1222,11 @@ export default function MarketplaceSection({
                         {isPurchased ? 'Owned' : 'Buy'}
                       </button>
                       <div className="flex flex-col">
-                        <span className="font-bold text-gray-900">${(w.priceCents / 100).toFixed(2)} USD</span>
+                        <span className="font-bold text-green-600">
+                          <span className="text-sm">$</span>
+                          <span className="text-lg">{(w.priceCents / 100).toFixed(2)}</span>
+                          <span className="text-xs ml-1 text-gray-900">USD</span>
+                        </span>
                         <div className="flex items-center gap-2 mt-1">
                           <button
                             onClick={(e) => {
@@ -1313,9 +1317,22 @@ export default function MarketplaceSection({
                   {columns.find(c => c.id === 'category')?.visible && (
                     <div className="col-span-1 flex justify-center">
                       {w.category && (
-                        <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-md font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
-                          {Array.isArray(w.category) ? w.category[0] : w.category}
-                        </span>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-md font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-full cursor-pointer">
+                                {Array.isArray(w.category) ? w.category[0] : w.category}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-xs">
+                                {Array.isArray(w.category) 
+                                  ? w.category.join(', ') 
+                                  : w.category}
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       )}
                     </div>
                   )}
@@ -1335,7 +1352,20 @@ export default function MarketplaceSection({
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
-                          <span className="font-medium text-gray-700">{w.OrganicTraffic ? w.OrganicTraffic.toLocaleString() : '0'}</span>
+                          <span className="font-medium text-gray-700 flex items-center">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                </TooltipTrigger>
+                                <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
+                                  <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            {w.OrganicTraffic ? w.OrganicTraffic.toLocaleString() : '0'}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2 text-xs">
                           <TooltipProvider>
@@ -1348,7 +1378,20 @@ export default function MarketplaceSection({
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
-                          <span className="font-medium text-gray-700">{w.trafficValue ? `$${w.trafficValue.toLocaleString()}` : '$0'}</span>
+                          <span className="font-medium text-gray-700 flex items-center">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                </TooltipTrigger>
+                                <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
+                                  <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            {w.trafficValue ? `$${w.trafficValue.toLocaleString()}` : '$0'}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -1359,15 +1402,54 @@ export default function MarketplaceSection({
                     <div className="col-span-1">
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-medium text-gray-500">DR</span>
+                          <span className="font-medium text-gray-500 flex items-center">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                </TooltipTrigger>
+                                <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
+                                  <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            DR
+                          </span>
                           <span className="bg-blue-600 text-white px-1.5 rounded text-[10px]">{w.DR || 0}</span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-medium text-gray-500">DA</span>
+                          <span className="font-medium text-gray-500 flex items-center">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-3 h-3 mr-1 cursor-pointer" />
+                                </TooltipTrigger>
+                                <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                                  <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-6 h-6" />
+                                  <span className="text-xs text-gray-700">DA, PA & Spam Score From MOZ</span>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            DA
+                          </span>
                           <span className="bg-blue-400 text-white px-1.5 rounded text-[10px]">{w.DA || 0}</span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-medium text-gray-500">RD</span>
+                          <span className="font-medium text-gray-500 flex items-center">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                </TooltipTrigger>
+                                <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
+                                  <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            RD
+                          </span>
                           <span className="bg-purple-500 text-white px-1.5 rounded text-[10px]">{w.RD || '-'}</span>
                         </div>
                       </div>
@@ -1377,14 +1459,34 @@ export default function MarketplaceSection({
                   {/* Stats Columns (Grid) */}
                   <div className="col-span-5 grid grid-cols-4 gap-2 text-center items-center">
                     {columns.find(c => c.id === 'pa')?.visible && (
-                      <div className="text-xs text-gray-600">
-                        <span className="bg-blue-100 text-blue-600 px-1 rounded mr-1">M</span>
+                      <div className="text-xs text-gray-600 flex items-center justify-center gap-1">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-3 h-3 mr-1 cursor-pointer" />
+                            </TooltipTrigger>
+                            <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                              <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-6 h-6" />
+                              <span className="text-xs text-gray-700">DA, PA & Spam Score From MOZ</span>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                         PA {w.PA || 0}
                       </div>
                     )}
                     {columns.find(c => c.id === 'spam')?.visible && (
                       <div className="text-xs text-gray-600 flex items-center justify-center gap-1">
-                        <span className="bg-blue-100 text-blue-600 px-1 rounded text-[10px]">M</span>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-3 h-3 mr-1 cursor-pointer" />
+                            </TooltipTrigger>
+                            <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                              <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-6 h-6" />
+                              <span className="text-xs text-gray-700">DA, PA & Spam Score From MOZ</span>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                         {w.Spam || 0}%
                       </div>
                     )}
@@ -1408,7 +1510,7 @@ export default function MarketplaceSection({
                             )}
                           </>
                         ) : (
-                          '-'
+                          <span className="text-gray-400">-</span>
                         )}
                       </div>
                     )}
