@@ -538,7 +538,7 @@ export default function PublisherDashboard() {
   }
 
   return (
-    <div className="flex w-full min-h-screen" style={{backgroundColor: 'var(--base-primary)'}}>
+    <div className="flex w-full min-h-screen bg-blue-50">
       <PublisherSidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
@@ -549,7 +549,7 @@ export default function PublisherDashboard() {
       <main 
         className="flex-1 overflow-x-hidden transition-all duration-200"
         style={{ 
-          marginLeft: isSidebarCollapsed ? '3.05rem' : '15rem',
+          marginLeft: isSidebarCollapsed ? '2.75rem' : '13rem',
           transition: 'margin-left 0.2s ease-out'
         }}
       >
@@ -614,7 +614,7 @@ export default function PublisherDashboard() {
             transition={{ duration: 0.3 }}
             className="mb-8"
           >
-            <h1 className="text-2xl lg:text-3xl font-bold" style={{color: 'var(--secondary-primary)'}}>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
               {activeTab === "dashboard" && "Publisher Dashboard"}
               {activeTab === "websites" && "My Websites"}
               {activeTab === "add-website" && "Add New Website"}
@@ -623,7 +623,7 @@ export default function PublisherDashboard() {
               {activeTab === "settings" && "Settings"}
             </h1>
             {activeTab === "websites" && (
-              <p className="mt-1" style={{color: 'var(--secondary-lighter)'}}>Manage your websites and track their approval status</p>
+              <p className="mt-1 text-gray-700">Manage your websites and track their approval status</p>
             )}
           </motion.div>
 

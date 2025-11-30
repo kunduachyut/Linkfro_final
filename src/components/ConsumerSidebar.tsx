@@ -24,10 +24,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 const sidebarVariants = {
   open: {
-    width: "15rem",
+    width: "13rem",
   },
   closed: {
-    width: "3.05rem",
+    width: "2.75rem",
   },
 };
 
@@ -75,7 +75,7 @@ export function ConsumerSidebar({
   stats,
   onCollapseChange
 }: ConsumerSidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isPinned, setIsPinned] = useState(true);
   const { itemCount } = useCart();
   const { user, isLoaded } = useUser();

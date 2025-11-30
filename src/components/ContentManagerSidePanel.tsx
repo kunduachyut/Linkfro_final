@@ -22,10 +22,10 @@ import { useUser } from '@clerk/clerk-react';
 
 const sidebarVariants = {
   open: {
-    width: "15rem",
+    width: "13rem",
   },
   closed: {
-    width: "3.05rem",
+    width: "2.75rem",
   },
 };
 
@@ -80,8 +80,8 @@ export default function SuperAdminSidebar({
   newItems: propNewItems,
   onCollapseChange
 }: SuperAdminSidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(true);
-  const [isPinned, setIsPinned] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isPinned, setIsPinned] = useState(true);
   const { user, isLoaded } = useUser();
    
   // Notify parent component when collapse state changes

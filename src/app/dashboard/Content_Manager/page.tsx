@@ -872,7 +872,7 @@ setPurchaseStats(stats);
   }
 
   return (
-    <div className="flex min-h-screen w-screen overflow-x-hidden" style={{ backgroundColor: 'var(--base-primary)' }}>
+    <div className="flex min-h-screen w-screen overflow-x-hidden bg-blue-50">
       <ContentManagerSidePanel
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -884,13 +884,13 @@ setPurchaseStats(stats);
       <main 
         className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto overflow-x-hidden min-w-0 max-w-none w-full transition-all duration-200"
         style={{ 
-          marginLeft: isSidebarCollapsed ? '3.05rem' : '15rem',
+          marginLeft: isSidebarCollapsed ? '2.75rem' : '13rem',
           transition: 'margin-left 0.2s ease-out'
         }}
       >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 lg:mb-8 w-full">
           <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold" style={{ color: 'var(--secondary-primary)' }}>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900">
               {activeTab === "websites" && "Website Moderation"}
               {activeTab === "purchases" && "Purchase Requests"}
               {activeTab === "contentRequests" && "Content Requests"}
@@ -899,7 +899,7 @@ setPurchaseStats(stats);
               {activeTab === "userRequests" && "User Access Requests"}
               {activeTab === "roles" && "User Roles Management"} {/* <-- added */}
             </h1>
-            <p className="mt-1 sm:mt-2 text-sm sm:text-base lg:text-lg" style={{ color: 'var(--secondary-lighter)' }}>
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base lg:text-lg text-gray-700">
               {activeTab === "priceConflicts"
                 ? "Resolve conflicts when multiple users submit the same URL with different prices"
                 : "Manage websites, purchases, and content requests"}
