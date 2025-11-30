@@ -18,6 +18,8 @@ export default function CartPage() {
   const [uploading, setUploading] = useState(false);
   const [requirements, setRequirements] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [uploadMode, setUploadMode] = useState<'file' | 'link'>('file');
+  const [linkInput, setLinkInput] = useState<string>('');
   const [myUploads, setMyUploads] = useState<any[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [uploadsByWebsite, setUploadsByWebsite] = useState<Record<string, number>>({});
@@ -34,7 +36,7 @@ export default function CartPage() {
   const [activeDetailsItem, setActiveDetailsItem] = useState<string | null>(null);
   const [uploadsByCartItem, setUploadsByCartItem] = useState<Record<string, any[]>>({});
   const [tempUploadsByCartItem, setTempUploadsByCartItem] = useState<Record<string, any[]>>({});
-  const [fileDataByCartItem, setFileDataByCartItem] = useState<Record<string, { file: File, requirements: string }[]>>({});
+  const [fileDataByCartItem, setFileDataByCartItem] = useState<Record<string, { file?: File; link?: string; requirements: string }[]>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [contentRequestData, setContentRequestData] = useState({
     titleSuggestion: '',
@@ -151,8 +153,20 @@ export default function CartPage() {
             }
             return res.json();
           } else if (link) {
-            const payload = { link, requirements, websiteId, purchaseId };
-            const res = await fetch("/api/my-content/link", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            // Save the link directly to the purchase's docLink field
+            if (!purchaseId) {
+              // if purchaseId missing, fall back to my-content/link endpoint
+              const payload = { link, requirements, websiteId, purchaseId };
+              const res = await fetch("/api/my-content/link", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+              if (!res.ok) {
+                let msg = `HTTP ${res.status}`;
+                try { const j = await res.json(); if (j?.error) msg = j.error; } catch { }
+                throw new Error(msg);
+              }
+              return res.json();
+            }
+
+            const res = await fetch(`/api/purchases/${purchaseId}/doc-link`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ docLink: link }) });
             if (!res.ok) {
               let msg = `HTTP ${res.status}`;
               try { const j = await res.json(); if (j?.error) msg = j.error; } catch { }
@@ -202,6 +216,8 @@ export default function CartPage() {
   const openContentModal = (item: any) => {
     setSelectedItem(item);
     setShowContentModal(true);
+    setUploadMode('file');
+    setLinkInput('');
     setSelectedOptions(prev => ({
       ...prev,
       [item._id]: 'content'
@@ -295,6 +311,7 @@ export default function CartPage() {
   const resetFileInput = () => {
     setPdfFile(null);
     setRequirements("");
+    setLinkInput('');
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
       fileInputRef.current.dispatchEvent(new Event('change', { bubbles: true }));
@@ -602,70 +619,108 @@ export default function CartPage() {
               onSubmit={async (e) => {
                 e.preventDefault();
                 if (!isSignedIn) { alert("Please sign in first"); return; }
-                if (!pdfFile) { alert("Please select a PDF file"); return; }
+                if (uploadMode === 'file') {
+                  if (!pdfFile) { alert("Please select a PDF file"); return; }
+                } else {
+                  if (!linkInput.trim()) { alert("Please provide a link"); return; }
+                  try { new URL(linkInput); } catch { alert("Please provide a valid URL"); return; }
+                }
                 if (!requirements.trim()) { alert("Enter requirements"); return; }
                 setShowConfirmModal(true);
               }}
               className="space-y-4 mb-6"
             >
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Upload Your Document</label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Upload Your Document</label>
+                  <div className="flex items-center gap-2">
+                    <label className={`inline-flex items-center cursor-pointer text-sm ${uploadMode === 'file' ? 'font-semibold text-gray-900' : 'text-gray-500'}`}>
+                      <input type="radio" name={`uploadMode-${selectedItem?._id}`} value="file" checked={uploadMode === 'file'} onChange={() => { setUploadMode('file'); setLinkInput(''); }} className="sr-only" />
+                      <span className="px-2 py-1 rounded-md">Upload File</span>
+                    </label>
+                    <label className={`inline-flex items-center cursor-pointer text-sm ${uploadMode === 'link' ? 'font-semibold text-gray-900' : 'text-gray-500'}`}>
+                      <input type="radio" name={`uploadMode-${selectedItem?._id}`} value="link" checked={uploadMode === 'link'} onChange={() => { setUploadMode('link'); setPdfFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }} className="sr-only" />
+                      <span className="px-2 py-1 rounded-md">Add Link</span>
+                    </label>
+                  </div>
+                </div>
                 <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 bg-blue-50 hover:bg-blue-100 transition-all">
-                  {!pdfFile ? (
+                  {uploadMode === 'file' ? (
+                    (!pdfFile ? (
+                      <div className="text-center">
+                        <div className="mx-auto h-12 w-12 rounded-full bg-blue-500 flex items-center justify-center text-white mb-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                        </div>
+                        <p className="mt-1 text-sm text-gray-600">Drag and drop your Files here, or</p>
+                        <div className="mt-2">
+                          <label className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                            Browse Files
+                            <input
+                              key={`file-input-${selectedItem?._id}-${modalKey}`}
+                              ref={fileInputRef}
+                              type="file"
+                              accept=".pdf, .doc, .docx, .xls, .xlsx, .txt"
+                              onChange={(e) => {
+                                const f = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+                                if (f && f.size > 10 * 1024 * 1024) { alert("File must be <= 10MB"); e.currentTarget.value = ""; setPdfFile(null); return; }
+                                if (f && f.type !== "application/pdf") { alert("Only PDF files are allowed"); e.currentTarget.value = ""; setPdfFile(null); return; }
+                                setPdfFile(f);
+                              }}
+                              className="sr-only"
+                            />
+                          </label>
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">PDF files only, up to 10MB</p>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-shrink-0 h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{pdfFile.name}</p>
+                            <p className="text-xs text-gray-500">{(pdfFile.size / 1024).toFixed(1)} KB</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPdfFile(null);
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = "";
+                            }
+                          }}
+                          className="p-2 text-gray-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))
+                  ) : (
                     <div className="text-center">
                       <div className="mx-auto h-12 w-12 rounded-full bg-blue-500 flex items-center justify-center text-white mb-3">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
                       </div>
-                      <p className="mt-1 text-sm text-gray-600">Drag and drop your Files here, or</p>
+                      <p className="mt-1 text-sm text-gray-600">Provide a URL to your document</p>
                       <div className="mt-2">
-                        <label className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
-                          Browse Files
-                          <input
-                            key={`file-input-${selectedItem?._id}-${modalKey}`}
-                            ref={fileInputRef}
-                            type="file"
-                            accept=".pdf, .doc, .docx, .xls, .xlsx, .txt"
-                            onChange={(e) => {
-                              const f = e.target.files && e.target.files[0] ? e.target.files[0] : null;
-                              if (f && f.size > 10 * 1024 * 1024) { alert("File must be <= 10MB"); e.currentTarget.value = ""; setPdfFile(null); return; }
-                              if (f && f.type !== "application/pdf") { alert("Only PDF files are allowed"); e.currentTarget.value = ""; setPdfFile(null); return; }
-                              setPdfFile(f);
-                            }}
-                            className="sr-only"
-                          />
-                        </label>
+                        <input
+                          type="url"
+                          value={linkInput}
+                          onChange={(e) => setLinkInput(e.target.value)}
+                          placeholder="https://example.com/your-file.pdf"
+                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        />
                       </div>
-                      <p className="mt-1 text-xs text-gray-500">PDF files only, up to 10MB</p>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center text-white">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{pdfFile.name}</p>
-                          <p className="text-xs text-gray-500">{(pdfFile.size / 1024).toFixed(1)} KB</p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPdfFile(null);
-                          if (fileInputRef.current) {
-                            fileInputRef.current.value = "";
-                          }
-                        }}
-                        className="p-2 text-gray-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
+                      <p className="mt-1 text-xs text-gray-500">Ensure the link is public and points directly to a file or hosted PDF.</p>
                     </div>
                   )}
                 </div>
@@ -693,7 +748,7 @@ export default function CartPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={!pdfFile || !requirements.trim()}
+                  disabled={(uploadMode === 'file' && (!pdfFile || !requirements.trim())) || (uploadMode === 'link' && (!linkInput.trim() || !requirements.trim()))}
                   className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-md hover:from-blue-600 hover:to-purple-600 font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   Upload
@@ -718,11 +773,17 @@ export default function CartPage() {
                           </svg>
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900 truncate max-w-xs">{u.pdf?.filename ?? "PDF Document"}</div>
+                          <div className="font-medium text-gray-900 truncate max-w-xs">{u.pdf?.filename ?? u.link ?? "Document"}</div>
                           <div className="text-gray-600 mt-1">{u.requirements?.slice(0, 80)}{u.requirements && u.requirements.length > 80 ? "…" : ""}</div>
                         </div>
                       </div>
-                      <div className="text-gray-600 bg-blue-100 px-3 py-1 rounded-full font-medium">{u.pdf?.size ? `${Math.round(u.pdf.size / 1024)} KB` : ""}</div>
+                      <div className="flex items-center gap-3">
+                        {u.link ? (
+                          <a href={u.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-sm">Visit</a>
+                        ) : (
+                          <div className="text-gray-600 bg-blue-100 px-3 py-1 rounded-full font-medium">{u.pdf?.size ? `${Math.round(u.pdf.size / 1024)} KB` : ""}</div>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -952,12 +1013,12 @@ export default function CartPage() {
               </button>
             </div>
 
-            <div className="mb-4">
+              <div className="mb-4">
               <p className="text-gray-600 mb-3">Please confirm your upload details:</p>
               <div className="space-y-2 text-sm">
                 <div><strong>Website:</strong> {selectedItem.title}</div>
-                <div><strong>File:</strong> {pdfFile?.name}</div>
-                <div><strong>Size:</strong> {pdfFile ? `${(pdfFile.size / 1024).toFixed(1)} KB` : ""}</div>
+                <div><strong>{uploadMode === 'file' ? 'File' : 'Link'}:</strong> {uploadMode === 'file' ? pdfFile?.name : linkInput}</div>
+                {uploadMode === 'file' && <div><strong>Size:</strong> {pdfFile ? `${(pdfFile.size / 1024).toFixed(1)} KB` : ""}</div>}
                 <div><strong>Requirements:</strong> {requirements}</div>
               </div>
             </div>
@@ -975,7 +1036,7 @@ export default function CartPage() {
                     setUploading(true);
                     setShowConfirmModal(false);
 
-                    const newUpload = {
+                    const newUpload: any = uploadMode === 'file' ? {
                       requirements,
                       createdAt: new Date(),
                       pdf: {
@@ -983,6 +1044,12 @@ export default function CartPage() {
                         size: pdfFile?.size,
                       },
                       tempId: Date.now()
+                    } : {
+                      requirements,
+                      createdAt: new Date(),
+                      link: linkInput,
+                      tempId: Date.now(),
+                      filename: linkInput
                     };
 
                     setTempUploadsByCartItem(prev => ({
@@ -991,16 +1058,17 @@ export default function CartPage() {
                     }));
                     setFileDataByCartItem(prev => ({
                       ...prev,
-                      [selectedItem._id]: [...(prev[selectedItem._id] || []), { file: pdfFile, requirements }]
+                      [selectedItem._id]: [...(prev[selectedItem._id] || []), (uploadMode === 'file' ? { file: pdfFile, requirements } : { link: linkInput, requirements })]
                     }));
                     setMyUploads(prev => [...prev, newUpload]);
 
                     setRequirements("");
                     setPdfFile(null);
+                    setLinkInput('');
                     if (fileInputRef.current) {
                       fileInputRef.current.value = "";
                     }
-                    setTempUploadPopupMessage("File added temporarily. It will be uploaded when you proceed to checkout.");
+                    setTempUploadPopupMessage(uploadMode === 'file' ? "File added temporarily. It will be uploaded when you proceed to checkout." : "Link added temporarily. It will be submitted when you proceed to checkout.");
                     setShowTempUploadPopup(true);
                     setTimeout(() => setShowTempUploadPopup(false), 3000);
                   } catch (err: any) {
