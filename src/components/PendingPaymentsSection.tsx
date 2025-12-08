@@ -51,6 +51,9 @@ export default function PendingPaymentsSection({
   const [websiteDetails, setWebsiteDetails] = useState<Record<string, any>>({});
   const [loadingWebsites, setLoadingWebsites] = useState<Record<string, boolean>>({});
   const [showMarketplace, setShowMarketplace] = useState(false);
+  // Track payment links fetched from database
+  const [paymentLinks, setPaymentLinks] = useState<Record<string, string>>({});
+  const [loadingPaymentLinks, setLoadingPaymentLinks] = useState<Record<string, boolean>>({});
 
   // Filter to only include purchases with status "pendingPayment"
   const filtered = (pendingPayments || []).filter((p) => p?.status === "pendingPayment");
@@ -82,6 +85,34 @@ export default function PendingPaymentsSection({
         setWebsiteDetails((s) => ({ ...s, [id]: null }));
       } finally {
         setLoadingWebsites((s) => ({ ...s, [id]: false }));
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtered]);
+
+  // Fetch payment links from database for pending payments
+  useEffect(() => {
+    const purchaseIdsToFetch = filtered
+      .map((p) => p._id)
+      .filter((id) => !paymentLinks[id] && !loadingPaymentLinks[id]);
+
+    if (purchaseIdsToFetch.length === 0) return;
+
+    purchaseIdsToFetch.forEach(async (purchaseId) => {
+      try {
+        setLoadingPaymentLinks((s) => ({ ...s, [purchaseId]: true }));
+        const res = await fetch(`/api/purchases/${purchaseId}`);
+        if (res.ok) {
+          const json = await res.json();
+          const link = json.paymentLink || null;
+          if (link) {
+            setPaymentLinks((s) => ({ ...s, [purchaseId]: link }));
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load payment link for", purchaseId, err);
+      } finally {
+        setLoadingPaymentLinks((s) => ({ ...s, [purchaseId]: false }));
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -127,7 +158,6 @@ export default function PendingPaymentsSection({
       alert("Payment completed successfully!");
     } catch (err) {
       console.error("Failed to complete payment:", err);
-      alert("Failed to complete payment. Please try again.");
     }
   };
 
@@ -335,25 +365,63 @@ export default function PendingPaymentsSection({
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-2">
+                  {/* View Payment Slip Button - check both database and messages prop */}
+                  {(paymentLinks[purchase._id] || (messages && messages[`paymentLink:${purchase._id}`])) && (
+                    <button
+                      onClick={() => {
+                        const paymentLink = paymentLinks[purchase._id] || (messages && messages[`paymentLink:${purchase._id}`]);
+                        if (paymentLink) {
+                          try {
+                            window.open(paymentLink, "_blank");
+                          } catch (err) {
+                            console.warn("Could not open payment slip:", err);
+                            alert("Could not open payment slip. Please try again.");
+                          }
+                        }
+                      }}
+                      className="px-4 py-2 rounded-lg text-white transition-colors text-sm font-medium flex items-center gap-2"
+                      style={{ backgroundColor: "#3b82f6" }}
+                      onMouseEnter={(e) => ((e.target as HTMLElement).style.backgroundColor = "#2563eb")}
+                      onMouseLeave={(e) => ((e.target as HTMLElement).style.backgroundColor = "#3b82f6")}
+                      title="View the payment slip/invoice"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      View Slip
+                    </button>
+                  )}
+
+                  {/* Complete Payment Button */}
                   <button
                     onClick={() => completePayment(purchase._id)}
-                    className="px-4 py-2 rounded-lg text-white transition-colors text-sm font-medium"
+                    className="px-4 py-2 rounded-lg text-black transition-colors text-sm font-medium flex items-center gap-2 shadow-md hover:shadow-lg"
                     style={{ backgroundColor: "var(--accent-primary)" }}
                     onMouseEnter={(e) => ((e.target as HTMLElement).style.backgroundColor = "var(--accent-hover)")}
                     onMouseLeave={(e) => ((e.target as HTMLElement).style.backgroundColor = "var(--accent-primary)")}
+                    title="Mark this payment as completed"
                   >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                     Complete Payment
                   </button>
 
+                  {/* Cancel Button */}
                   <button
                     onClick={() => {
-                      if (!confirm("Cancel this pending payment?")) return;
+                      if (!confirm("Are you sure you want to cancel this pending payment?")) return;
+                      // TODO: Add API call to cancel payment
                     }}
-                    className="px-4 py-2 rounded-lg border transition-colors text-sm font-medium"
+                    className="px-4 py-2 rounded-lg border transition-colors text-sm font-medium flex items-center gap-2"
                     style={{ borderColor: "var(--base-tertiary)", color: "var(--secondary-primary)" }}
                     onMouseEnter={(e) => ((e.target as HTMLElement).style.backgroundColor = "var(--base-tertiary)")}
                     onMouseLeave={(e) => ((e.target as HTMLElement).style.backgroundColor = "transparent")}
+                    title="Cancel this pending payment"
                   >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                     Cancel
                   </button>
                 </div>
