@@ -19,15 +19,8 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  turbopack: {
-    rules: {
-      "*.{jsx,tsx}": {
-        loaders: [LOADER]
-      }
-    }
+  experimental: {
+    turbopack: false,
   },
   // Configure external packages correctly
   serverExternalPackages: ['mongoose'],
