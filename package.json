@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "concurrently \"next dev\" \"node websocket-server.js\"",
-    "build": "next build --no-lint",
+    "build": "next build",
     "start": "concurrently \"next start\" \"node websocket-server.js\"",
     "lint": "next lint"
   },
