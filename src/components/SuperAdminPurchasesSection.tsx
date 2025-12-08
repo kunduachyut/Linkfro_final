@@ -993,6 +993,9 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                         finalPaymentLink = uploadData.path;
                       } else if (uploadData.url) {
                         finalPaymentLink = uploadData.url;
+                      } else if (uploadData.id) {
+                        // API returns created content id — use our download route
+                        finalPaymentLink = `/api/my-content/${uploadData.id}`;
                       }
                     }
 

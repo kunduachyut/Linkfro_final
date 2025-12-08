@@ -900,6 +900,8 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                         finalPaymentLink = uploadData.path;
                       } else if (uploadData.url) {
                         finalPaymentLink = uploadData.url;
+                      } else if (uploadData.id) {
+                        finalPaymentLink = `/api/my-content/${uploadData.id}`;
                       }
                     }
 
