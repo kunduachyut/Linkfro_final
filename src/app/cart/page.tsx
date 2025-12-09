@@ -1283,8 +1283,11 @@ export default function CartPage() {
                 </svg>
               </button>
             </div>
-            <div className="mb-4">
-              <p className="text-gray-600">Cart cleared successfully!</p>
+            <div className="mb-4 flex flex-col items-center text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-green-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <p className="text-gray-600">All items have been successfully removed from your cart</p>
             </div>
             <div className="flex justify-end">
               <button
