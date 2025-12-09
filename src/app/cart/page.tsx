@@ -22,6 +22,8 @@ export default function CartPage() {
   const [linkInput, setLinkInput] = useState<string>('');
   const [myUploads, setMyUploads] = useState<any[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showClearCartModal, setShowClearCartModal] = useState(false);
+  const [showClearCartSuccess, setShowClearCartSuccess] = useState(false);
   const [uploadsByWebsite, setUploadsByWebsite] = useState<Record<string, number>>({});
   const [modalKey, setModalKey] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
@@ -325,7 +327,13 @@ export default function CartPage() {
   };
 
   const handleClearCart = () => {
-    if (!confirm("Are you sure you want to clear your cart? This action cannot be undone.")) return;
+    // Removed the native confirm dialog
+    // if (!confirm("Are you sure you want to clear your cart? This action cannot be undone.")) return;
+    // Instead, we'll show the custom confirmation modal
+    setShowClearCartModal(true);
+  };
+
+  const confirmClearCart = () => {
     clearCart();
     setUploadsByWebsite({});
     setMyUploads([]);
@@ -347,7 +355,10 @@ export default function CartPage() {
       briefNote: ''
     });
     resetFileInput();
-    alert("Cart cleared successfully!");
+    // Removed the alert and using a toast notification instead
+    // alert("Cart cleared successfully!");
+    setShowClearCartSuccess(true);
+    setTimeout(() => setShowClearCartSuccess(false), 3000);
   };
 
   const getCountryFlag = (countryName: string | undefined): string => {
@@ -580,10 +591,7 @@ export default function CartPage() {
                 )}
 
                 <button
-                  onClick={() => {
-                    handleClearCart();
-                    setSelectedOptions({});
-                  }}
+                  onClick={handleClearCart}
                   className="w-full mt-4 py-2 text-sm text-gray-600 hover:text-red-600 transition-colors flex items-center justify-center font-medium hover:bg-red-50 rounded-lg"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1213,6 +1221,75 @@ export default function CartPage() {
               <button
                 onClick={() => setShowErrorMessage(false)}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium shadow-md hover:shadow-lg transition-all"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clear Cart Confirmation Modal */}
+      {showClearCartModal && (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md border border-gray-200 shadow-xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-red-600">Clear Cart</h3>
+              <button
+                onClick={() => setShowClearCartModal(false)}
+                className="text-gray-500 hover:text-red-500 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="mb-4">
+              <p className="text-gray-600">Are you sure you want to clear your cart? This action cannot be undone.</p>
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowClearCartModal(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 font-medium transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowClearCartModal(false);
+                  confirmClearCart();
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium shadow-md hover:shadow-lg transition-all"
+              >
+                Clear Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clear Cart Success Toast */}
+      {showClearCartSuccess && (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md border border-green-200 shadow-xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-green-600">Success</h3>
+              <button
+                onClick={() => setShowClearCartSuccess(false)}
+                className="text-gray-500 hover:text-red-500 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="mb-4">
+              <p className="text-gray-600">Cart cleared successfully!</p>
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowClearCartSuccess(false)}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium shadow-md hover:shadow-lg transition-all"
               >
                 OK
               </button>
