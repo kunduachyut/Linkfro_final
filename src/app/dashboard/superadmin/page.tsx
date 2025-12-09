@@ -904,18 +904,23 @@ setPurchaseStats(stats);
           </div>
           <button
             onClick={activeTab === "websites" ? refresh : activeTab === "purchases" ? refreshPurchaseRequests : activeTab === "priceConflicts" ? fetchPriceConflicts : activeTab === "userRequests" ? fetchUserRequests : fetchContentRequests}
-            className="flex items-center px-3 sm:px-4 lg:px-5 py-2.5 rounded-lg shadow-sm transition duration-200 text-sm sm:text-base whitespace-nowrap"
+            className="flex items-center px-3 py-2 rounded-lg transition-all duration-300 text-sm font-medium whitespace-nowrap shadow-sm hover:shadow-md"
             style={{
-              backgroundColor: 'var(--base-primary)',
-              color: 'var(--secondary-primary)',
-              border: '1px solid var(--base-tertiary)'
+              backgroundColor: '#f8fafc',
+              color: '#1e40af',
+              border: '1px solid #cbd5e1'
             }}
-            onMouseEnter={(e) => (e.target as HTMLElement).style.backgroundColor = 'var(--base-secondary)'}
-            onMouseLeave={(e) => (e.target as HTMLElement).style.backgroundColor = 'var(--base-primary)'}
+            onMouseEnter={(e) => {
+              (e.target as HTMLElement).style.backgroundColor = '#e2e8f0';
+              (e.target as HTMLElement).style.borderColor = '#94a3b8';
+            }}
+            onMouseLeave={(e) => {
+              (e.target as HTMLElement).style.backgroundColor = '#f8fafc';
+              (e.target as HTMLElement).style.borderColor = '#cbd5e1';
+            }}
           >
-            <span className="material-symbols-outlined mr-2 text-lg sm:text-xl">refresh</span>
-            <span className="hidden sm:inline">Refresh Data</span>
-            <span className="sm:hidden">Refresh</span>
+            <span className="material-symbols-outlined mr-1 text-base"></span>
+            <span>Refresh</span>
           </button>
         </div>
 

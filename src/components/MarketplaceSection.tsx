@@ -607,10 +607,10 @@ export default function MarketplaceSection({
       return false;
     }
 
-    // Search filter
+    // Search filter - only show names that start with the search query
     if (searchQuery) {
-      const matchesSearch = w.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        w.url.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = w.title.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
+        w.url.toLowerCase().startsWith(searchQuery.toLowerCase());
       if (!matchesSearch) return false;
     }
 
@@ -803,7 +803,7 @@ export default function MarketplaceSection({
                 onClick={() => setShowColumnDropdown(!showColumnDropdown)}
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 text-sm font-medium"
               >
-                Choose Columns
+                Display Column
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
@@ -813,7 +813,7 @@ export default function MarketplaceSection({
               {showColumnDropdown && (
                 <div ref={columnDropdownRef} className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-20 border border-gray-200">
                   <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Show Columns
+                    Choose Column
                   </div>
                   <div className="max-h-60 overflow-y-auto">
                     {columns.map((column) => (
@@ -1103,7 +1103,7 @@ export default function MarketplaceSection({
             </div>
           )}
           {/* Group remaining stats into remaining columns */}
-          <div className="col-span-5 grid grid-cols-4 gap-2 text-center">
+          <div className="col-span-5 grid grid-cols-4 gap-0 text-center">
             {columns.find(c => c.id === 'pa')?.visible && <div>PA</div>}
             {columns.find(c => c.id === 'spam')?.visible && (
               <div className="flex justify-center items-center gap-1">
