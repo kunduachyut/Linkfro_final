@@ -271,12 +271,12 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           <X className="w-5 h-5 text-white" />
         </button>
 
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-white mb-2">
+        <div className="p-6"> {/* Reduced padding from p-8 to p-6 */}
+          <div className="text-center mb-6"> {/* Reduced margin from mb-8 to mb-6 */}
+            <h2 className="text-2xl font-bold text-white mb-1"> {/* Reduced margin from mb-2 to mb-1 */}
               {isLogin ? "Welcome Back" : "Create Account"}
             </h2>
-            <p className="text-white/70">
+            <p className="text-white/70 text-sm"> {/* Added text-sm for smaller text */}
               {isLogin ? "Sign in to your account" : "Sign up to get started"}
             </p>
           </div>
@@ -297,14 +297,16 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
           {/* User type indicator */}
           {userType && (
-            <div className="mb-4 flex items-center justify-between bg-white/10 rounded-lg p-3">
+            <div className="mb-3 flex items-center justify-between bg-white/10 rounded-lg p-2"> {/* Reduced margin and padding */}
               <div className="flex items-center">
                 {userType === "advertiser" ? (
                   <User className="w-5 h-5 text-orange-500 mr-2" />
                 ) : (
                   <Building className="w-5 h-5 text-blue-500 mr-2" />
                 )}
-                <span className="text-white capitalize">{userType} Profile</span>
+                <span className="text-white capitalize text-sm"> {/* Added text-sm */}
+                  {userType} Profile
+                </span>
               </div>
               <button
                 onClick={() => setShowUserTypeSelection(true)}
@@ -316,10 +318,10 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           )}
 
           {/* Toggle between Login and Sign Up - always visible */}
-          <div className="flex mb-6 bg-white/10 rounded-full p-1">
+          <div className="flex mb-4 bg-white/10 rounded-full p-1"> {/* Reduced margin from mb-6 to mb-4 */}
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${isLogin
+              className={`flex-1 py-1.5 px-3 rounded-full text-sm font-medium transition-colors ${isLogin
                 ? "bg-white text-orange-500 shadow"
                 : "text-white/70 hover:text-white"
                 }`}
@@ -328,7 +330,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${!isLogin
+              className={`flex-1 py-1.5 px-3 rounded-full text-sm font-medium transition-colors ${!isLogin
                 ? "bg-white text-orange-500 shadow"
                 : "text-white/70 hover:text-white"
                 }`}
@@ -338,7 +340,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3"> {/* Reduced spacing from space-y-4 to space-y-3 */}
             {/* Email field - always visible and editable (prefilled when signed-in) */}
             <div>
               <input
@@ -346,7 +348,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" // Reduced padding and added text-sm
                 required
               />
             </div>
@@ -359,7 +361,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   placeholder="Full name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" // Reduced padding and added text-sm
                   required
                 />
               </div>
@@ -376,7 +378,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" // Reduced padding and added text-sm
                     required
                   />
                 </div>
@@ -387,7 +389,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     placeholder="Confirm Password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" // Reduced padding and added text-sm
                     required
                   />
                 </div>
@@ -398,7 +400,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     placeholder="Phone number"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" // Reduced padding and added text-sm
                     required
                   />
                 </div>
@@ -409,7 +411,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     placeholder="Country"
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" // Reduced padding and added text-sm
                     required
                   />
                   <input
@@ -417,7 +419,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     placeholder="Traffic (e.g. 10k/mo)"
                     value={traffic}
                     onChange={(e) => setTraffic(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" // Reduced padding and added text-sm
                     required
                   />
                 </div>
@@ -429,7 +431,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     placeholder="Number of websites"
                     value={numberOfWebsites}
                     onChange={(e) => setNumberOfWebsites(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" // Reduced padding and added text-sm
                     required
                   />
                 </div>
@@ -439,7 +441,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     placeholder="Message (optional)"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 h-24"
+                    className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm h-20" // Reduced padding, added text-sm, reduced height
                   />
                 </div>
               </>
@@ -453,7 +455,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" // Reduced padding and added text-sm
                   required
                 />
               </div>
@@ -465,7 +467,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 <button
                   type="button"
                   onClick={() => setForgotMode(true)}
-                  className="text-sm text-white/70 hover:text-white mt-2"
+                  className="text-xs text-white/70 hover:text-white mt-1" // Reduced margin from mt-2 to mt-1
                 >
                   Forgot password?
                 </button>
@@ -474,14 +476,14 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
             {/* Forgot password flow */}
             {isLogin && forgotMode && (
-              <div className="space-y-3">
+              <div className="space-y-2"> {/* Reduced spacing from space-y-3 to space-y-2 */}
                 <div>
                   <input
                     type="tel"
                     placeholder="Registered phone number"
                     value={phoneForOtp}
                     onChange={(e) => setPhoneForOtp(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" // Reduced padding and added text-sm
                     required
                   />
                 </div>
@@ -506,7 +508,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                         setLoading(false);
                       }
                     }}
-                    className="flex-1 py-2 px-4 bg-white/10 border border-white/20 rounded-xl text-white hover:bg-white/20"
+                    className="flex-1 py-1.5 px-3 bg-white/10 border border-white/20 rounded-xl text-white hover:bg-white/20 text-sm" // Reduced padding and added text-sm
                   >
                     Send OTP
                   </button>
@@ -518,7 +520,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     placeholder="Enter OTP"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" // Reduced padding and added text-sm
                   />
                 </div>
 
@@ -528,7 +530,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     placeholder="New password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" // Reduced padding and added text-sm
                   />
                 </div>
 
@@ -558,7 +560,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                         setLoading(false);
                       }
                     }}
-                    className="flex-1 py-2 px-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl"
+                    className="flex-1 py-1.5 px-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl text-sm" // Reduced padding and added text-sm
                   >
                     Verify & Change Password
                   </button>
@@ -568,7 +570,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
             <button
               type="submit"
-              className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg"
+              className="w-full py-2.5 px-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg text-sm" // Reduced padding and added text-sm
             >
               {isSignedIn ? "Submit Request" : isLogin ? "Sign In" : "Create Account"}
             </button>
@@ -576,13 +578,13 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
           {/* Footer links - only show for non-signed-in users */}
           {!isSignedIn && (
-            <div className="mt-6 text-center">
+            <div className="mt-4 text-center"> {/* Reduced margin from mt-6 to mt-4 */}
               {!forgotMode ? (
-                <a href="#" onClick={(e) => { e.preventDefault(); setForgotMode(true); }} className="text-white/70 hover:text-white text-sm">
+                <a href="#" onClick={(e) => { e.preventDefault(); setForgotMode(true); }} className="text-white/70 hover:text-white text-xs">
                   Forgot password?
                 </a>
               ) : (
-                <a href="#" onClick={(e) => { e.preventDefault(); setForgotMode(false); }} className="text-white/70 hover:text-white text-sm">
+                <a href="#" onClick={(e) => { e.preventDefault(); setForgotMode(false); }} className="text-white/70 hover:text-white text-xs">
                   Back to login
                 </a>
               )}
