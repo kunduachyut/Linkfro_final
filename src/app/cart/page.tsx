@@ -640,7 +640,7 @@ export default function CartPage() {
             >
               <div>
                 <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Upload Your Document</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Upload Your Document*</label>
                   <div className="flex items-center gap-2">
                     <label className={`inline-flex items-center cursor-pointer text-sm ${uploadMode === 'file' ? 'font-semibold text-gray-900' : 'text-gray-500'}`}>
                       <input type="radio" name={`uploadMode-${selectedItem?._id}`} value="file" checked={uploadMode === 'file'} onChange={() => { setUploadMode('file'); setLinkInput(''); }} className="sr-only" />
@@ -734,7 +734,7 @@ export default function CartPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Requirements*</label>
                 <textarea
                   value={requirements}
                   onChange={(e) => setRequirements(e.target.value)}
