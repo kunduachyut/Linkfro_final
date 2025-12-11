@@ -633,7 +633,6 @@ export default function CartPage() {
                   if (!linkInput.trim()) { alert("Please provide a link"); return; }
                   try { new URL(linkInput); } catch { alert("Please provide a valid URL"); return; }
                 }
-                if (!requirements.trim()) { alert("Enter requirements"); return; }
                 setShowConfirmModal(true);
               }}
               className="space-y-4 mb-6"
@@ -734,13 +733,12 @@ export default function CartPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Requirements*</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
                 <textarea
                   value={requirements}
                   onChange={(e) => setRequirements(e.target.value)}
-                  placeholder="Enter your requirements"
+                  placeholder="Enter your requirements (optional)"
                   className="w-full p-2 border border-gray-300 rounded-md h-28 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  required
                 />
               </div>
               <div className="flex justify-end gap-3">
@@ -756,7 +754,7 @@ export default function CartPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={(uploadMode === 'file' && (!pdfFile || !requirements.trim())) || (uploadMode === 'link' && (!linkInput.trim() || !requirements.trim()))}
+                  disabled={(uploadMode === 'file' && !pdfFile) || (uploadMode === 'link' && !linkInput.trim())}
                   className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-md hover:from-blue-600 hover:to-purple-600 font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   Upload
