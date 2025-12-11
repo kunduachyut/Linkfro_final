@@ -7,6 +7,7 @@ type Message = {
   sender: string;
   senderRole: 'consumer' | 'superadmin' | 'contentmanager';
   content: string;
+  senderName?: string;
   timestamp: string;
   read: boolean;
 };
@@ -43,19 +44,35 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   useEffect(() => {
     if (lastMessage) {
-      try {
-        const data = JSON.parse(lastMessage);
-        if (data.purchaseId === purchaseId) {
-          setMessages(prev => [...prev, data.message]);
-          // If the incoming message was sent by someone else, show notification
-          if (data.message.sender !== currentUserId) {
-            setHasNewMessage(true);
+      (async () => {
+        try {
+          const data = JSON.parse(lastMessage);
+          if (data.purchaseId === purchaseId) {
+            const incoming = data.message as any;
+            // If message lacks senderName, try to resolve it via API
+            if (!incoming.senderName && incoming.sender) {
+              try {
+                const res = await fetch(`/api/users/${incoming.sender}`);
+                if (res.ok) {
+                  const u = await res.json();
+                  incoming.senderName = u.displayName;
+                }
+              } catch (e) {
+                // ignore; fallback to sender id
+              }
+            }
+
+            setMessages(prev => [...prev, incoming]);
+            // If the incoming message was sent by someone else, show notification
+            if (incoming.sender !== currentUserId) {
+              setHasNewMessage(true);
+            }
+            scrollToBottom();
           }
-          scrollToBottom();
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error);
         }
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-      }
+      })();
     }
   }, [lastMessage, purchaseId, currentUserId]);
 
@@ -168,14 +185,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         ) : messages.length === 0 ? (
           <div className="text-center text-gray-500 mt-4">No messages yet. Start the conversation!</div>
         ) : (
-          messages.map((message, index) => (
-            <div key={index} className={`flex ${message.senderRole === 'superadmin' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[75%] rounded-lg px-4 py-2 ${message.senderRole === 'superadmin' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-900'}`}>
-                <p className="break-words">{message.content}</p>
-                <p className={`text-xs mt-1 ${message.senderRole === 'superadmin' ? 'text-indigo-100' : 'text-gray-500'}`}>{formatTimestamp(message.timestamp)}</p>
+          messages.map((message, index) => {
+            const isOwn = message.sender === currentUserId;
+            const displayName = isOwn ? 'You' : ((message as any).senderName || message.sender);
+            return (
+              <div key={index} className={`flex ${message.senderRole === 'superadmin' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[75%] rounded-lg px-4 py-2 ${message.senderRole === 'superadmin' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-900'}`}>
+                  <p className="break-words">{message.content}</p>
+                  <p className={`text-[11px] mt-2 ${message.senderRole === 'superadmin' ? 'text-indigo-100' : 'text-gray-500'}`}>{displayName}</p>
+                  <p className={`text-xs mt-1 ${message.senderRole === 'superadmin' ? 'text-indigo-100' : 'text-gray-500'}`}>{formatTimestamp(message.timestamp)}</p>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         <div ref={messagesEndRef} />
       </div>
