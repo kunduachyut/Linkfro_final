@@ -223,212 +223,215 @@ export default function PendingPaymentsSection({
       </div>
 
       {/* Pending Payments Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-        <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-          <div className="col-span-5 flex items-center">
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        {/* Table Header */}
+        <div className="bg-blue-50 border-b border-blue-100 grid grid-cols-12 gap-4 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center">
+          <div className="col-span-5 flex items-center gap-1">
+            <div className="flex items-center">
+              Website
+            </div>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="cursor-help">Website</span>
+                <TooltipTrigger>
+                  <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Website domain for which payment is pending</p>
+                  <p className="max-w-xs text-xs font-normal normal-case">Website domain for which payment is pending</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
-          <div className="col-span-2 flex items-center">
+          <div className="col-span-2 flex justify-center items-center gap-1">
+            Category
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="cursor-help">Category</span>
+                <TooltipTrigger>
+                  <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Content category of the website</p>
+                  <p className="max-w-xs text-xs font-normal normal-case">Content category of the website</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
-          <div className="col-span-2 flex justify-center">
+          <div className="col-span-2 flex justify-center items-center gap-1">
+            Country
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="cursor-help">Country</span>
+                <TooltipTrigger>
+                  <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Primary country of the website's audience</p>
+                  <p className="max-w-xs text-xs font-normal normal-case">Primary country of the website's audience</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
-          <div className="col-span-2 flex justify-center">
+          <div className="col-span-2 flex justify-center items-center gap-1">
+            Created
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="cursor-help">Created</span>
+                <TooltipTrigger>
+                  <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Date when the purchase was created</p>
+                  <p className="max-w-xs text-xs font-normal normal-case">Date when the purchase was created</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
-          <div className="col-span-1 flex justify-center">
+          <div className="col-span-1 flex justify-center items-center gap-1">
+            Actions
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="cursor-help">Actions</span>
+                <TooltipTrigger>
+                  <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Complete or cancel the pending payment</p>
+                  <p className="max-w-xs text-xs font-normal normal-case">Complete or cancel the pending payment</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
         </div>
-      </div>
 
-      <div className="grid gap-4">
-        {filtered.map((purchase) => {
-          const websiteRaw = purchase.websiteId;
-          const website =
-            typeof websiteRaw === "string" ? websiteDetails[websiteRaw] : websiteRaw;
-          const loadingSite = typeof websiteRaw === "string" ? loadingWebsites[websiteRaw] : false;
+        {/* Table Body */}
+        <div className="divide-y divide-gray-100">
+          {filtered.map((purchase) => {
+            const websiteRaw = purchase.websiteId;
+            const website =
+              typeof websiteRaw === "string" ? websiteDetails[websiteRaw] : websiteRaw;
+            const loadingSite = typeof websiteRaw === "string" ? loadingWebsites[websiteRaw] : false;
 
-          const title =
-            website && typeof website === "object"
-              ? website.title || website.name || website.url || "Website Purchase"
-              : typeof websiteRaw === "string"
-              ? loadingSite
-                ? "Loading..."
-                : "Website (details unavailable)"
-              : "Website Purchase";
+            const title =
+              website && typeof website === "object"
+                ? website.title || website.name || website.url || "Website Purchase"
+                : typeof websiteRaw === "string"
+                ? loadingSite
+                  ? "Loading..."
+                  : "Website (details unavailable)"
+                : "Website Purchase";
 
-          const url = website && typeof website === "object" ? website.url : undefined;
-          const category =
-            website && typeof website === "object"
-              ? Array.isArray(website.category)
-                ? website.category[0]
-                : website.category
-              : undefined;
-          const primaryCountry = website && typeof website === "object" ? website.primaryCountry : undefined;
+            const url = website && typeof website === "object" ? website.url : undefined;
+            const category =
+              website && typeof website === "object"
+                ? Array.isArray(website.category)
+                  ? website.category[0]
+                  : website.category
+                : undefined;
+            const primaryCountry = website && typeof website === "object" ? website.primaryCountry : undefined;
 
-          const priceCents =
-            typeof purchase.amountCents === "number"
-              ? purchase.amountCents
-              : typeof purchase.totalCents === "number"
-              ? purchase.totalCents
-              : typeof website?.priceCents === "number"
-              ? website.priceCents
-              : 0;
+            const priceCents =
+              typeof purchase.amountCents === "number"
+                ? purchase.amountCents
+                : typeof purchase.totalCents === "number"
+                ? purchase.totalCents
+                : typeof website?.priceCents === "number"
+                ? website.priceCents
+                : 0;
 
-          return (
-            <div
-              key={purchase._id}
-              className="p-4 rounded-lg border transition-all hover:shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              style={{ backgroundColor: "var(--base-secondary)", borderColor: "var(--base-tertiary)" }}
-            >
-              <div className="flex items-start gap-4 flex-1 min-w-0">
-                <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
-                  {title.charAt(0).toUpperCase()}
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-lg truncate" style={{ color: "var(--secondary-primary)" }}>
-                      {title}
-                    </h3>
-                    {url && (
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:text-blue-800 underline truncate" title={url}>
-                        Visit
-                      </a>
-                    )}
-                  </div>
-
-                  {category && <div className="text-xs text-gray-500 mt-1">Category: {category}</div>}
-
-                  <div className="mt-2 flex items-center gap-3 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs">{getCountryFlagEmoji(primaryCountry)}</span>
-                      <span className="truncate">{primaryCountry || "Global"}</span>
+            return (
+              <div
+                key={purchase._id}
+                className="grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors"
+              >
+                {/* Website Info */}
+                <div className="col-span-5">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
+                      {title.charAt(0).toUpperCase()}
                     </div>
-                    {purchase.createdAt && <div className="text-xs text-gray-400">Created: {formatDate(purchase.createdAt)}</div>}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-shrink-0 flex items-center gap-3 mt-3 sm:mt-0">
-                <div className="text-right">
-                  <div className="text-sm font-medium text-green-600">{formatCurrency(priceCents)}</div>
-                  <div className="text-xs text-gray-500">
-                    Status: <span className="font-semibold">{purchase.status}</span>
+                    <div className="ml-3">
+                      <div className="text-sm font-medium text-gray-900">{title}</div>
+                      <div className="text-xs text-gray-500 truncate max-w-[200px]" title={url}>
+                        {url}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-2">
-                  {/* View Payment Slip Button - check both database and messages prop */}
-                  {(paymentLinks[purchase._id] || (messages && messages[`paymentLink:${purchase._id}`])) && (
-                    <button
-                      onClick={() => {
-                        const paymentLink = paymentLinks[purchase._id] || (messages && messages[`paymentLink:${purchase._id}`]);
-                        if (paymentLink) {
-                          try {
-                            window.open(paymentLink, "_blank");
-                          } catch (err) {
-                            console.warn("Could not open payment slip:", err);
-                            alert("Could not open payment slip. Please try again.");
+                {/* Category */}
+                <div className="col-span-2 flex justify-center">
+                  <div className="text-sm text-gray-900">
+                    {category || "N/A"}
+                  </div>
+                </div>
+
+                {/* Country */}
+                <div className="col-span-2 flex justify-center">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs">{getCountryFlagEmoji(primaryCountry)}</span>
+                    <span className="text-sm text-gray-900 truncate">{primaryCountry || "Global"}</span>
+                  </div>
+                </div>
+
+                {/* Created Date */}
+                <div className="col-span-2 flex justify-center">
+                  <div className="text-sm text-gray-900">
+                    {formatDate(purchase.createdAt)}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="col-span-1 flex justify-center">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    {/* View Payment Slip Button - check both database and messages prop */}
+                    {(paymentLinks[purchase._id] || (messages && messages[`paymentLink:${purchase._id}`])) && (
+                      <button
+                        onClick={() => {
+                          const paymentLink = paymentLinks[purchase._id] || (messages && messages[`paymentLink:${purchase._id}`]);
+                          if (paymentLink) {
+                            try {
+                              window.open(paymentLink, "_blank");
+                            } catch (err) {
+                              console.warn("Could not open payment slip:", err);
+                              alert("Could not open payment slip. Please try again.");
+                            }
                           }
-                        }
-                      }}
-                      className="px-4 py-2 rounded-lg text-white transition-colors text-sm font-medium flex items-center gap-2"
-                      style={{ backgroundColor: "#3b82f6" }}
-                      onMouseEnter={(e) => ((e.target as HTMLElement).style.backgroundColor = "#2563eb")}
-                      onMouseLeave={(e) => ((e.target as HTMLElement).style.backgroundColor = "#3b82f6")}
-                      title="View the payment slip/invoice"
+                        }}
+                        className="px-2 py-1 rounded text-white transition-colors text-xs font-medium flex items-center gap-1"
+                        style={{ backgroundColor: "#3b82f6" }}
+                        onMouseEnter={(e) => ((e.target as HTMLElement).style.backgroundColor = "#2563eb")}
+                        onMouseLeave={(e) => ((e.target as HTMLElement).style.backgroundColor = "#3b82f6")}
+                        title="View the payment slip/invoice"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Slip
+                      </button>
+                    )}
+
+                    {/* Complete Payment Button */}
+                    <button
+                      onClick={() => completePayment(purchase._id)}
+                      className="px-2 py-1 rounded text-black transition-colors text-xs font-medium flex items-center gap-1 shadow-sm hover:shadow"
+                      style={{ backgroundColor: "var(--accent-primary)" }}
+                      onMouseEnter={(e) => ((e.target as HTMLElement).style.backgroundColor = "var(--accent-hover)")}
+                      onMouseLeave={(e) => ((e.target as HTMLElement).style.backgroundColor = "var(--accent-primary)")}
+                      title="Mark this payment as completed"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      View Slip
+                      Pay
                     </button>
-                  )}
-
-                  {/* Complete Payment Button */}
-                  <button
-                    onClick={() => completePayment(purchase._id)}
-                    className="px-4 py-2 rounded-lg text-black transition-colors text-sm font-medium flex items-center gap-2 shadow-md hover:shadow-lg"
-                    style={{ backgroundColor: "var(--accent-primary)" }}
-                    onMouseEnter={(e) => ((e.target as HTMLElement).style.backgroundColor = "var(--accent-hover)")}
-                    onMouseLeave={(e) => ((e.target as HTMLElement).style.backgroundColor = "var(--accent-primary)")}
-                    title="Mark this payment as completed"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Complete Payment
-                  </button>
-
-                  {/* Cancel Button */}
-                  <button
-                    onClick={() => {
-                      if (!confirm("Are you sure you want to cancel this pending payment?")) return;
-                      // TODO: Add API call to cancel payment
-                    }}
-                    className="px-4 py-2 rounded-lg border transition-colors text-sm font-medium flex items-center gap-2"
-                    style={{ borderColor: "var(--base-tertiary)", color: "var(--secondary-primary)" }}
-                    onMouseEnter={(e) => ((e.target as HTMLElement).style.backgroundColor = "var(--base-tertiary)")}
-                    onMouseLeave={(e) => ((e.target as HTMLElement).style.backgroundColor = "transparent")}
-                    title="Cancel this pending payment"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Cancel
-                  </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
       </div>
       {showMarketplace && (
