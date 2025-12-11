@@ -57,7 +57,7 @@ type SuperAdminPurchasesSectionProps = {
   userRole: 'superadmin';
 };
 
-const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
+const ContentManagherPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
   purchaseRequests,
   filteredPurchaseRequests,
   purchaseFilter,
@@ -89,11 +89,6 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
   const [linkModalType, setLinkModalType] = useState<'doc' | 'live' | null>(null);
   const [linkModalPurchaseId, setLinkModalPurchaseId] = useState<string | null>(null);
   const [linkModalValue, setLinkModalValue] = useState<string>('');
-  // Modal state for payment link (PDF + URL)
-  const [paymentLinkModalOpen, setPaymentLinkModalOpen] = useState(false);
-  const [paymentLinkPurchaseId, setPaymentLinkPurchaseId] = useState<string | null>(null);
-  const [paymentLinkUrl, setPaymentLinkUrl] = useState<string>('');
-  const [paymentLinkPdf, setPaymentLinkPdf] = useState<File | null>(null);
 
   const statusLabelMap: Record<string, string> = {
     ongoing: "Mark as Ongoing",
@@ -102,8 +97,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
     rejected: "Reject",
   };
 
-  // Check if any visible rows have pendingPayment status
-  const showPaymentLinkColumn = filteredPurchaseRequests.some(p => p.status === 'pendingPayment');
+  // (Payment link column removed for Content Manager view)
 
   // Toggle row expansion
   const toggleRowExpansion = (id: string) => {
@@ -363,11 +357,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Doc link
                     </th>
-                    {showPaymentLinkColumn && (
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Payment Link
-                      </th>
-                    )}
+                    {/* Payment Link column intentionally removed for Content Manager view */}
                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
@@ -487,27 +477,7 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                             )}
                           </div>
                         </td>
-                        {/* Payment Link column - only show when there are pendingPayment rows */}
-                        {showPaymentLinkColumn && request.status === 'pendingPayment' && (
-                          <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                            <button
-                              onClick={() => {
-                                setPaymentLinkPurchaseId(request.id);
-                                setPaymentLinkUrl(request.paymentLink || '');
-                                setPaymentLinkPdf(null);
-                                setPaymentLinkModalOpen(true);
-                              }}
-                              title={request.paymentLink ? "Edit payment link" : "Add payment link or document"}
-                              className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                                request.paymentLink
-                                  ? 'bg-green-600 text-white hover:bg-green-700'
-                                  : 'bg-purple-600 text-white hover:bg-purple-700'
-                              }`}
-                            >
-                              {request.paymentLink ? 'Edit Link' : 'Add Link'}
-                            </button>
-                          </td>
-                        )}
+                        {/* Payment Link cell removed for Content Manager view */}
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                           <div className="flex items-center gap-2">
                             {(request.status || 'pending') === 'pending' && (
@@ -589,59 +559,11 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                         <tr>
                           {/* Adjust colspan since Customer and Price columns removed */}
                           {/* Adjust colspan after removing Chat and Customer/Price columns for Content Manager view */}
-                          <td colSpan={(purchaseFilter === 'pending' ? 1 : 0) + 7 + (showPaymentLinkColumn ? 1 : 0)} className="px-4 py-2 bg-gray-50">
+                          <td colSpan={(purchaseFilter === 'pending' ? 1 : 0) + 7} className="px-4 py-2 bg-gray-50">
                             <div className="flex justify-end">
                               <div className="flex flex-col gap-2 w-full max-w-md">
                                 <div className="flex flex-col">
-                                  {/* Payment Link: only visible when the purchase is in pendingPayment state */}
-                                  {request.status === 'pendingPayment' && (
-                                    <>
-                                      {/* Payment Link */}
-                                      <label className="text-xs text-gray-500 mb-1">Payment Link</label>
-                                      <div className="flex gap-2 mb-2">
-                                        <textarea
-                                          value={messages?.[`paymentLink:${request.id}`] || ''}
-                                          onChange={(e) => setMessages && setMessages(prev => ({ ...prev, [`paymentLink:${request.id}`]: e.target.value }))}
-                                          placeholder="Enter payment link or gateway URL"
-                                          className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full"
-                                          rows={1}
-                                        />
-                                        <button
-                                          onClick={async () => {
-                                            const link = messages?.[`paymentLink:${request.id}`] || '';
-                                            try {
-                                              const res = await fetch(`/api/purchases/${request.id}/payment-link`, {
-                                                method: 'PATCH',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify({ paymentLink: link }),
-                                              });
-
-                                              const body = await res.json();
-                                              if (!res.ok) {
-                                                const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
-                                                console.error('Push payment link failed', { status: res.status, body });
-                                                alert(`Failed to push payment link: ${serverMsg}`);
-                                                return;
-                                              }
-                                              
-                                              // Update UI state
-                                              request.paymentLink = body.paymentLink;
-                                              // Clear input
-                                              setMessages(prev => ({ ...prev, [`paymentLink:${request.id}`]: '' }));
-                                              alert('Payment link pushed successfully');
-                                            } catch (err) {
-                                              console.error('Push payment link failed (network)', err);
-                                              alert('Failed to push payment link (network error)');
-                                            }
-                                          }}
-                                          className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 whitespace-nowrap"
-                                        >
-                                          Push Link
-                                        </button>
-                                      </div>
-
-                                    </>
-                                  )}
+                                  {/* Payment link actions removed for Content Manager view */}
                                 </div>
                               </div>
                             </div>
@@ -759,194 +681,8 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
           </div>
         </div>
       )}
-
-      {/* Payment Link Modal */}
-      {paymentLinkModalOpen && paymentLinkPurchaseId && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-xl w-full max-w-md border border-gray-200 shadow-xl overflow-hidden">
-            <div className="px-6 py-4 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Add Payment Link
-              </h3>
-            </div>
-
-            <div className="px-6 py-5 space-y-4">
-              {/* URL Input */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Payment URL (optional)</label>
-                <input
-                  type="text"
-                  value={paymentLinkUrl}
-                  onChange={(e) => setPaymentLinkUrl(e.target.value)}
-                  placeholder="e.g., https://payment.example.com/invoice/123"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
-                />
-              </div>
-
-              {/* PDF Upload */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">PDF Document (optional)</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-purple-400 transition-colors">
-                  {paymentLinkPdf ? (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <span className="text-sm text-gray-900 font-medium">{paymentLinkPdf.name}</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setPaymentLinkPdf(null)}
-                        className="text-red-600 hover:text-red-800 transition-colors"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="cursor-pointer block">
-                      <div className="flex flex-col items-center gap-2">
-                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                        <span className="text-sm text-gray-600">Click to upload PDF</span>
-                      </div>
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file && file.type === 'application/pdf') {
-                            setPaymentLinkPdf(file);
-                          } else if (file) {
-                            alert('Only PDF files are allowed');
-                          }
-                        }}
-                        className="sr-only"
-                      />
-                    </label>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-lg bg-blue-50 border border-blue-200 p-3">
-                <p className="text-xs text-blue-800">
-                  <span className="font-medium">Note:</span> Provide either a payment URL or upload a PDF document (or both).
-                </p>
-              </div>
-            </div>
-
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setPaymentLinkModalOpen(false);
-                  setPaymentLinkUrl('');
-                  setPaymentLinkPdf(null);
-                  setPaymentLinkPurchaseId(null);
-                }}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  // Validation
-                  if (!paymentLinkUrl.trim() && !paymentLinkPdf) {
-                    alert('Please provide either a payment URL or upload a PDF document');
-                    return;
-                  }
-
-                  if (paymentLinkUrl.trim()) {
-                    try {
-                      new URL(paymentLinkUrl);
-                    } catch {
-                      alert('Please provide a valid URL (e.g., https://example.com)');
-                      return;
-                    }
-                  }
-
-                  try {
-                    const purchaseId = paymentLinkPurchaseId;
-                    let finalPaymentLink = paymentLinkUrl.trim();
-
-                    // If PDF selected, upload it first
-                    if (paymentLinkPdf) {
-                      const formData = new FormData();
-                      formData.append('pdfFile', paymentLinkPdf);
-                      formData.append('purchaseId', purchaseId);
-                      formData.append('requirements', 'Payment Invoice/Receipt');
-
-                      const uploadRes = await fetch('/api/my-content', {
-                        method: 'POST',
-                        body: formData
-                      });
-
-                      if (!uploadRes.ok) {
-                        const uploadErr = await uploadRes.json().catch(() => ({}));
-                        console.error('Upload error response:', uploadErr);
-                        alert(`Upload failed: ${uploadErr.error || uploadErr.message || 'Unknown error'}`);
-                        return;
-                      }
-
-                      const uploadData = await uploadRes.json();
-                      if (uploadData.filePath) {
-                        finalPaymentLink = uploadData.filePath;
-                      } else if (uploadData.path) {
-                        finalPaymentLink = uploadData.path;
-                      } else if (uploadData.url) {
-                        finalPaymentLink = uploadData.url;
-                      } else if (uploadData.id) {
-                        finalPaymentLink = `/api/my-content/${uploadData.id}`;
-                      }
-                    }
-
-                    // Always save payment link to purchase (whether URL or PDF path)
-                    const res = await fetch(`/api/purchases/${purchaseId}/payment-link`, {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ paymentLink: finalPaymentLink })
-                    });
-
-                    if (!res.ok) {
-                      const body = await res.json().catch(() => ({}));
-                      const serverMsg = body?.error || body?.message || `HTTP ${res.status}`;
-                      alert(`Failed to save payment link: ${serverMsg}`);
-                      return;
-                    }
-
-                    // Update local state
-                    const idx = filteredPurchaseRequests.findIndex(p => p.id === purchaseId);
-                    if (idx >= 0) {
-                      (filteredPurchaseRequests[idx] as any).paymentLink = finalPaymentLink;
-                    }
-
-                    // Close modal
-                    setPaymentLinkModalOpen(false);
-                    setPaymentLinkUrl('');
-                    setPaymentLinkPdf(null);
-                    setPaymentLinkPurchaseId(null);
-
-                    alert('Payment link saved successfully!');
-                  } catch (err) {
-                    console.error('Error saving payment link:', err);
-                    alert('An error occurred while saving the payment link');
-                  }
-                }}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
-              >
-                Save Payment Link
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };
 
-export default SuperAdminPurchasesSection;
+export default ContentManagherPurchasesSection;
