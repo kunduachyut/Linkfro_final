@@ -999,10 +999,10 @@ export default function MarketplaceSection({
       {/* Main Table/List */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         {/* Table Header */}
-        <div className="bg-blue-50 border-b border-blue-100 grid grid-cols-12 gap-4 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center">
+        <div className="bg-blue-50 border-b border-blue-100 grid grid-cols-12 gap-4 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center font-body">
           {columns.find(c => c.id === 'price')?.visible && (
             <div className="col-span-2 flex items-center gap-1">
-              <div className="flex items-center cursor-pointer hover:text-blue-600">
+              <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
                 Price
                 <svg className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
@@ -1058,7 +1058,7 @@ export default function MarketplaceSection({
           )}
           {columns.find(c => c.id === 'traffic')?.visible && (
             <div className="col-span-1 flex items-center justify-center gap-1">
-              <div className="flex items-center cursor-pointer hover:text-blue-600">
+              <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
                 Traffic
                 <svg className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />

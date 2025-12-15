@@ -36,11 +36,11 @@ export default function ContentRequestsSection({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
-          <span className="text-sm font-medium text-gray-500">{contentRequests.length} content requests found</span>
+          <span className="text-sm font-medium text-gray-500 font-body">{contentRequests.length} content requests found</span>
         </div>
         <button 
           onClick={redirectToMarketplace}
-          className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors font-medium text-sm flex items-center"
+          className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors font-medium text-sm flex items-center font-body"
         >
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -54,7 +54,7 @@ export default function ContentRequestsSection({
         <div className="flex justify-center py-12">
           <div className="flex flex-col items-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600 mb-4"></div>
-            <p className="text-gray-600 text-sm">Loading content requests...</p>
+            <p className="text-gray-600 text-sm font-body">Loading content requests...</p>
           </div>
         </div>
       ) : error ? (
@@ -65,11 +65,11 @@ export default function ContentRequestsSection({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Content Requests</h3>
-            <p className="text-gray-600 mb-4">{error}</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2 font-display">Error Loading Content Requests</h3>
+            <p className="text-gray-600 mb-4 font-body">{error}</p>
             <button
               onClick={fetchContentRequests}
-              className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors font-medium text-sm"
+              className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors font-medium text-sm font-body"
             >
               Try Again
             </button>
@@ -84,11 +84,11 @@ export default function ContentRequestsSection({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Content Requests Yet</h3>
-              <p className="text-gray-600 mb-4">Request custom content for your websites to boost engagement</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2 font-display">No Content Requests Yet</h3>
+              <p className="text-gray-600 mb-4 font-body">Request custom content for your websites to boost engagement</p>
               <button 
                 onClick={redirectToMarketplace}
-                className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors font-medium text-sm"
+                className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors font-medium text-sm font-body"
               >
                 Create Content Request
               </button>
@@ -96,7 +96,7 @@ export default function ContentRequestsSection({
           ) : (
             <div>
               {/* Table Header with Tooltips */}
-              <div className="grid grid-cols-18 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <div className="grid grid-cols-18 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-body">
                 <div className="col-span-4 flex items-center">
                   <TooltipProvider>
                     <Tooltip>
@@ -104,7 +104,7 @@ export default function ContentRequestsSection({
                         <span className="cursor-help">TOPIC</span>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Topic or subject of the requested content</p>
+                        <p className="font-body">Topic or subject of the requested content</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -116,7 +116,7 @@ export default function ContentRequestsSection({
                         <span className="cursor-help">WEBSITE</span>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Website domain for which the content is requested</p>
+                        <p className="font-body">Website domain for which the content is requested</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -128,7 +128,7 @@ export default function ContentRequestsSection({
                         <span className="cursor-help">CONTENT TYPE</span>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Type of content requested (article, blog post, etc.)</p>
+                        <p className="font-body">Type of content requested (article, blog post, etc.)</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -140,7 +140,7 @@ export default function ContentRequestsSection({
                         <span className="cursor-help">REQUEST DATE</span>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Date when the content request was submitted</p>
+                        <p className="font-body">Date when the content request was submitted</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -152,7 +152,7 @@ export default function ContentRequestsSection({
                         <span className="cursor-help">STATUS</span>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Current status of the content request</p>
+                        <p className="font-body">Current status of the content request</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -164,7 +164,7 @@ export default function ContentRequestsSection({
                         <span className="cursor-help">ACTIONS</span>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>View details or edit the content request</p>
+                        <p className="font-body">View details or edit the content request</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -180,14 +180,14 @@ export default function ContentRequestsSection({
                       {/* Topic */}
                       <div className="col-span-4">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold">
+                          <div className="flex-shrink-0 h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold font-body">
                             {(request.topic || 'C').charAt(0).toUpperCase()}
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-gray-900 font-body">
                               {request.topic || 'Content Request'}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-gray-500 font-body">
                               {request.description ? `${request.description.substring(0, 30)}...` : 'No description'}
                             </div>
                           </div>
@@ -196,31 +196,31 @@ export default function ContentRequestsSection({
                       
                       {/* Website */}
                       <div className="col-span-4">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-gray-900 font-body">
                           {request.websiteTitle || request.websiteId || 'Unknown Website'}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 font-body">
                           {request.websiteUrl || 'No URL provided'}
                         </div>
                       </div>
                       
                       {/* Content Type */}
                       <div className="col-span-3 flex justify-center">
-                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
+                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 font-body">
                           {request.contentType || 'Article'}
                         </span>
                       </div>
                       
                       {/* Request Date */}
                       <div className="col-span-2 flex justify-center">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-gray-900 font-body">
                           {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'N/A'}
                         </div>
                       </div>
                       
                       {/* Status */}
                       <div className="col-span-2 flex justify-center">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full font-body ${
                           request.status === 'completed' 
                             ? 'bg-green-100 text-green-800'
                             : request.status === 'in-progress'
@@ -271,8 +271,8 @@ export default function ContentRequestsSection({
                         <button className="text-gray-400 hover:text-gray-500">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                            </svg>
-                          </button>
+                          </svg>
+                        </button>
                       </div>
                     </div>
                   );

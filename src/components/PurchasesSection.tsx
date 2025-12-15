@@ -484,115 +484,127 @@ export default function PurchasesSection({
             </div>
           ) : (
             <div>
-              {/* Table Header - Updated to 19 columns to accommodate Details column */}
+              {/* Table Header - Updated to 12 columns to match marketplace design */}
               <TooltipProvider>
-                <div className="grid grid-cols-22 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="col-span-4 flex items-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-help">WEBSITE NAME</div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Website domain you purchased link placement on</p>
-                      </TooltipContent>
-                    </Tooltip>
+                <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-blue-50 border-b border-blue-100 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center font-body">
+                  {/* Website Column */}
+                  <div className="col-span-3 flex items-center gap-1">
+                    <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
+                      Website
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs font-normal normal-case">Website domain you purchased link placement on</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
-                  <div className="col-span-1 flex justify-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-help">DETAILS</div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>View website details</p>
-                      </TooltipContent>
-                    </Tooltip>
+                  
+                  {/* Content Type Column */}
+                  <div className="col-span-2 flex justify-center items-center gap-1">
+                    <div className="flex items-center font-body">
+                      Content Type
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs font-normal normal-case">Shows if you used your own article or requested content creation</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
-                  <div className="col-span-3 flex justify-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-help">CONTENT TYPE</div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Shows if you used your own article or requested content creation</p>
-                      </TooltipContent>
-                    </Tooltip>
+                  
+                  {/* Purchase Date Column */}
+                  <div className="col-span-2 flex justify-center items-center gap-1">
+                    <div className="flex items-center font-body">
+                      Purchase Date
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs font-normal normal-case">Date when this order was created</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
-                  <div className="col-span-3 flex justify-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-help">PURCHASE DATE</div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Date when this order was created</p>
-                      </TooltipContent>
-                    </Tooltip>
+                  
+                  {/* Amount Column */}
+                  <div className="col-span-1 flex justify-center items-center gap-1">
+                    <div className="flex items-center font-body">
+                      Amount
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs font-normal normal-case">Total price paid or due for this order</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
-                  <div className="col-span-1 flex justify-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-help">AMOUNT</div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Total price paid or due for this order</p>
-                      </TooltipContent>
-                    </Tooltip>
+                  
+                  {/* Status Column */}
+                  <div className="col-span-2 flex justify-center items-center gap-1">
+                    <div className="flex items-center font-body">
+                      Status
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs font-normal normal-case">Current stage of your order — pending, ongoing, payment pending, or approved</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
-                  <div className="col-span-2 flex justify-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-help">STATUS</div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Current stage of your order — pending, ongoing, payment pending, or approved</p>
-                      </TooltipContent>
-                    </Tooltip>
+                  
+                  {/* Actions Column */}
+                  <div className="col-span-2 flex justify-center items-center gap-1">
+                    <div className="flex items-center font-body">
+                      Actions
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs font-normal normal-case">Available actions for this purchase</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
-                  <div className="col-span-2 flex justify-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-help">DOC URL</div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>View documentation or content for your order</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <div className="col-span-2 flex justify-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-help">LIVE URL</div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Open the live link where your content is published</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <div className="col-span-1 flex justify-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-help">Action</div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Visit the website</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <div className="col-span-2 flex justify-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-help">Chat</div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Chat with Admin</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <div className="col-span-1"></div>
                 </div>
               </TooltipProvider>
 
               {/* Table Body */}
-              <div className="divide-y divide-gray-200">
+              <div className="divide-y divide-gray-100">
                 {filteredPurchases.map((purchase, index) => {
                   const websiteTitle = getWebsiteTitle(purchase);
                   const websiteUrl = getWebsiteUrl(purchase);
@@ -602,125 +614,31 @@ export default function PurchasesSection({
                   const isLoadingUploads = loadingUploads[purchase._id] || false;
 
                   return (
-                    <div key={purchase._id || index} className="grid grid-cols-22 gap-4 px-6 py-4 hover:bg-gray-50 items-center">
-                      {/* Website Info */}
-                      <div className="col-span-4">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-8 w-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold text-sm">
-                            {websiteTitle.charAt(0).toUpperCase()}
+                    <div key={purchase._id || index} className="grid grid-cols-12 gap-4 px-4 py-4 hover:bg-gray-50 items-center">
+                      {/* Website Info - Similar to marketplace design */}
+                      <div className="col-span-3">
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 bg-gray-100 rounded-lg">
+                            <div className="flex-shrink-0 h-6 w-6 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold text-xs font-body">
+                              {websiteTitle.charAt(0).toUpperCase()}
+                            </div>
                           </div>
-                          <div className="ml-3">
-                            <div className="text-sm font-medium text-gray-900">{websiteTitle}</div>
-                            <div className="text-xs text-gray-500 truncate max-w-[200px]" title={websiteUrl}>
-                              {websiteUrl.length > 40 ? `${websiteUrl.substring(0, 40)}...` : websiteUrl}
+                          <div className="overflow-hidden">
+                            <div className="font-bold text-gray-900 truncate font-body" title={websiteTitle}>
+                              {websiteTitle}
+                            </div>
+                            <div className="text-xs text-gray-500 truncate font-body" title={websiteUrl}>
+                              {websiteUrl}
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Details Column with Eye Icon */}
-                      <div className="col-span-1 flex items-center justify-center">
-                        <div className="relative">
-                          <button
-                            className="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100 transition-colors"
-                            onMouseEnter={async (e) => {
-                              // Fetch details on hover if not already loaded
-                              if (websiteId && !websiteDetails[websiteId] && !loadingDetails[websiteId]) {
-                                await fetchWebsiteDetails(websiteId);
-                              }
-                              // Capture the button position so the tooltip can render in a portal
-                              try {
-                                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                                setTooltipRect({ left: rect.left + rect.width / 2, top: rect.bottom });
-                              } catch (err) {
-                                setTooltipRect(null);
-                              }
-                              // Set this item as the active details item
-                              setActiveDetailsItem(purchase._id);
-                            }}
-                            onMouseLeave={() => {
-                              // Clear the active details item and tooltip position when mouse leaves
-                              setActiveDetailsItem(null);
-                              setTooltipRect(null);
-                            }}
-                          >
-                            {loadingDetails[websiteId] ? (
-                              <svg className="h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 11-18 0 9 9 0 0118 0z"></path>
-                              </svg>
-                            ) : (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                              </svg>
-                            )}
-                          </button>
-
-                          {/* Floating tooltip with website details rendered into a portal so it isn't clipped */}
-                          {activeDetailsItem === purchase._id && tooltipRect && typeof document !== 'undefined' && createPortal(
-                            <div
-                              style={{
-                                position: 'fixed',
-                                left: tooltipRect.left,
-                                top: tooltipRect.top + 8,
-                                transform: 'translateX(-50%)',
-                                zIndex: 99999,
-                                width: 256
-                              }}
-                              className="rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-                            >
-                              <div className="p-4">
-                                <div className="flex justify-between items-start mb-2">
-                                  <h3 className="text-sm font-semibold text-gray-900 truncate">{websiteDetails[websiteId]?.title || 'Loading...'}</h3>
-                                </div>
-
-                                {loadingDetails[websiteId] ? (
-                                  <div className="flex justify-center items-center h-16">
-                                    <div className="text-gray-500 text-sm">Loading details...</div>
-                                  </div>
-                                ) : websiteDetails[websiteId] ? (
-                                  <div className="space-y-2">
-                                    <div className="flex justify-between text-xs">
-                                      <span className="text-gray-600">Price:</span>
-                                      <span className="font-medium">${(websiteDetails[websiteId].priceCents / 100).toFixed(2)}</span>
-                                    </div>
-                                    {websiteDetails[websiteId].DA !== undefined && websiteDetails[websiteId].DA !== null && (
-                                      <div className="flex justify-between text-xs">
-                                        <span className="text-gray-600">DA:</span>
-                                        <span className="font-medium">{websiteDetails[websiteId].DA}</span>
-                                      </div>
-                                    )}
-                                    {websiteDetails[websiteId].DR !== undefined && websiteDetails[websiteId].DR !== null && (
-                                      <div className="flex justify-between text-xs">
-                                        <span className="text-gray-600">DR:</span>
-                                        <span className="font-medium">{websiteDetails[websiteId].DR}</span>
-                                      </div>
-                                    )}
-                                    {websiteDetails[websiteId].OrganicTraffic !== undefined && websiteDetails[websiteId].OrganicTraffic !== null && (
-                                      <div className="flex justify-between text-xs">
-                                        <span className="text-gray-600">Traffic:</span>
-                                        <span className="font-medium">{websiteDetails[websiteId].OrganicTraffic}</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <div className="text-gray-500 text-center py-2 text-sm">
-                                    Failed to load details
-                                  </div>
-                                )}
-                              </div>
-                            </div>,
-                            document.body
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Content Type - Updated to show "My Content" with blue color */}
-                      <div className="col-span-3 flex justify-center">
+                      {/* Content Type - Enhanced styling */}
+                      <div className="col-span-2 flex justify-center">
                         <button
                           onClick={() => handleContentTypeClick(purchase)}
-                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${purchase.contentType === 'request'
+                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full font-body ${purchase.contentType === 'request'
                             ? 'bg-green-100 text-green-800 hover:bg-green-200'
                             : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                             } transition-colors cursor-pointer`}
@@ -729,21 +647,24 @@ export default function PurchasesSection({
                         </button>
                       </div>
 
-                      {/* Purchase Date */}
-                      <div className="col-span-3 flex justify-center">
-                        <div className="text-sm text-gray-900">
+                      {/* Purchase Date - Simplified */}
+                      <div className="col-span-2 flex justify-center">
+                        <div className="text-sm text-gray-900 font-body">
                           {purchase.createdAt ? new Date(purchase.createdAt).toLocaleDateString() : 'N/A'}
                         </div>
                       </div>
 
-                      {/* Amount */}
+                      {/* Amount - Enhanced styling */}
                       <div className="col-span-1 flex justify-center">
-                        <div className="text-sm font-medium text-gray-900">${(amountCents / 100).toFixed(2)}</div>
+                        <div className="font-bold text-green-600 font-body">
+                          <span className="text-sm font-body">$</span>
+                          <span className="text-base font-body">{(amountCents / 100).toFixed(2)}</span>
+                        </div>
                       </div>
 
-                      {/* Status */}
+                      {/* Status - Enhanced styling to match marketplace */}
                       <div className="col-span-2 flex justify-center">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${purchase.status === 'paid' || purchase.status === 'completed' || purchase.status === 'approved'
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full font-body ${purchase.status === 'paid' || purchase.status === 'completed' || purchase.status === 'approved'
                           ? 'bg-green-100 text-green-800'
                           : purchase.status === 'pending' || purchase.status === 'ongoing'
                             ? (purchase.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800')
@@ -755,114 +676,95 @@ export default function PurchasesSection({
                         </span>
                       </div>
 
-                      {/* Doc URL column - show button if provided, otherwise show disabled state */}
-                      <div className="col-span-2 flex justify-center">
+                      {/* Actions - Consolidated and improved */}
+                      <div className="col-span-2 flex justify-center space-x-2">
+                        {/* View Details Button */}
+                        <button
+                          className="p-1.5 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100 transition-colors"
+                          onClick={async (e) => {
+                            // Fetch details on click if not already loaded
+                            if (websiteId && !websiteDetails[websiteId] && !loadingDetails[websiteId]) {
+                              await fetchWebsiteDetails(websiteId);
+                            }
+                            // Capture the button position so the tooltip can render in a portal
+                            try {
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                              setTooltipRect({ left: rect.left + rect.width / 2, top: rect.bottom });
+                            } catch (err) {
+                              setTooltipRect(null);
+                            }
+                            // Set this item as the active details item
+                            setActiveDetailsItem(purchase._id);
+                          }}
+                          title="View website details"
+                        >
+                          {loadingDetails[websiteId] ? (
+                            <svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                          )}
+                        </button>
+
+                        {/* Doc Link Button */}
                         {purchase.docLink ? (
                           <button
                             onClick={() => window.open(purchase.docLink, '_blank')}
-                            className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 transition-colors text-sm flex items-center gap-2"
-                            title={purchase.docLink}
+                            className="p-1.5 text-indigo-600 hover:text-indigo-800 rounded-full hover:bg-indigo-50 transition-colors"
+                            title="View documentation"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            View Doc
                           </button>
                         ) : (
                           <button
                             disabled
-                            className="px-3 py-1.5 bg-gray-50 text-gray-400 rounded-md cursor-not-allowed text-sm flex items-center gap-2"
+                            className="p-1.5 text-gray-300 cursor-not-allowed"
+                            title="No documentation available"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                           </button>
                         )}
-                      </div>
 
-                      {/* Live URL column - show button if provided, otherwise show disabled state */}
-                      <div className="col-span-2 flex justify-center">
+                        {/* Live Link Button */}
                         {purchase.liveLink ? (
                           <button
                             onClick={() => window.open(purchase.liveLink, '_blank')}
-                            className="px-3 py-1.5 bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors text-sm flex items-center gap-2"
-                            title={purchase.liveLink}
+                            className="p-1.5 text-green-600 hover:text-green-800 rounded-full hover:bg-green-50 transition-colors"
+                            title="View live link"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
-                            View Live
                           </button>
                         ) : (
                           <button
                             disabled
-                            className="px-3 py-1.5 bg-gray-50 text-gray-400 rounded-md cursor-not-allowed text-sm flex items-center gap-2"
+                            className="p-1.5 text-gray-300 cursor-not-allowed"
+                            title="No live link available"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
                           </button>
                         )}
-                      </div>
 
-                      {/* Actions */}
-                      <div className="col-span-2 flex justify-center">
-                        <div className="flex space-x-2">
-                          <a
-                            href={websiteUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-500 hover:text-gray-700 p-1"
-                            title="Visit Website"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                          </a>
-
-                          {/* Ad Request Button */}
-                          {(purchase.status === 'paid' || purchase.status === 'completed') && (
-                            <div className="flex items-center space-x-2">
-                              <input
-                                type="text"
-                                placeholder="Message for publisher"
-                                value={messages[purchase._id] || ""}
-                                onChange={(e) => updateMessage(purchase._id, e.target.value)}
-                                className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 w-32"
-                              />
-                              <button
-                                onClick={() => requestAd(websiteId, purchase._id)}
-                                className="text-green-600 hover:text-green-800 p-1"
-                                title="Request Ad Placement"
-                              >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v1a1 1 0 01-1 1h-1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V7H3a1 1 0 01-1-1V5a1 1 0 011-1h4z" />
-                                </svg>
-                              </button>
-                            </div>
-                          )}
-                          {/* Chat Button - always available */}
-                          <div className="flex items-center space-x-3">
-                            <button
-                              onClick={() => handleChatClick(purchase._id)}
-                              className="text-indigo-600 hover:text-indigo-900 p-1"
-                              title="Chat"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                              </svg>
-                            </button>
-                          </div>
-                          {/* Payment link input - visible only when purchase is ongoing */}
-
-                        </div>
-                      </div>
-
-                      {/* More Options */}
-                      <div className="col-span-1 flex justify-end">
-                        <button className="text-gray-400 hover:text-gray-500">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        {/* Chat Button */}
+                        <button
+                          onClick={() => handleChatClick(purchase._id)}
+                          className="p-1.5 text-indigo-600 hover:text-indigo-900 rounded-full hover:bg-indigo-50 transition-colors"
+                          title="Chat with admin"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                           </svg>
                         </button>
                       </div>
@@ -961,7 +863,7 @@ export default function PurchasesSection({
                         <div className="text-center py-8">
                           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 01-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                             </svg>
                           </div>
                           <h3 className="text-lg font-medium text-gray-900 mb-2">No Content Uploaded Yet</h3>
@@ -988,7 +890,7 @@ export default function PurchasesSection({
                                     className="inline-flex items-center px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                                   >
                                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
                                     View PDF
                                   </a>

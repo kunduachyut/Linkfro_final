@@ -154,7 +154,7 @@ export function ConsumerSidebar({
             animate={isCollapsed && !isPinned ? "closed" : "open"}
             variants={textVariants}
           >
-            <p className="text-sm font-bold text-blue-600">
+            <p className="text-sm font-bold text-blue-600 font-body">
               Advertiser
             </p>
           </motion.div>
@@ -187,9 +187,9 @@ export function ConsumerSidebar({
                             animate={isCollapsed && !isPinned ? "closed" : "open"}
                             variants={textVariants}
                           >
-                            <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>
+                            <span className="text-sm font-medium whitespace-nowrap font-body">{item.label}</span>
                             {item.badge && (
-                              <span className="ml-auto flex h-5 items-center justify-center rounded-full bg-green-500 px-2 text-xs font-medium text-white">
+                              <span className="ml-auto flex h-5 items-center justify-center rounded-full bg-green-500 px-2 text-xs font-medium text-white font-body">
                                 {item.badge}
                               </span>
                             )}
@@ -197,7 +197,7 @@ export function ConsumerSidebar({
                         </button>
                       </TooltipTrigger>
                       <TooltipContent side="right">
-                        <p>{item.label}</p>
+                        <p className="font-body">{item.label}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -220,9 +220,9 @@ export function ConsumerSidebar({
                         animate={isCollapsed && !isPinned ? "closed" : "open"}
                         variants={textVariants}
                       >
-                        <span className="text-sm font-medium whitespace-nowrap">View Cart</span>
+                        <span className="text-sm font-medium whitespace-nowrap font-body">View Cart</span>
                         {itemCount > 0 && (
-                          <span className="ml-auto flex h-5 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
+                          <span className="ml-auto flex h-5 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white font-body">
                             {itemCount}
                           </span>
                         )}
@@ -230,7 +230,7 @@ export function ConsumerSidebar({
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="right">
-                    <p>View your shopping cart with selected websites</p>
+                    <p className="font-body">View your shopping cart with selected websites</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -249,14 +249,14 @@ export function ConsumerSidebar({
                         animate={isCollapsed && !isPinned ? "closed" : "open"}
                         variants={textVariants}
                       >
-                        <span className="text-sm font-medium whitespace-nowrap">
+                        <span className="text-sm font-medium whitespace-nowrap font-body">
                           {isPinned ? "Unpin Sidebar" : "Pin Sidebar"}
                         </span>
                       </motion.div>
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="right">
-                    <p>{isPinned ? "Unpin sidebar to auto-collapse" : "Pin sidebar to keep it open"}</p>
+                    <p className="font-body">{isPinned ? "Unpin sidebar to auto-collapse" : "Pin sidebar to keep it open"}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -275,12 +275,12 @@ export function ConsumerSidebar({
                         animate={isCollapsed && !isPinned ? "closed" : "open"}
                         variants={textVariants}
                       >
-                        <span className="text-sm font-medium whitespace-nowrap">Home</span>
+                        <span className="text-sm font-medium whitespace-nowrap font-body">Home</span>
                       </motion.div>
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="right">
-                    <p>Return to the Linkfro homepage</p>
+                    <p className="font-body">Return to the Linkfro homepage</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -314,10 +314,10 @@ export function ConsumerSidebar({
                         variants={textVariants}
                       >
                         {/* Name and view link text */}
-                        <p className="text-sm font-medium text-gray-800 truncate">
+                        <p className="text-sm font-medium text-gray-800 truncate font-body">
                           {isLoaded ? (user?.fullName ?? 'Profile') : 'Profile'}
                         </p>
-                        <p className="text-xs text-gray-500">View profile</p>
+                        <p className="text-xs text-gray-500 font-body">View profile</p>
                       </motion.div>
                     </div>
                   </Link>
@@ -325,7 +325,7 @@ export function ConsumerSidebar({
               </div>
             </TooltipTrigger>
             <TooltipContent side="right">
-              <p>View or edit your advertiser profile</p>
+              <p className="font-body">View or edit your advertiser profile</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

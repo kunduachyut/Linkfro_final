@@ -334,18 +334,18 @@ export default function ConsumerDashboard() {
       <main className={`flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto overflow-x-hidden min-w-0 max-w-none w-full transition-all duration-300 ${sidebarCollapsed ? 'ml-12' : 'ml-52'}`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 lg:mb-8 w-full">
           <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900">
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 font-display">
               {activeTab === "marketplace" && "Marketplace"}
               {activeTab === "purchases" && "My Purchases"}
-              {activeTab === "pendingPayments" && "Pending Payments"} {/* New title */}
+              {activeTab === "pendingPayments" && "Pending Payments"}
               {activeTab === "adRequests" && "Ad Requests"}
               {activeTab === "contentRequests" && "Content Requests"}
               {activeTab === "analytics" && "Analytics Dashboard"}
             </h1>
-            <p className="mt-1 sm:mt-2 text-sm sm:text-base lg:text-lg text-gray-700">
+            <p className="mt-2 text-base lg:text-lg text-gray-700 font-body">
               {activeTab === "marketplace" && "Browse and purchase digital assets"}
               {activeTab === "purchases" && "Manage your purchased websites"}
-              {activeTab === "pendingPayments" && "Complete payment for your pending purchases"} {/* New description */}
+              {activeTab === "pendingPayments" && "Complete payment for your pending purchases"}
               {activeTab === "adRequests" && "Track and manage ad placements"}
               {activeTab === "contentRequests" && "Request content for your websites"}
               {activeTab === "analytics" && "Monitor your advertising performance"}
@@ -354,10 +354,10 @@ export default function ConsumerDashboard() {
           <button 
             onClick={activeTab === "marketplace" ? refreshWebsites : 
                      activeTab === "purchases" ? refreshPurchases : 
-                     activeTab === "pendingPayments" ? refreshPendingPayments : // New refresh handler
+                     activeTab === "pendingPayments" ? refreshPendingPayments :
                      activeTab === "adRequests" ? fetchAdRequests : 
                      fetchContentRequests}
-            className="flex items-center px-3 py-2 rounded-lg transition-all duration-300 text-sm font-medium whitespace-nowrap shadow-sm hover:shadow-md"
+            className="flex items-center px-3 py-2 rounded-lg transition-all duration-300 text-sm font-medium whitespace-nowrap shadow-sm hover:shadow-md font-body"
             style={{
               backgroundColor: '#f8fafc',
               color: '#1e40af',

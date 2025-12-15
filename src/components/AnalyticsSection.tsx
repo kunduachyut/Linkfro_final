@@ -22,7 +22,7 @@ export default function AnalyticsSection({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
-          <span className="text-sm font-medium text-gray-500">Performance Overview</span>
+          <span className="text-sm font-medium text-gray-500 font-body">Performance Overview</span>
         </div>
         <div className="flex items-center gap-2">
           <TooltipProvider>
@@ -35,21 +35,21 @@ export default function AnalyticsSection({
                 </button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Download your purchase or analytics data</p>
+                <p className="font-body">Download your purchase or analytics data</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <select className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                <select className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 font-body">
                   <option>Last 30 Days</option>
                   <option>Last 7 Days</option>
                   <option>Last 90 Days</option>
                 </select>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Select date range to filter analytics results</p>
+                <p className="font-body">Select date range to filter analytics results</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -64,14 +64,14 @@ export default function AnalyticsSection({
               <div>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm font-medium text-gray-500 mb-1 cursor-help">Total Purchases</p>
+                    <p className="text-sm font-medium text-gray-500 mb-1 cursor-help font-body">Total Purchases</p>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Number of link orders placed through your account</p>
+                    <p className="font-body">Number of link orders placed through your account</p>
                   </TooltipContent>
                 </Tooltip>
-                <p className="text-2xl lg:text-3xl font-bold text-gray-900">{stats.purchases}</p>
-                <p className="text-xs text-green-600 font-medium mt-1">+12% from last month</p>
+                <p className="text-2xl lg:text-3xl font-bold text-gray-900 font-display">{stats.purchases}</p>
+                <p className="text-xs text-green-600 font-medium mt-1 font-body">+12% from last month</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,14 +86,14 @@ export default function AnalyticsSection({
               <div>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm font-medium text-gray-500 mb-1 cursor-help">Ad Requests</p>
+                    <p className="text-sm font-medium text-gray-500 mb-1 cursor-help font-body">Ad Requests</p>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Total advertising campaign requests you've made</p>
+                    <p className="font-body">Total advertising campaign requests you've made</p>
                   </TooltipContent>
                 </Tooltip>
-                <p className="text-2xl lg:text-3xl font-bold text-gray-900">{stats.adRequests}</p>
-                <p className="text-xs text-blue-600 font-medium mt-1">+5% from last month</p>
+                <p className="text-2xl lg:text-3xl font-bold text-gray-900 font-display">{stats.adRequests}</p>
+                <p className="text-xs text-blue-600 font-medium mt-1 font-body">+5% from last month</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,14 +108,14 @@ export default function AnalyticsSection({
               <div>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm font-medium text-gray-500 mb-1 cursor-help">Content Requests</p>
+                    <p className="text-sm font-medium text-gray-500 mb-1 cursor-help font-body">Content Requests</p>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Total content pieces requested from Linkfro writers</p>
+                    <p className="font-body">Total content pieces requested from Linkfro writers</p>
                   </TooltipContent>
                 </Tooltip>
-                <p className="text-2xl lg:text-3xl font-bold text-gray-900">{stats.contentRequests}</p>
-                <p className="text-xs text-orange-600 font-medium mt-1">+8% from last month</p>
+                <p className="text-2xl lg:text-3xl font-bold text-gray-900 font-display">{stats.contentRequests}</p>
+                <p className="text-xs text-orange-600 font-medium mt-1 font-body">+8% from last month</p>
               </div>
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,14 +130,14 @@ export default function AnalyticsSection({
               <div>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="text-sm font-medium text-gray-500 mb-1 cursor-help">Available Assets</p>
+                    <p className="text-sm font-medium text-gray-500 mb-1 cursor-help font-body">Available Assets</p>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Total verified domains available for new orders</p>
+                    <p className="font-body">Total verified domains available for new orders</p>
                   </TooltipContent>
                 </Tooltip>
-                <p className="text-2xl lg:text-3xl font-bold text-gray-900">{stats.total}</p>
-                <p className="text-xs text-green-600 font-medium mt-1">+3% from last month</p>
+                <p className="text-2xl lg:text-3xl font-bold text-gray-900 font-display">{stats.total}</p>
+                <p className="text-xs text-green-600 font-medium mt-1 font-body">+3% from last month</p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,10 +156,10 @@ export default function AnalyticsSection({
           <div className="px-6 py-4 border-b border-gray-200">
             <Tooltip>
               <TooltipTrigger asChild>
-                <h3 className="text-lg font-medium text-gray-900 cursor-help">Recent Activity</h3>
+                <h3 className="text-lg font-medium text-gray-900 cursor-help font-display">Recent Activity</h3>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Displays latest actions like new purchases, payments, and approvals</p>
+                <p className="font-body">Displays latest actions like new purchases, payments, and approvals</p>
               </TooltipContent>
             </Tooltip>
           </div>
@@ -173,11 +173,11 @@ export default function AnalyticsSection({
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">New Purchase</p>
-                    <p className="text-sm text-gray-500">TechBlog.com purchased</p>
+                    <p className="text-sm font-medium text-gray-900 font-body">New Purchase</p>
+                    <p className="text-sm text-gray-500 font-body">TechBlog.com purchased</p>
                   </div>
                 </div>
-                <span className="text-sm text-gray-400">2 hours ago</span>
+                <span className="text-sm text-gray-400 font-body">2 hours ago</span>
               </div>
             </div>
             <div className="px-6 py-4 hover:bg-gray-50">
@@ -189,11 +189,11 @@ export default function AnalyticsSection({
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">Ad Request Sent</p>
-                    <p className="text-sm text-gray-500">Campaign created for MarketingHub</p>
+                    <p className="text-sm font-medium text-gray-900 font-body">Ad Request Sent</p>
+                    <p className="text-sm text-gray-500 font-body">Campaign created for MarketingHub</p>
                   </div>
                 </div>
-                <span className="text-sm text-gray-400">5 hours ago</span>
+                <span className="text-sm text-gray-400 font-body">5 hours ago</span>
               </div>
             </div>
             <div className="px-6 py-4 hover:bg-gray-50">
@@ -205,54 +205,50 @@ export default function AnalyticsSection({
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">Content Request</p>
-                    <p className="text-sm text-gray-500">Article requested for SalesWebsite</p>
+                    <p className="text-sm font-medium text-gray-900 font-body">Content Request</p>
+                    <p className="text-sm text-gray-500 font-body">Article draft submitted</p>
                   </div>
                 </div>
-                <span className="text-sm text-gray-400">1 day ago</span>
+                <span className="text-sm text-gray-400 font-body">1 day ago</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Top Performing Websites */}
+        {/* Top Performing Sites */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <Tooltip>
               <TooltipTrigger asChild>
-                <h3 className="text-lg font-medium text-gray-900 cursor-help">Top Performing Websites</h3>
+                <h3 className="text-lg font-medium text-gray-900 cursor-help font-display">Top Performing Sites</h3>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Websites delivering highest traffic or SEO value</p>
+                <p className="font-body">Your highest-value website placements based on traffic and engagement</p>
               </TooltipContent>
             </Tooltip>
           </div>
           <div className="divide-y divide-gray-200">
-            {websites
-              .filter(website => website.OrganicTraffic !== undefined && website.OrganicTraffic !== null)
-              .sort((a, b) => (b.OrganicTraffic || 0) - (a.OrganicTraffic || 0))
-              .slice(0, 3)
-              .map((website, index) => (
-                <div key={website._id} className="px-6 py-4 hover:bg-gray-50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                        index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-orange-500'
-                      }`}>
-                        #{index + 1}
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-900">{website.title}</p>
-                        <p className="text-sm text-gray-500">DA: {website.DA || 0} | DR: {website.DR || 0}</p>
-                      </div>
+            {websites.slice(0, 5).map((website, index) => (
+              <div key={website._id} className="px-6 py-4 hover:bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold ${
+                      index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : 'bg-orange-500'
+                    }`}>
+                      #{index + 1}
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">${(website.priceCents / 100).toFixed(2)}</p>
-                      <p className="text-sm text-gray-500">{website.OrganicTraffic || 0} traffic</p>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900 font-body">{website.title}</p>
+                      <p className="text-sm text-gray-500 font-body">DA: {website.DA || 0} | DR: {website.DR || 0}</p>
                     </div>
                   </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900 font-body">${(website.priceCents / 100).toFixed(2)}</p>
+                    <p className="text-sm text-gray-500 font-body">{website.OrganicTraffic || 0} traffic</p>
+                  </div>
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
         </div>
       </div>
