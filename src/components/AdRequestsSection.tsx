@@ -63,7 +63,7 @@ export default function AdRequestsSection({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h3a1 1 0 011 1v1a1 1 0 01-1 1h-1v9a2 2 0 01-2 2H6a2 2 0 01-2-2V7H3a1 1 0 01-1-1V5a1 1 0 011-1h4z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2 font-display">No Ad Requests Yet</h3>
+              <h3 className="text-lg font-medium text-blue-600 mb-2 font-display">No Ad Requests Yet</h3>
               <p className="text-gray-600 mb-4 font-body">Start creating advertising campaigns to see your ad requests here</p>
               <button
                 onClick={() => {

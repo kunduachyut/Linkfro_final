@@ -112,7 +112,7 @@ export default function PublisherDashboardSection({
       </div>
 
       <div className="rounded-lg shadow-sm p-6" style={{backgroundColor: 'var(--base-primary)', border: '1px solid var(--base-tertiary)'}}>
-        <h3 className="text-lg font-semibold mb-4" style={{color: 'var(--secondary-primary)'}}>Quick Actions</h3>
+        <h3 className="text-lg font-semibold mb-4 text-blue-600">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <button
             onClick={() => setActiveTab("add-website")}
@@ -163,12 +163,12 @@ export default function PublisherDashboardSection({
 
       {mySites.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Websites</h3>
+          <h3 className="text-lg font-semibold text-blue-600 mb-4">Recent Websites</h3>
           <div className="space-y-4">
             {mySites.slice(0, 3).map((site) => (
               <div key={site._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div className="flex-1">
-                  <h4 className="font-medium text-gray-900">{site.title}</h4>
+                  <h4 className="font-medium text-blue-600">{site.title}</h4>
                   <p className="text-sm text-gray-500">{site.url}</p>
                 </div>
                 <div className="flex items-center gap-3">

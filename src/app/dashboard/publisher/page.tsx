@@ -614,7 +614,7 @@ export default function PublisherDashboard() {
             transition={{ duration: 0.3 }}
             className="mb-8"
           >
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl lg:text-3xl font-bold text-blue-600">
               {activeTab === "dashboard" && "Publisher Dashboard"}
               {activeTab === "websites" && "My Websites"}
               {activeTab === "add-website" && "Add New Website"}
@@ -623,7 +623,7 @@ export default function PublisherDashboard() {
               {activeTab === "settings" && "Settings"}
             </h1>
             {activeTab === "websites" && (
-              <p className="mt-1 text-gray-700">Manage your websites and track their approval status</p>
+              <p className="mt-1 text-blue-500">Manage your websites and track their approval status</p>
             )}
           </motion.div>
 

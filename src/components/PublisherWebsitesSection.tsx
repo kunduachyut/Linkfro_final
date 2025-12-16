@@ -617,7 +617,7 @@ export default function PublisherWebsitesSection({
       {/* Search and Filter Controls */}
       <div className="p-6">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">My Websites</h3>
+          <h3 className="text-lg font-semibold text-blue-600">My Websites</h3>
           <div className="flex items-center gap-2">
             <button
               onClick={refresh}
@@ -694,7 +694,7 @@ export default function PublisherWebsitesSection({
         {showFilters && (
           <div ref={filterRef} className="bg-gray-50 rounded-lg p-4 shadow-sm border border-gray-200 mb-4 mt-4">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-md font-medium text-gray-900">Filter Options</h3>
+              <h3 className="text-md font-medium text-blue-600">Filter Options</h3>
               <button 
                 onClick={clearFilters}
                 className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center gap-1"

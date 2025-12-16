@@ -334,7 +334,7 @@ export default function ConsumerDashboard() {
       <main className={`flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 overflow-y-auto overflow-x-hidden min-w-0 max-w-none w-full transition-all duration-300 ${sidebarCollapsed ? 'ml-12' : 'ml-52'}`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 lg:mb-8 w-full">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 font-display">
+            <h1 className="text-2xl lg:text-3xl font-bold text-blue-600 font-display">
               {activeTab === "marketplace" && "Marketplace"}
               {activeTab === "purchases" && "My Purchases"}
               {activeTab === "pendingPayments" && "Pending Payments"}
@@ -342,7 +342,7 @@ export default function ConsumerDashboard() {
               {activeTab === "contentRequests" && "Content Requests"}
               {activeTab === "analytics" && "Analytics Dashboard"}
             </h1>
-            <p className="mt-2 text-base lg:text-lg text-gray-700 font-body">
+            <p className="mt-2 text-base lg:text-lg text-blue-500 font-body">
               {activeTab === "marketplace" && "Browse and purchase digital assets"}
               {activeTab === "purchases" && "Manage your purchased websites"}
               {activeTab === "pendingPayments" && "Complete payment for your pending purchases"}

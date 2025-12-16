@@ -182,7 +182,7 @@ export default function PublisherAddWebsiteSection({
         className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:p-8"
       >
         <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-blue-600">
             {editingWebsite ? 'Edit Website' : 'Add New Website'}
           </h2>
           <div className="flex gap-2">
@@ -406,7 +406,7 @@ export default function PublisherAddWebsiteSection({
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:p-8">
       <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
-        <h2 className="text-2xl font-bold text-gray-900">
+        <h2 className="text-2xl font-bold text-blue-600">
           {editingWebsite ? 'Edit Website' : 'Add New Website'}
         </h2>
         <div className="flex gap-2">
@@ -543,7 +543,7 @@ export default function PublisherAddWebsiteSection({
         {/* SEO Metrics */}
         <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
           <div className="flex items-center mb-6">
-            <h3 className="text-xl font-bold text-gray-900">SEO Metrics</h3>
+            <h3 className="text-xl font-bold text-blue-600">SEO Metrics</h3>
             <button
               type="button"
               onClick={() => setShowSEOModal(true)}

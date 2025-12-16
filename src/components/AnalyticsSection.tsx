@@ -156,7 +156,7 @@ export default function AnalyticsSection({
           <div className="px-6 py-4 border-b border-gray-200">
             <Tooltip>
               <TooltipTrigger asChild>
-                <h3 className="text-lg font-medium text-gray-900 cursor-help font-display">Recent Activity</h3>
+                <h3 className="text-lg font-medium text-blue-600 cursor-help font-display">Recent Activity</h3>
               </TooltipTrigger>
               <TooltipContent>
                 <p className="font-body">Displays latest actions like new purchases, payments, and approvals</p>
@@ -220,7 +220,7 @@ export default function AnalyticsSection({
           <div className="px-6 py-4 border-b border-gray-200">
             <Tooltip>
               <TooltipTrigger asChild>
-                <h3 className="text-lg font-medium text-gray-900 cursor-help font-display">Top Performing Sites</h3>
+                <h3 className="text-lg font-medium text-blue-600 cursor-help font-display">Top Performing Sites</h3>
               </TooltipTrigger>
               <TooltipContent>
                 <p className="font-body">Your highest-value website placements based on traffic and engagement</p>

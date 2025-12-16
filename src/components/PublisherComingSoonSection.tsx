@@ -1,7 +1,7 @@
 export default function PublisherComingSoonSection({ activeTab }: { activeTab: string }) {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 className="text-xl font-semibold mb-6 text-gray-900">
+      <h2 className="text-xl font-semibold mb-6 text-blue-600">
         {activeTab === "analytics" && "Analytics Overview"}
         {activeTab === "earnings" && "Earnings Report"}
         {activeTab === "settings" && "Publisher Settings"}
