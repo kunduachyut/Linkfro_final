@@ -28,7 +28,8 @@ export async function GET(req: NextRequest, context: any) {
   paymentLink: purchase.paymentLink || null,
   docLink: purchase.docLink || null,
   liveLink: purchase.liveLink || null,
-      contentType: purchase.contentSelection,
+        contentType: purchase.contentSelection,
+        linkDetails: purchase.linkDetails || null,
       createdAt: purchase.createdAt.toISOString(),
       updatedAt: purchase.updatedAt?.toISOString(),
       contentIds: purchase.contentIds?.map(id => id.toString()) || []

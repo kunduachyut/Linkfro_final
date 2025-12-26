@@ -724,6 +724,10 @@ const [confirmationAction, setConfirmationAction] = useState<{
           setContentDetails({ type: 'request', items: [], count: 0, error: 'Failed to fetch requests' });
         }
       }
+      else if (purchase.contentType === 'link') {
+        const ld = (purchase as any).linkDetails;
+        setContentDetails({ type: 'link', items: ld ? [ld] : [], count: ld ? 1 : 0 });
+      }
     } catch (error) {
       console.error('Error fetching content details:', error);
       setContentDetails({

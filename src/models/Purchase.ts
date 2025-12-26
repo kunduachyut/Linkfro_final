@@ -11,7 +11,8 @@ export interface IPurchase extends Document {
   status: "pending" | "paid" | "rejected";
   stripeSessionId?: string;
   contentIds: Types.ObjectId[]; // Array of content IDs
-  contentSelection?: "content" | "request" | null; // Store user's content selection
+  contentSelection?: "content" | "request" | "link" | null; // Store user's content selection
+  linkDetails?: { anchorText?: string; targetUrl?: string; blogUrl?: string; paragraph?: string } | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,7 +28,13 @@ const PurchaseSchema = new Schema<IPurchase>({
   status: { type: String, enum: ["pending", "ongoing", "pendingPayment", "approved", "paid", "rejected"], required: true },
   stripeSessionId: { type: String },
   contentIds: [{ type: Schema.Types.ObjectId, ref: "UserContent" }], // Array of content IDs
-  contentSelection: { type: String, enum: ["content", "request"], default: null } // Store user's content selection
+  contentSelection: { type: String, enum: ["content", "request", "link"], default: null }, // Store user's content selection
+  linkDetails: {
+    anchorText: { type: String },
+    targetUrl: { type: String },
+    blogUrl: { type: String },
+    paragraph: { type: String }
+  }
 }, { timestamps: true });
 
 // Method to add content to purchase

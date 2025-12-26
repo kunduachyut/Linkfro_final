@@ -5,11 +5,19 @@ export interface IUserContent extends Document {
   websiteId?: string;
   purchaseId?: Types.ObjectId; // Change to ObjectId type
   requirements: string;
-  pdf: {
+  // Either a PDF upload OR a link / linkDetails may be present
+  pdf?: {
     data: Buffer;
     contentType: string;
     filename?: string;
     size?: number;
+  };
+  link?: string;
+  linkDetails?: {
+    anchorText?: string;
+    targetUrl?: string;
+    blogUrl?: string;
+    paragraph?: string;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -22,10 +30,17 @@ const UserContentSchema = new Schema<IUserContent>(
     purchaseId: { type: Schema.Types.ObjectId, ref: "Purchase" }, // Change to ObjectId type
     requirements: { type: String, required: true },
     pdf: {
-      data: { type: Buffer, required: true },
-      contentType: { type: String, required: true },
+      data: { type: Buffer },
+      contentType: { type: String },
       filename: { type: String },
       size: { type: Number },
+    },
+    link: { type: String },
+    linkDetails: {
+      anchorText: { type: String },
+      targetUrl: { type: String },
+      blogUrl: { type: String },
+      paragraph: { type: String }
     },
   },
   { timestamps: true }

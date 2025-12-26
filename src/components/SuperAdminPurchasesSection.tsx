@@ -21,6 +21,12 @@ type PurchaseRequest = {
   docLink?: string;
   liveLink?: string;
   paymentLink?: string;
+  linkDetails?: {
+    anchorText?: string;
+    targetUrl?: string;
+    blogUrl?: string;
+    paragraph?: string;
+  };
 };
 
 // ...in SuperAdminPurchasesSection.tsx
@@ -100,6 +106,9 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
   const [paymentLinkPurchaseId, setPaymentLinkPurchaseId] = useState<string | null>(null);
   const [paymentLinkUrl, setPaymentLinkUrl] = useState<string>('');
   const [paymentLinkPdf, setPaymentLinkPdf] = useState<File | null>(null);
+  // Modal for viewing link details (anchorText, targetUrl, blogUrl, paragraph)
+  const [linkDetailsModalOpen, setLinkDetailsModalOpen] = useState(false);
+  const [activeLinkDetails, setActiveLinkDetails] = useState<PurchaseRequest['linkDetails'] | null>(null);
   // (Doc link toggles removed) — single button will be shown per request for doc link (Visit / Add)
 
   // subscribe to websocket messages
@@ -233,7 +242,25 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
           Request Content
         </button>
       );
-    } else {
+      } else if (contentType === 'link') {
+        return (
+          <button
+            onClick={() => {
+              // open local modal with provided purchase.linkDetails (fallback to fetch if parent prefers)
+              setActiveLinkDetails(purchase.linkDetails || null);
+              setLinkDetailsModalOpen(true);
+            }}
+            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors"
+            title="Click to view link details"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 010 5.656l-1.414 1.414a4 4 0 01-5.656-5.656l1.414-1.414" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.172 13.828a4 4 0 010-5.656l1.414-1.414a4 4 0 015.656 5.656l-1.414 1.414" />
+            </svg>
+            Link details
+          </button>
+        );
+      } else {
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
           Not Selected
@@ -749,6 +776,47 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
           />
         </div>
       )}
+      
+      {/* Link Details Modal (shows anchorText, targetUrl, blogUrl, paragraph) */}
+      {linkDetailsModalOpen && (
+        <div className="fixed inset-0 bg-transparent bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg w-full max-w-lg shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-black">Link Details</h3>
+              <button onClick={() => setLinkDetailsModalOpen(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+
+            <div className="space-y-3">
+              {activeLinkDetails ? (
+                <div className="grid grid-cols-1 gap-3">
+                  <div>
+                    <label className="text-xs text-gray-500">Anchor Text</label>
+                    <div className="mt-1 text-sm text-gray-900">{activeLinkDetails.anchorText || '—'}</div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500">Target URL</label>
+                    <div className="mt-1 text-sm text-indigo-700 break-words">{activeLinkDetails.targetUrl || '—'}</div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500">Blog URL</label>
+                    <div className="mt-1 text-sm text-indigo-700 break-words">{activeLinkDetails.blogUrl || '—'}</div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500">Paragraph</label>
+                    <div className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{activeLinkDetails.paragraph || '—'}</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-sm text-gray-600">No link details available for this purchase.</div>
+              )}
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button onClick={() => setLinkDetailsModalOpen(false)} className="px-4 py-2 bg-gray-200 rounded-md">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Link Edit Modal (Doc/Live) */}
       {linkModalOpen && linkModalType && linkModalPurchaseId && (
@@ -873,6 +941,8 @@ const SuperAdminPurchasesSection: React.FC<SuperAdminPurchasesSectionProps> = ({
                 <input
                   type="text"
                   value={paymentLinkUrl}
+
+      
                   onChange={(e) => setPaymentLinkUrl(e.target.value)}
                   placeholder="e.g., https://payment.example.com/invoice/123"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"

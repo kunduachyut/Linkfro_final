@@ -38,8 +38,12 @@ export default function CartPage() {
   const [activeDetailsItem, setActiveDetailsItem] = useState<string | null>(null);
   const [uploadsByCartItem, setUploadsByCartItem] = useState<Record<string, any[]>>({});
   const [tempUploadsByCartItem, setTempUploadsByCartItem] = useState<Record<string, any[]>>({});
-  const [fileDataByCartItem, setFileDataByCartItem] = useState<Record<string, { file?: File; link?: string; requirements: string }[]>>({});
+  const [fileDataByCartItem, setFileDataByCartItem] = useState<Record<string, ({ file?: File; link?: string; requirements?: string; linkDetails?: { anchorText?: string; targetUrl?: string; blogUrl?: string; paragraph?: string } })[]>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Link Details modal state
+  const [showLinkDetailsModal, setShowLinkDetailsModal] = useState(false);
+  const [linkDetailsItem, setLinkDetailsItem] = useState<any>(null);
+  const [linkDetailsData, setLinkDetailsData] = useState({ anchorText: '', targetUrl: '', blogUrl: '', paragraph: '' });
   const [contentRequestData, setContentRequestData] = useState({
     titleSuggestion: '',
     keywords: '',
@@ -83,17 +87,7 @@ export default function CartPage() {
     });
     setUploadsByWebsite(map);
   }, [isSignedIn, tempUploadsByCartItem]);
-
-  useEffect(() => {
-    if (showContentModal) {
-      setTimeout(() => {
-        resetFileInput();
-      }, 50);
-    } else {
-      resetFileInput();
-    }
-  }, [showContentModal]);
-
+  
   const handleCheckout = async () => {
     if (!isSignedIn) {
       setShowErrorMessage(true);
@@ -139,6 +133,7 @@ export default function CartPage() {
         const purchaseId = purchaseIdMap[websiteId];
         return Promise.all(files.map(async (fileData) => {
           const { file, link, requirements } = fileData as { file?: File, link?: string, requirements: string };
+          const linkDetails = (fileData as any).linkDetails;
           if (file) {
             const fd = new FormData();
             fd.append("pdfFile", file);
@@ -169,6 +164,26 @@ export default function CartPage() {
             }
 
             const res = await fetch(`/api/purchases/${purchaseId}/doc-link`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ docLink: link }) });
+            if (!res.ok) {
+              let msg = `HTTP ${res.status}`;
+              try { const j = await res.json(); if (j?.error) msg = j.error; } catch { }
+              throw new Error(msg);
+            }
+            return res.json();
+          } else if (linkDetails) {
+            // Save link details to purchase (or to temp my-content if purchaseId missing)
+            if (!purchaseId) {
+              const payload = { linkDetails, websiteId, purchaseId };
+              const res = await fetch("/api/my-content/link", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+              if (!res.ok) {
+                let msg = `HTTP ${res.status}`;
+                try { const j = await res.json(); if (j?.error) msg = j.error; } catch { }
+                throw new Error(msg);
+              }
+              return res.json();
+            }
+
+            const res = await fetch(`/api/purchases/${purchaseId}/link-details`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ linkDetails }) });
             if (!res.ok) {
               let msg = `HTTP ${res.status}`;
               try { const j = await res.json(); if (j?.error) msg = j.error; } catch { }
@@ -490,6 +505,32 @@ export default function CartPage() {
                           <div className="flex bg-blue-50 rounded-lg p-1 border border-gray-200 shadow-sm">
                             <button
                               onClick={() => {
+                                if (selectedOptions[item._id] === 'link') {
+                                  setSelectedOptions(prev => {
+                                    const newOptions = { ...prev };
+                                    delete newOptions[item._id];
+                                    return newOptions;
+                                  });
+                                } else {
+                                  setLinkDetailsData({ anchorText: '', targetUrl: '', blogUrl: '', paragraph: '' });
+                                  setLinkDetailsItem(item);
+                                  setShowLinkDetailsModal(true);
+                                }
+                              }}
+                              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${selectedOptions[item._id] === 'link'
+                                ? 'bg-white text-blue-600 shadow-sm border border-blue-200'
+                                : 'text-gray-600 hover:text-blue-700 hover:bg-blue-100'
+                                }`}
+                            >
+                              Link insertion
+                              {tempUploadsByCartItem[item._id]?.length > 0 && (
+                                <span className="ml-1.5 bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full text-[10px] font-bold">
+                                  {tempUploadsByCartItem[item._id].length}
+                                </span>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => {
                                 if (selectedOptions[item._id] === 'content') {
                                   setSelectedOptions(prev => {
                                     const newOptions = { ...prev };
@@ -505,7 +546,7 @@ export default function CartPage() {
                                 : 'text-gray-600 hover:text-blue-700 hover:bg-blue-100'
                                 }`}
                             >
-                              My Content
+                             Upload my Content
                               {tempUploadsByCartItem[item._id]?.length > 0 && (
                                 <span className="ml-1.5 bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full text-[10px] font-bold">
                                   {tempUploadsByCartItem[item._id].length}
@@ -529,7 +570,9 @@ export default function CartPage() {
                                 : 'text-gray-600 hover:text-green-700 hover:bg-green-100'
                                 }`}
                             >
-                              Request
+                              <span>Request for content</span>
+                              <br />
+                              <span className="text-[9px]">[$3 per 100 SEO optimised words]</span>
                             </button>
                           </div>
                         </div>
@@ -794,6 +837,68 @@ export default function CartPage() {
                   ))}
                 </ul>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Link Details Modal */}
+      {showLinkDetailsModal && linkDetailsItem && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-xl p-4">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md max-h-[90vh] overflow-auto border border-gray-200 shadow-xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-blue-700">Link Details for {linkDetailsItem.title}</h3>
+              <button
+                onClick={() => { setShowLinkDetailsModal(false); setLinkDetailsItem(null); }}
+                className="text-gray-500 hover:text-red-500 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Anchor Text*</label>
+                <input type="text" value={linkDetailsData.anchorText} onChange={(e) => setLinkDetailsData(prev => ({ ...prev, anchorText: e.target.value }))} className="w-full p-2 border rounded-md" placeholder="e.g., Click here" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Target URL*</label>
+                <input type="url" value={linkDetailsData.targetUrl} onChange={(e) => setLinkDetailsData(prev => ({ ...prev, targetUrl: e.target.value }))} className="w-full p-2 border rounded-md" placeholder="https://example.com/target" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Blog URL</label>
+                <input type="url" value={linkDetailsData.blogUrl} onChange={(e) => setLinkDetailsData(prev => ({ ...prev, blogUrl: e.target.value }))} className="w-full p-2 border rounded-md" placeholder="https://blog.example.com/post" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Paragraph (Optional)</label>
+                <textarea value={linkDetailsData.paragraph} onChange={(e) => setLinkDetailsData(prev => ({ ...prev, paragraph: e.target.value }))} className="w-full p-2 border rounded-md" rows={4} placeholder="Optional paragraph about the link" />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button onClick={() => { setShowLinkDetailsModal(false); setLinkDetailsItem(null); }} className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">Cancel</button>
+              <button
+                onClick={() => {
+                  if (!linkDetailsData.anchorText.trim() || !linkDetailsData.targetUrl.trim()) { alert('Please provide Anchor Text and Target URL'); return; }
+                  const id = linkDetailsItem._id ?? linkDetailsItem.id;
+                  const newUpload: any = {
+                    createdAt: new Date(),
+                    linkDetails: { ...linkDetailsData },
+                    tempId: Date.now()
+                  };
+                  setTempUploadsByCartItem(prev => ({ ...prev, [id]: [...(prev[id] || []), newUpload] }));
+                  setFileDataByCartItem(prev => ({ ...prev, [id]: [...(prev[id] || []), { linkDetails: { ...linkDetailsData } } as any] }));
+                  setMyUploads(prev => [...prev, newUpload]);
+                  setSelectedOptions(prev => ({ ...prev, [id]: 'link' }));
+                  setShowLinkDetailsModal(false);
+                  setLinkDetailsItem(null);
+                }}
+                className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+              >
+                Save Link Details
+              </button>
             </div>
           </div>
         </div>

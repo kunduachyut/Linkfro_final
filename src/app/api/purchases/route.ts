@@ -54,6 +54,7 @@ export async function GET(req: NextRequest) {
   liveLink: purchase.liveLink || null,
       status: purchase.status,
       contentType: purchase.contentSelection, // Use stored content selection
+      linkDetails: purchase.linkDetails || null,
       createdAt: purchase.createdAt.toISOString(),
       updatedAt: purchase.updatedAt?.toISOString(),
       contentIds: purchase.contentIds?.map(id => id.toString()) || [] // Add contentIds
@@ -138,6 +139,7 @@ export async function POST(req: NextRequest) {
         customerEmail: user.email,
         status: purchase.status,
         contentType: purchase.contentSelection, // Use stored content selection
+        linkDetails: purchase.linkDetails || null,
         createdAt: purchase.createdAt.toISOString(),
         updatedAt: purchase.updatedAt?.toISOString(),
         contentIds: purchase.contentIds?.map(id => id.toString()) || [] // Add contentIds
@@ -212,6 +214,7 @@ export async function PATCH(req: NextRequest) {
       customerEmail: '', // We don't have this information in this context
       status: purchase.status,
       contentType: purchase.contentSelection, // Use stored content selection
+      linkDetails: purchase.linkDetails || null,
       createdAt: purchase.createdAt.toISOString(),
       updatedAt: purchase.updatedAt?.toISOString(),
       contentIds: purchase.contentIds?.map(id => id.toString()) || [] // Add contentIds
