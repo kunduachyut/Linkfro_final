@@ -224,240 +224,244 @@ export default function PendingPaymentsSection({
 
       {/* Pending Payments Table */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        {/* Table Header */}
-        <div className="bg-blue-50 border-b border-blue-100 grid grid-cols-12 gap-4 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center font-body">
-          <div className="col-span-5 flex items-center gap-1">
-            <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
-              Website
-            </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-xs font-normal normal-case">Website domain for which payment is pending</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <div className="col-span-2 flex justify-center items-center gap-1">
-            <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
-              Category
-            </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-xs font-normal normal-case">Content category of the website</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <div className="col-span-1 flex justify-center items-center gap-1">
-            <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
-              Amount
-            </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-xs font-normal normal-case">Total price for this purchase</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <div className="col-span-1 flex justify-center items-center gap-1">
-            <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
-              Country
-            </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-xs font-normal normal-case">Primary country of the website's audience</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <div className="col-span-2 flex justify-center items-center gap-1">
-            <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
-              Created
-            </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-xs font-normal normal-case">Date when the purchase was created</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <div className="col-span-1 flex justify-center items-center gap-1">
-            <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
-              Actions
-            </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-xs font-normal normal-case">Complete or cancel the pending payment</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </div>
-
-        {/* Table Body */}
-        <div className="divide-y divide-gray-100">
-          {filtered.map((purchase) => {
-            const websiteRaw = purchase.websiteId;
-            const website =
-              typeof websiteRaw === "string" ? websiteDetails[websiteRaw] : websiteRaw;
-            const loadingSite = typeof websiteRaw === "string" ? loadingWebsites[websiteRaw] : false;
-
-            const title =
-              website && typeof website === "object"
-                ? website.title || website.name || website.url || "Website Purchase"
-                : typeof websiteRaw === "string"
-                ? loadingSite
-                  ? "Loading..."
-                  : "Website (details unavailable)"
-                : "Website Purchase";
-
-            const url = website && typeof website === "object" ? website.url : undefined;
-            const category =
-              website && typeof website === "object"
-                ? Array.isArray(website.category)
-                  ? website.category[0]
-                  : website.category
-                : undefined;
-            const primaryCountry = website && typeof website === "object" ? website.primaryCountry : undefined;
-
-            const priceCents =
-              typeof purchase.amountCents === "number"
-                ? purchase.amountCents
-                : typeof purchase.totalCents === "number"
-                ? purchase.totalCents
-                : typeof website?.priceCents === "number"
-                ? website.priceCents
-                : 0;
-
-            return (
-              <div
-                key={purchase._id}
-                className="grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors"
-              >
-                {/* Website Info */}
-                <div className="col-span-5">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 bg-gray-100 rounded-lg">
-                      <div className="flex-shrink-0 h-6 w-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs font-body">
-                        {title.charAt(0).toUpperCase()}
-                      </div>
-                    </div>
-                    <div className="overflow-hidden">
-                      <div className="font-bold text-gray-900 truncate font-body" title={title}>
-                        {title}
-                      </div>
-                      <div className="text-xs text-gray-500 truncate font-body" title={url}>
-                        {url}
-                      </div>
-                    </div>
-                  </div>
+        <div className="overflow-x-auto">
+          <div className="min-w-[1200px]">
+            {/* Table Header */}
+            <div className="bg-blue-50 border-b border-blue-100 grid grid-cols-12 gap-4 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center font-body">
+              <div className="col-span-5 flex items-center gap-1">
+                <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
+                  Website
                 </div>
-
-                {/* Category */}
-                <div className="col-span-2 flex justify-center">
-                  <div className="text-sm text-gray-900 font-body">
-                    {category || "N/A"}
-                  </div>
-                </div>
-
-                {/* Amount */}
-                <div className="col-span-1 flex justify-center">
-                  <div className="font-bold text-green-600 font-body">
-                    <span className="text-sm font-body">$</span>
-                    <span className="text-base font-body">{(priceCents / 100).toFixed(2)}</span>
-                  </div>
-                </div>
-
-                {/* Country */}
-                <div className="col-span-1 flex justify-center">
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs font-body">{getCountryFlagEmoji(primaryCountry)}</span>
-                    <span className="text-sm text-gray-900 truncate font-body">{primaryCountry || "Global"}</span>
-                  </div>
-                </div>
-
-                {/* Created Date */}
-                <div className="col-span-2 flex justify-center">
-                  <div className="text-sm text-gray-900 font-body">
-                    {formatDate(purchase.createdAt)}
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="col-span-1 flex justify-center space-x-2">
-                  {/* View Payment Slip Button - check both database and messages prop */}
-                  {(paymentLinks[purchase._id] || (messages && messages[`paymentLink:${purchase._id}`])) && (
-                    <button
-                      onClick={() => {
-                        const paymentLink = paymentLinks[purchase._id] || (messages && messages[`paymentLink:${purchase._id}`]);
-                        if (paymentLink) {
-                          try {
-                            window.open(paymentLink, "_blank");
-                          } catch (err) {
-                            console.warn("Could not open payment slip:", err);
-                            alert("Could not open payment slip. Please try again.");
-                          }
-                        }
-                      }}
-                      className="p-1.5 text-indigo-600 hover:text-indigo-800 rounded-full hover:bg-indigo-50 transition-colors"
-                      title="View the payment slip/invoice"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                    </button>
-                  )}
-
-                  {/* Complete Payment Button */}
-                  <button
-                    onClick={() => completePayment(purchase._id)}
-                    className="p-1.5 text-green-600 hover:text-green-800 rounded-full hover:bg-green-50 transition-colors"
-                    title="Mark this payment as completed"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </button>
-                </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs font-normal normal-case">Website domain for which payment is pending</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
-            );
-          })}
+              <div className="col-span-2 flex justify-center items-center gap-1">
+                <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
+                  Category
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs font-normal normal-case">Content category of the website</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="col-span-1 flex justify-center items-center gap-1">
+                <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
+                  Amount
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs font-normal normal-case">Total price for this purchase</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="col-span-1 flex justify-center items-center gap-1">
+                <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
+                  Country
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs font-normal normal-case">Primary country of the website's audience</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="col-span-2 flex justify-center items-center gap-1">
+                <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
+                  Created
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs font-normal normal-case">Date when the purchase was created</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="col-span-1 flex justify-center items-center gap-1">
+                <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
+                  Actions
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs font-normal normal-case">Complete or cancel the pending payment</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+
+            {/* Table Body */}
+            <div className="divide-y divide-gray-100">
+              {filtered.map((purchase) => {
+                const websiteRaw = purchase.websiteId;
+                const website =
+                  typeof websiteRaw === "string" ? websiteDetails[websiteRaw] : websiteRaw;
+                const loadingSite = typeof websiteRaw === "string" ? loadingWebsites[websiteRaw] : false;
+
+                const title =
+                  website && typeof website === "object"
+                    ? website.title || website.name || website.url || "Website Purchase"
+                    : typeof websiteRaw === "string"
+                    ? loadingSite
+                      ? "Loading..."
+                      : "Website (details unavailable)"
+                    : "Website Purchase";
+
+                const url = website && typeof website === "object" ? website.url : undefined;
+                const category =
+                  website && typeof website === "object"
+                    ? Array.isArray(website.category)
+                      ? website.category[0]
+                      : website.category
+                    : undefined;
+                const primaryCountry = website && typeof website === "object" ? website.primaryCountry : undefined;
+
+                const priceCents =
+                  typeof purchase.amountCents === "number"
+                    ? purchase.amountCents
+                    : typeof purchase.totalCents === "number"
+                    ? purchase.totalCents
+                    : typeof website?.priceCents === "number"
+                    ? website.priceCents
+                    : 0;
+
+                return (
+                  <div
+                    key={purchase._id}
+                    className="grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors"
+                  >
+                    {/* Website Info */}
+                    <div className="col-span-5">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-gray-100 rounded-lg">
+                          <div className="flex-shrink-0 h-6 w-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xs font-body">
+                            {title.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                        <div className="overflow-hidden">
+                          <div className="font-bold text-gray-900 truncate font-body" title={title}>
+                            {title}
+                          </div>
+                          <div className="text-xs text-gray-500 truncate font-body" title={url}>
+                            {url}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Category */}
+                    <div className="col-span-2 flex justify-center">
+                      <div className="text-sm text-gray-900 font-body">
+                        {category || "N/A"}
+                      </div>
+                    </div>
+
+                    {/* Amount */}
+                    <div className="col-span-1 flex justify-center">
+                      <div className="font-bold text-green-600 font-body">
+                        <span className="text-sm font-body">$</span>
+                        <span className="text-base font-body">{(priceCents / 100).toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    {/* Country */}
+                    <div className="col-span-1 flex justify-center">
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-body">{getCountryFlagEmoji(primaryCountry)}</span>
+                        <span className="text-sm text-gray-900 truncate font-body">{primaryCountry || "Global"}</span>
+                      </div>
+                    </div>
+
+                    {/* Created Date */}
+                    <div className="col-span-2 flex justify-center">
+                      <div className="text-sm text-gray-900 font-body">
+                        {formatDate(purchase.createdAt)}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="col-span-1 flex justify-center space-x-2">
+                      {/* View Payment Slip Button - check both database and messages prop */}
+                      {(paymentLinks[purchase._id] || (messages && messages[`paymentLink:${purchase._id}`])) && (
+                        <button
+                          onClick={() => {
+                            const paymentLink = paymentLinks[purchase._id] || (messages && messages[`paymentLink:${purchase._id}`]);
+                            if (paymentLink) {
+                              try {
+                                window.open(paymentLink, "_blank");
+                              } catch (err) {
+                                console.warn("Could not open payment slip:", err);
+                                alert("Could not open payment slip. Please try again.");
+                              }
+                            }
+                          }}
+                          className="p-1.5 text-indigo-600 hover:text-indigo-800 rounded-full hover:bg-indigo-50 transition-colors"
+                          title="View the payment slip/invoice"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </button>
+                      )}
+
+                      {/* Complete Payment Button */}
+                      <button
+                        onClick={() => completePayment(purchase._id)}
+                        className="p-1.5 text-green-600 hover:text-green-800 rounded-full hover:bg-green-50 transition-colors"
+                        title="Mark this payment as completed"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
       </div>
