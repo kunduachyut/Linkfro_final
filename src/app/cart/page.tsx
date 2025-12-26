@@ -58,6 +58,9 @@ export default function CartPage() {
   const [activeUploadsItem, setActiveUploadsItem] = useState<string | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewUpload, setPreviewUpload] = useState<any>(null);
+  const [requestFees, setRequestFees] = useState<Record<string, number>>({});
+  const [editingRequestWebsite, setEditingRequestWebsite] = useState<string | null>(null);
+  const [editingRequestTempId, setEditingRequestTempId] = useState<number | null>(null);
 
   const truncate = (s: string | undefined | null, n = 20) => {
     if (!s) return '';
@@ -206,6 +209,7 @@ export default function CartPage() {
       setUploadsByCartItem({});
       setTempUploadsByCartItem({});
       setFileDataByCartItem({});
+      setRequestFees({});
       setShowContentModal(false);
       setShowRequestModal(false);
       setShowConfirmModal(false);
@@ -278,8 +282,6 @@ export default function CartPage() {
 
   const handleContentRequest = async () => {
     if (!contentRequestData.keywords.trim()) { alert("Please provide keywords"); return; }
-    if (!contentRequestData.anchorText.trim()) { alert("Please provide anchor text"); return; }
-    if (!contentRequestData.targetAudience) { alert("Please select target audience"); return; }
     if (!contentRequestData.wordCount) { alert("Please select word count"); return; }
     if (!contentRequestData.category) { alert("Please select category"); return; }
     if (!contentRequestData.landingPageUrl.trim()) { alert("Please provide landing page URL"); return; }
@@ -303,8 +305,53 @@ export default function CartPage() {
       }
 
       const data = await res.json();
-      alert("Content request submitted successfully!");
+      // compute request fee: $3 per 100 words
+      const wc = parseInt(String(contentRequestData.wordCount)) || 0;
+      const blocks = Math.ceil(wc / 100) || 0;
+      const feeDollars = blocks * 3;
+      const feeCents = feeDollars * 100;
+
+      const id = selectedItem?._id;
+      if (!id) {
+        setTempUploadPopupMessage("Failed to identify website for request");
+        setShowTempUploadPopup(true);
+        setTimeout(() => setShowTempUploadPopup(false), 2500);
+        return;
+      }
+
+      // If editing an existing request, replace it
+      if (editingRequestWebsite === id && editingRequestTempId) {
+        setTempUploadsByCartItem(prev => {
+          const next = { ...prev };
+          next[id] = (next[id] || []).map((u: any) => u.tempId === editingRequestTempId ? { ...u, contentRequest: { ...contentRequestData } } : u);
+          return next;
+        });
+        setFileDataByCartItem(prev => {
+          const next = { ...prev };
+          next[id] = (next[id] || []).map((f: any) => f.contentRequest ? { contentRequest: { ...contentRequestData } } : f);
+          return next;
+        });
+        // update fee for this website
+        setRequestFees(prev => ({ ...prev, [id]: feeCents }));
+        setEditingRequestWebsite(null);
+        setEditingRequestTempId(null);
+      } else {
+        const newRequest: any = {
+          createdAt: new Date(),
+          contentRequest: { ...contentRequestData },
+          tempId: Date.now()
+        };
+        setTempUploadsByCartItem(prev => ({ ...prev, [id]: [...(prev[id] || []), newRequest] }));
+        setFileDataByCartItem(prev => ({ ...prev, [id]: [...(prev[id] || []), { contentRequest: { ...contentRequestData } }] }));
+        setMyUploads(prev => [...prev, newRequest]);
+        setSelectedOptions(prev => ({ ...prev, [id]: 'request' }));
+        setRequestFees(prev => ({ ...prev, [id]: feeCents }));
+      }
+
+      setTempUploadPopupMessage("Content request saved temporarily.");
+      setShowTempUploadPopup(true);
       setShowRequestModal(false);
+      setTimeout(() => setShowTempUploadPopup(false), 2500);
 
     } catch (err: any) {
       console.error("Failed to submit content request:", err);
@@ -358,6 +405,7 @@ export default function CartPage() {
     setUploadsByCartItem({});
     setTempUploadsByCartItem({});
     setFileDataByCartItem({});
+    setRequestFees({});
     setShowContentModal(false);
     setShowRequestModal(false);
     setShowConfirmModal(false);
@@ -426,6 +474,49 @@ export default function CartPage() {
         });
         if (next[key].length === 0) delete next[key];
       });
+      return next;
+    });
+  };
+
+  const handleEditRequest = (websiteId: string, tempId: number, data: any) => {
+    setEditingRequestWebsite(websiteId);
+    setEditingRequestTempId(tempId);
+    setContentRequestData({ ...(data.contentRequest || data) });
+    setShowRequestModal(true);
+  };
+
+  const handleDeleteRequest = (websiteId: string, tempId: number) => {
+    // Remove from temp uploads and file data, and update fees
+    let removedRequest: any = null;
+    setTempUploadsByCartItem(prev => {
+      const next: Record<string, any[]> = { ...prev };
+      if (!next[websiteId]) return prev;
+      const found = next[websiteId].find(u => u.tempId === tempId);
+      if (found) removedRequest = found.contentRequest || found;
+      next[websiteId] = next[websiteId].filter(u => u.tempId !== tempId);
+      if (next[websiteId].length === 0) delete next[websiteId];
+      return next;
+    });
+
+    setFileDataByCartItem(prev => {
+      const next: Record<string, any[]> = { ...prev };
+      if (!next[websiteId]) return prev;
+      next[websiteId] = next[websiteId].filter(f => {
+        if (!f || !f.contentRequest) return true;
+        try {
+          return JSON.stringify(f.contentRequest) !== JSON.stringify(removedRequest);
+        } catch {
+          return true;
+        }
+      });
+      if (next[websiteId] && next[websiteId].length === 0) delete next[websiteId];
+      return next;
+    });
+
+    // Remove fee entry for this website
+    setRequestFees(prev => {
+      const next = { ...prev };
+      delete next[websiteId];
       return next;
     });
   };
@@ -631,6 +722,27 @@ export default function CartPage() {
                           Remove
                         </button>
                       </div>
+                      {/* Show saved content requests for this item */}
+                      { (tempUploadsByCartItem[item._id] || []).filter(u => u.contentRequest).length > 0 && (
+                        <div className="mt-4 w-full">
+                          <h4 className="text-sm font-medium text-gray-700 mb-2">Saved Requests</h4>
+                          <ul className="space-y-2">
+                            {(tempUploadsByCartItem[item._id] || []).filter(u => u.contentRequest).map((u: any) => (
+                              <li key={u.tempId} className="border border-gray-200 rounded-lg p-3 bg-gray-50 flex items-start justify-between">
+                                <div className="text-sm">
+                                  <div className="font-medium text-gray-900">{u.contentRequest.titleSuggestion || `Request (${u.contentRequest.wordCount} words)`}</div>
+                                  <div className="text-gray-600 text-xs mt-1">Keywords: {u.contentRequest.keywords}</div>
+                                  <div className="text-gray-600 text-xs">Word Count: {u.contentRequest.wordCount}</div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <button onClick={() => handleEditRequest(item._id, u.tempId, u)} className="px-2 py-1 text-xs bg-white border rounded-md">Edit</button>
+                                  <button onClick={() => handleDeleteRequest(item._id, u.tempId)} className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-md">Delete</button>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -645,9 +757,15 @@ export default function CartPage() {
                     <span className="text-gray-600 font-medium">Subtotal ({cart.length} items)</span>
                     <span className="font-medium text-gray-900">${(totalCents / 100).toFixed(2)}</span>
                   </div>
+                  {Object.keys(requestFees).length > 0 && (
+                    <div className="flex justify-between text-sm mt-2">
+                      <span className="text-gray-600">Content Request Fees</span>
+                      <span className="font-medium text-gray-900">${(Object.values(requestFees).reduce((a, b) => a + b, 0) / 100).toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="border-t border-gray-200 pt-4 flex justify-between items-center">
                     <span className="text-base font-bold text-gray-900">Total</span>
-                    <span className="text-2xl font-bold text-blue-600">${(totalCents / 100).toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-blue-600">${((totalCents + Object.values(requestFees).reduce((a, b) => a + b, 0)) / 100).toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -1130,39 +1248,38 @@ export default function CartPage() {
             </div>
 
             <form className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Title Suggestion
-                  </label>
-                  <input
-                    type="text"
-                    name="titleSuggestion"
-                    value={contentRequestData.titleSuggestion}
-                    onChange={handleContentRequestChange}
-                    placeholder="Suggest Title"
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1 required">
-                    Keywords*
-                  </label>
-                  <input
-                    type="text"
-                    name="keywords"
-                    value={contentRequestData.keywords}
-                    onChange={handleContentRequestChange}
-                    placeholder="Provide Keywords; Separated by comma"
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Title Suggestion
+                </label>
+                <input
+                  type="text"
+                  name="titleSuggestion"
+                  value={contentRequestData.titleSuggestion}
+                  onChange={handleContentRequestChange}
+                  placeholder="Suggest Title"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1 required">
-                  Anchor Text*
+                  Primary anchor text / Keywords*
+                </label>
+                <input
+                  type="text"
+                  name="keywords"
+                  value={contentRequestData.keywords}
+                  onChange={handleContentRequestChange}
+                  placeholder="Provide Keywords; Separated by comma"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Secondary Keyword sets (Optional)
                 </label>
                 <input
                   type="text"
@@ -1171,20 +1288,33 @@ export default function CartPage() {
                   onChange={handleContentRequestChange}
                   placeholder="Enter Anchor text"
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Landing Page URL*
+                </label>
+                <input
+                  type="url"
+                  name="landingPageUrl"
+                  value={contentRequestData.landingPageUrl}
+                  onChange={handleContentRequestChange}
+                  placeholder="Enter Landing Page URL"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1 required">
-                  Target Audience is from (Country)*
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Target Audience is from (Country) (Optional)
                 </label>
                 <select
                   name="targetAudience"
                   value={contentRequestData.targetAudience}
                   onChange={handleContentRequestChange}
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white"
-                  required
                 >
                   <option value="">Select Target Audience</option>
                   <option value="us">United States</option>
@@ -1247,7 +1377,7 @@ export default function CartPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Reference Link
+                  Reference link / Example link
                 </label>
                 <input
                   type="url"
@@ -1258,22 +1388,6 @@ export default function CartPage() {
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1 required">
-                  Landing Page URL*
-                </label>
-                <input
-                  type="url"
-                  name="landingPageUrl"
-                  value={contentRequestData.landingPageUrl}
-                  onChange={handleContentRequestChange}
-                  placeholder="Enter Landing Page URL"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  required
-                />
-              </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Brief Note
