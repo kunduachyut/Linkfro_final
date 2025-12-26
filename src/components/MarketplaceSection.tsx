@@ -998,428 +998,470 @@ export default function MarketplaceSection({
 
       {/* Main Table/List */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        {/* Table Header */}
-        <div className="bg-blue-50 border-b border-blue-100 grid grid-cols-12 gap-4 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center font-body">
-          {columns.find(c => c.id === 'price')?.visible && (
-            <div className="col-span-2 flex items-center gap-1">
-              <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
-                Price
-                <svg className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-              </div>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <div className="overflow-x-auto">
+          <div className="min-w-[1200px]">
+            {/* Table Header */}
+            <div className="bg-blue-50 border-b border-blue-100 grid grid-cols-12 gap-4 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center font-body">
+              {columns.find(c => c.id === 'price')?.visible && (
+                <div className="col-span-2 flex items-center gap-1">
+                  <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
+                    Price
+                    <svg className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                     </svg>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs text-xs font-normal normal-case">Final price including publisher rate and platform fee.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
-          {columns.find(c => c.id === 'website')?.visible && (
-            <div className="col-span-2 flex items-center gap-1">
-              Website
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs text-xs font-normal normal-case">Final price including publisher rate and platform fee.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              )}
+              {columns.find(c => c.id === 'website')?.visible && (
+                <div className="col-span-2 flex items-center gap-1">
+                  Website
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs text-xs font-normal normal-case">Website domain available for link placement.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              )}
+              {columns.find(c => c.id === 'category')?.visible && (
+                <div className="col-span-1 flex justify-center items-center gap-1">
+                  Category
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs text-xs font-normal normal-case">Primary niche or content topic of the site.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              )}
+              {columns.find(c => c.id === 'traffic')?.visible && (
+                <div className="col-span-1 flex items-center justify-center gap-1">
+                  <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
+                    Traffic
+                    <svg className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                     </svg>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs text-xs font-normal normal-case">Website domain available for link placement.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="max-w-xs text-xs font-normal normal-case space-y-1">
+                          <p><strong>Traffic:</strong> Estimated organic and direct monthly visits.</p>
+                          <p><strong>Traffic Value:</strong> Approximate SEO traffic value in USD.</p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              )}
+              {columns.find(c => c.id === 'authority')?.visible && (
+                <div className="col-span-1 flex justify-center items-center gap-1">
+                  DR | DA | RD
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="max-w-xs text-xs font-normal normal-case space-y-1">
+                          <p><strong>DR (Domain Rating):</strong> Ahrefs metric (1–100) showing backlink quality.</p>
+                          <p><strong>DA (Domain Authority):</strong> Moz metric (1–100) showing SEO strength.</p>
+                          <p><strong>RD (Referring Domains):</strong> Number of unique websites linking to this domain.</p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              )}
+              {/* Group remaining stats into remaining columns */}
+              <div className="col-span-5 grid grid-cols-4 gap-0 text-center">
+                {columns.find(c => c.id === 'pa')?.visible && <div>PA</div>}
+                {columns.find(c => c.id === 'spam')?.visible && (
+                  <div className="flex justify-center items-center gap-1">
+                    Spam
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs font-normal normal-case">Moz metric estimating likelihood of spammy links. Lower = safer.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                )}
+                {columns.find(c => c.id === 'locationTraffic')?.visible && <div>Loc. Traffic</div>}
+                {columns.find(c => c.id === 'primeCountries')?.visible && (
+                  <div className="flex justify-center items-center gap-1">
+                    Prime Countries
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs font-normal normal-case">Country contributing most website visits.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                )}
+                {columns.find(c => c.id === 'greyNiche')?.visible && (
+                  <div className="flex justify-center items-center gap-1">
+                    Grey Niche
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs font-normal normal-case">This site allows limited or sensitive content (e.g., gambling, CBD, adult).</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                )}
+                {columns.find(c => c.id === 'notes')?.visible && (
+                  <div className="flex justify-center items-center gap-1">
+                    Notes
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs text-xs font-normal normal-case">Publisher’s remarks or placement conditions.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                )}
+                {columns.find(c => c.id === 'language')?.visible && <div>Language</div>}
+              </div>
             </div>
-          )}
-          {columns.find(c => c.id === 'category')?.visible && (
-            <div className="col-span-1 flex justify-center items-center gap-1">
-              Category
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs text-xs font-normal normal-case">Primary niche or content topic of the site.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
-          {columns.find(c => c.id === 'traffic')?.visible && (
-            <div className="col-span-1 flex items-center justify-center gap-1">
-              <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
-                Traffic
-                <svg className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-              </div>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <div className="max-w-xs text-xs font-normal normal-case space-y-1">
-                      <p><strong>Traffic:</strong> Estimated organic and direct monthly visits.</p>
-                      <p><strong>Traffic Value:</strong> Approximate SEO traffic value in USD.</p>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
-          {columns.find(c => c.id === 'authority')?.visible && (
-            <div className="col-span-1 flex justify-center items-center gap-1">
-              DR | DA | RD
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <div className="max-w-xs text-xs font-normal normal-case space-y-1">
-                      <p><strong>DR (Domain Rating):</strong> Ahrefs metric (1–100) showing backlink quality.</p>
-                      <p><strong>DA (Domain Authority):</strong> Moz metric (1–100) showing SEO strength.</p>
-                      <p><strong>RD (Referring Domains):</strong> Number of unique websites linking to this domain.</p>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          )}
-          {/* Group remaining stats into remaining columns */}
-          <div className="col-span-5 grid grid-cols-4 gap-0 text-center">
-            {columns.find(c => c.id === 'pa')?.visible && <div>PA</div>}
-            {columns.find(c => c.id === 'spam')?.visible && (
-              <div className="flex justify-center items-center gap-1">
-                Spam
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs text-xs font-normal normal-case">Moz metric estimating likelihood of spammy links. Lower = safer.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            )}
-            {columns.find(c => c.id === 'locationTraffic')?.visible && <div>Loc. Traffic</div>}
-            {columns.find(c => c.id === 'primeCountries')?.visible && (
-              <div className="flex justify-center items-center gap-1">
-                Prime Countries
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs text-xs font-normal normal-case">Country contributing most website visits.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            )}
-            {columns.find(c => c.id === 'greyNiche')?.visible && (
-              <div className="flex justify-center items-center gap-1">
-                Grey Niche
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs text-xs font-normal normal-case">This site allows limited or sensitive content (e.g., gambling, CBD, adult).</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            )}
-            {columns.find(c => c.id === 'notes')?.visible && (
-              <div className="flex justify-center items-center gap-1">
-                Notes
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs text-xs font-normal normal-case">Publisher’s remarks or placement conditions.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            )}
-            {columns.find(c => c.id === 'language')?.visible && <div>Language</div>}
-          </div>
-        </div>
 
-        {/* Table Body */}
-        <div className="divide-y divide-gray-100">
-          {loading ? (
-            <div className="p-8 text-center text-gray-500">Loading...</div>
-          ) : sortedWebsites.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">No websites found matching your criteria.</div>
-          ) : (
-            sortedWebsites.map((w) => {
-              const stableId = w._id || w.id || `${w.title}-${w.url}`;
-              const isPurchased = paidSiteIds.has(stableId);
-              const isInWishlist = wishlist[stableId] || false;
-              const isSelected = selectedItems[stableId] || false;
+            {/* Table Body */}
+            <div className="divide-y divide-gray-100">
+              {loading ? (
+                <div className="p-8 text-center text-gray-500">Loading...</div>
+              ) : sortedWebsites.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">No websites found matching your criteria.</div>
+              ) : (
+                sortedWebsites.map((w) => {
+                  const stableId = w._id || w.id || `${w.title}-${w.url}`;
+                  const isPurchased = paidSiteIds.has(stableId);
+                  const isInWishlist = wishlist[stableId] || false;
+                  const isSelected = selectedItems[stableId] || false;
 
-              return (
-                <div
-                  key={stableId}
-                  className={`grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors ${isSelected ? 'bg-blue-50' : ''}`}
-                >
-                  {/* Price Column */}
-                  {columns.find(c => c.id === 'price')?.visible && (
-                    <div className="col-span-2 flex items-center gap-3">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Show confirmation toast
-                          toast({
-                            title: "Added to Cart",
-                            description: `${w.title} has been added to your cart.`,
-                          });
-                          addToCart({
-                            _id: stableId,
-                            title: w.title,
-                            priceCents: typeof w.priceCents === 'number' ? w.priceCents : Math.round((w.priceCents || 0) * 100),
-                          });
-                        }}
-                        disabled={isPurchased || !w.available}
-                        className={`px-4 py-1.5 rounded text-white text-sm font-medium shadow-sm ${isPurchased ? 'bg-green-500 cursor-default' :
-                          !w.available ? 'bg-gray-400 cursor-not-allowed' :
-                            'bg-blue-600 hover:bg-blue-700'
-                        }`}
-                      >
-                        {isPurchased ? 'Owned' : 'Buy'}
-                      </button>
-                      <div className="flex flex-col">
-                        <span className="font-bold text-green-600">
-                          <span className="text-sm">$</span>
-                          <span className="text-lg">{(w.priceCents / 100).toFixed(2)}</span>
-                          <span className="text-xs ml-1 text-gray-900">USD</span>
-                        </span>
-                        <div className="flex items-center gap-2 mt-1">
+                  return (
+                    <div
+                      key={stableId}
+                      className={`grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors ${isSelected ? 'bg-blue-50' : ''}`}
+                    >
+                      {/* Price Column */}
+                      {columns.find(c => c.id === 'price')?.visible && (
+                        <div className="col-span-2 flex items-center gap-3">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              const newWishlistState = !isInWishlist;
-                              setWishlist(prev => ({ ...prev, [stableId]: newWishlistState }));
-                              updateWishlist(stableId, newWishlistState ? 'add' : 'remove');
+                              // Show confirmation toast
+                              toast({
+                                title: "Added to Cart",
+                                description: `${w.title} has been added to your cart.`,
+                              });
+                              addToCart({
+                                _id: stableId,
+                                title: w.title,
+                                priceCents: typeof w.priceCents === 'number' ? w.priceCents : Math.round((w.priceCents || 0) * 100),
+                              });
                             }}
-                            className={`${isInWishlist ? 'text-orange-500' : 'text-gray-300 hover:text-orange-400'}`}
+                            disabled={isPurchased || !w.available}
+                            className={`px-4 py-1.5 rounded text-white text-sm font-medium shadow-sm ${isPurchased ? 'bg-green-500 cursor-default' :
+                              !w.available ? 'bg-gray-400 cursor-not-allowed' :
+                                'bg-blue-600 hover:bg-blue-700'
+                            }`}
                           >
-                            <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
-                              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                            </svg>
+                            {isPurchased ? 'Owned' : 'Buy'}
                           </button>
-                          <svg className="h-4 w-4 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Website Column */}
-                  {columns.find(c => c.id === 'website')?.visible && (
-                    <div className="col-span-2">
-                      <div className="flex items-center gap-2">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="p-2 bg-gray-100 rounded-lg cursor-pointer">
-                                <span className="text-xl">{getCountryFlag(w.primaryCountry)}</span>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent className="p-0 border-0 shadow-none bg-transparent">
-                              <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden w-80">
-                                <div className="p-2 bg-gray-100 border-b border-gray-200">
-                                  <p className="text-xs font-medium truncate">{w.url}</p>
-                                </div>
-                                <div className="h-48 overflow-hidden">
-                                  <iframe 
-                                    src={w.url} 
-                                    className="w-full h-full"
-                                    title={`Preview of ${w.url}`}
-                                    sandbox="allow-same-origin allow-scripts"
-                                    loading="lazy"
-                                  />
-                                </div>
-                                <div className="p-2 bg-gray-50 text-xs text-gray-500">
-                                  Website Preview
-                                </div>
-                              </div>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        <div className="overflow-hidden">
-                          <div className="font-bold text-gray-900 truncate" title={w.title || w.url}>
-                            {extractHostname(w.url)}
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-                            <span className="flex items-center gap-1">
-                              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              3 Days
+                          <div className="flex flex-col">
+                            <span className="font-bold text-green-600">
+                              <span className="text-sm">$</span>
+                              <span className="text-lg">{(w.priceCents / 100).toFixed(2)}</span>
+                              <span className="text-xs ml-1 text-gray-900">USD</span>
                             </span>
+                            <div className="flex items-center gap-2 mt-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newWishlistState = !isInWishlist;
+                                  setWishlist(prev => ({ ...prev, [stableId]: newWishlistState }));
+                                  updateWishlist(stableId, newWishlistState ? 'add' : 'remove');
+                                }}
+                                className={`${isInWishlist ? 'text-orange-500' : 'text-gray-300 hover:text-orange-400'}`}
+                              >
+                                <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                </svg>
+                              </button>
+                              <svg className="h-4 w-4 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z" />
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Website Column */}
+                      {columns.find(c => c.id === 'website')?.visible && (
+                        <div className="col-span-2">
+                          <div className="flex items-center gap-2">
                             <TooltipProvider>
                               <Tooltip>
-                                <TooltipTrigger>
-                                  <span className="flex items-center gap-1 text-blue-600 cursor-help hover:text-blue-800 transition-colors">
-                                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    Description
+                                <TooltipTrigger asChild>
+                                  <div className="p-2 bg-gray-100 rounded-lg cursor-pointer">
+                                    <span className="text-xl">{getCountryFlag(w.primaryCountry)}</span>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent className="p-0 border-0 shadow-none bg-transparent">
+                                  <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden w-80">
+                                    <div className="p-2 bg-gray-100 border-b border-gray-200">
+                                      <p className="text-xs font-medium truncate">{w.url}</p>
+                                    </div>
+                                    <div className="h-48 overflow-hidden">
+                                      <iframe 
+                                        src={w.url} 
+                                        className="w-full h-full"
+                                        title={`Preview of ${w.url}`}
+                                        sandbox="allow-same-origin allow-scripts"
+                                        loading="lazy"
+                                      />
+                                    </div>
+                                    <div className="p-2 bg-gray-50 text-xs text-gray-500">
+                                      Website Preview
+                                    </div>
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            <div className="overflow-hidden">
+                              <div className="font-bold text-gray-900 truncate" title={w.title || w.url}>
+                                {extractHostname(w.url)}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                                <span className="flex items-center gap-1">
+                                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  3 Days
+                                </span>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <span className="flex items-center gap-1 text-blue-600 cursor-help hover:text-blue-800 transition-colors">
+                                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Description
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="max-w-xs text-xs">{w.description || "No description available."}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Category Column */}
+                      {columns.find(c => c.id === 'category')?.visible && (
+                        <div className="col-span-1 flex justify-center">
+                          {w.category && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-md font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-full cursor-pointer">
+                                    {Array.isArray(w.category) ? w.category[0] : w.category}
                                   </span>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p className="max-w-xs text-xs">{w.description || "No description available."}</p>
+                                  <p className="text-xs">
+                                    {Array.isArray(w.category) 
+                                      ? w.category.join(', ') 
+                                      : w.category}
+                                  </p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Traffic Column */}
+                      {columns.find(c => c.id === 'traffic')?.visible && (
+                        <div className="col-span-1">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2 text-xs">
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <span className="px-1.5 py-0.5 flex items-center justify-center bg-orange-100 text-orange-600 rounded text-[10px] font-bold cursor-help">OT</span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="text-xs">Organic Traffic</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              <span className="font-medium text-gray-700 flex items-center">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
+                                      <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                {w.OrganicTraffic ? w.OrganicTraffic.toLocaleString() : '0'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs">
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <span className="px-1.5 py-0.5 flex items-center justify-center bg-blue-100 text-blue-600 rounded text-[10px] font-bold cursor-help">TV</span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="text-xs">Traffic Value</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              <span className="font-medium text-gray-700 flex items-center">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
+                                      <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                {w.trafficValue ? `$${w.trafficValue.toLocaleString()}` : '$0'}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Category Column */}
-                  {columns.find(c => c.id === 'category')?.visible && (
-                    <div className="col-span-1 flex justify-center">
-                      {w.category && (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-md font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-full cursor-pointer">
-                                {Array.isArray(w.category) ? w.category[0] : w.category}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="text-xs">
-                                {Array.isArray(w.category) 
-                                  ? w.category.join(', ') 
-                                  : w.category}
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
                       )}
-                    </div>
-                  )}
 
-                  {/* Traffic Column */}
-                  {columns.find(c => c.id === 'traffic')?.visible && (
-                    <div className="col-span-1">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2 text-xs">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <span className="px-1.5 py-0.5 flex items-center justify-center bg-orange-100 text-orange-600 rounded text-[10px] font-bold cursor-help">OT</span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="text-xs">Organic Traffic</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          <span className="font-medium text-gray-700 flex items-center">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
-                                </TooltipTrigger>
-                                <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
-                                  <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            {w.OrganicTraffic ? w.OrganicTraffic.toLocaleString() : '0'}
-                          </span>
+                      {/* Authority Column */}
+                      {columns.find(c => c.id === 'authority')?.visible && (
+                        <div className="col-span-1">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-medium text-gray-500 flex items-center">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
+                                      <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                DR
+                              </span>
+                              <span className="bg-blue-600 text-white px-1.5 rounded text-[10px]">{w.DR || 0}</span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-medium text-gray-500 flex items-center">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-3 h-3 mr-1 cursor-pointer" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                                      <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-6 h-6" />
+                                      <span className="text-xs text-gray-700">DA, PA & Spam Score From MOZ</span>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                DA
+                              </span>
+                              <span className="bg-blue-400 text-white px-1.5 rounded text-[10px]">{w.DA || 0}</span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-medium text-gray-500 flex items-center">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                    </TooltipTrigger>
+                                    <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
+                                      <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                RD
+                              </span>
+                              <span className="bg-purple-500 text-white px-1.5 rounded text-[10px]">{w.RD || '-'}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-xs">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <span className="px-1.5 py-0.5 flex items-center justify-center bg-blue-100 text-blue-600 rounded text-[10px] font-bold cursor-help">TV</span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="text-xs">Traffic Value</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          <span className="font-medium text-gray-700 flex items-center">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
-                                </TooltipTrigger>
-                                <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
-                                  <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            {w.trafficValue ? `$${w.trafficValue.toLocaleString()}` : '$0'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                      )}
 
-                  {/* Authority Column */}
-                  {columns.find(c => c.id === 'authority')?.visible && (
-                    <div className="col-span-1">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-medium text-gray-500 flex items-center">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
-                                </TooltipTrigger>
-                                <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
-                                  <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            DR
-                          </span>
-                          <span className="bg-blue-600 text-white px-1.5 rounded text-[10px]">{w.DR || 0}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-medium text-gray-500 flex items-center">
+                      {/* Stats Columns (Grid) */}
+                      <div className="col-span-5 grid grid-cols-4 gap-2 text-center items-center">
+                        {columns.find(c => c.id === 'pa')?.visible && (
+                          <div className="text-xs text-gray-600 flex items-center justify-center gap-1">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -1431,128 +1473,90 @@ export default function MarketplaceSection({
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
-                            DA
-                          </span>
-                          <span className="bg-blue-400 text-white px-1.5 rounded text-[10px]">{w.DA || 0}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-medium text-gray-500 flex items-center">
+                            PA {w.PA || 0}
+                          </div>
+                        )}
+                        {columns.find(c => c.id === 'spam')?.visible && (
+                          <div className="text-xs text-gray-600 flex items-center justify-center gap-1">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                  <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-3 h-3 mr-1 cursor-pointer" />
                                 </TooltipTrigger>
                                 <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-                                  <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
-                                  <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
+                                  <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-6 h-6" />
+                                  <span className="text-xs text-gray-700">DA, PA & Spam Score From MOZ</span>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
-                            RD
-                          </span>
-                          <span className="bg-purple-500 text-white px-1.5 rounded text-[10px]">{w.RD || '-'}</span>
-                        </div>
+                            {w.Spam || 0}%
+                          </div>
+                        )}
+                        {columns.find(c => c.id === 'locationTraffic')?.visible && (
+                          <div className="text-xs text-gray-600">
+                            {w.locationTraffic ? w.locationTraffic.toLocaleString() : '-'}
+                          </div>
+                        )}
+                        {columns.find(c => c.id === 'primeCountries')?.visible && (
+                          <div className="text-xs text-gray-600 flex flex-col items-center justify-center gap-1">
+                            {w.primeTrafficCountries && w.primeTrafficCountries.length > 0 ? (
+                              <>
+                                {w.primeTrafficCountries.slice(0, 2).map((c, i) => (
+                                  <div key={i} className="flex items-center gap-1" title={c}>
+                                    <span>{getCountryFlag(c)}</span>
+                                    <span className="truncate max-w-[80px]">{c}</span>
+                                  </div>
+                                ))}
+                                {w.primeTrafficCountries.length > 2 && (
+                                  <span className="text-[10px] text-gray-400">+{w.primeTrafficCountries.length - 2} more</span>
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </div>
+                        )}
+                        {columns.find(c => c.id === 'greyNiche')?.visible && (
+                          <div className="text-xs text-gray-600">
+                            {w.greyNicheAccepted ? (
+                              <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-[10px]">Yes</span>
+                            ) : (
+                              <span className="text-gray-400">No</span>
+                            )}
+                          </div>
+                        )}
+                        {columns.find(c => c.id === 'notes')?.visible && (
+                          <div className="text-xs text-gray-600 flex justify-center">
+                            {w.specialNotes ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <svg className="h-4 w-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 011.414.586l5.414 5.414a1 1 0 01.586 1.414V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="max-w-xs text-xs">{w.specialNotes}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              <span className="text-gray-300">-</span>
+                            )}
+                          </div>
+                        )}
+                        {columns.find(c => c.id === 'language')?.visible && (
+                          <div className="text-xs text-gray-600">
+                            English
+                          </div>
+                        )}
                       </div>
                     </div>
-                  )}
-
-                  {/* Stats Columns (Grid) */}
-                  <div className="col-span-5 grid grid-cols-4 gap-2 text-center items-center">
-                    {columns.find(c => c.id === 'pa')?.visible && (
-                      <div className="text-xs text-gray-600 flex items-center justify-center gap-1">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-3 h-3 mr-1 cursor-pointer" />
-                            </TooltipTrigger>
-                            <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-                              <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-6 h-6" />
-                              <span className="text-xs text-gray-700">DA, PA & Spam Score From MOZ</span>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        PA {w.PA || 0}
-                      </div>
-                    )}
-                    {columns.find(c => c.id === 'spam')?.visible && (
-                      <div className="text-xs text-gray-600 flex items-center justify-center gap-1">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-3 h-3 mr-1 cursor-pointer" />
-                            </TooltipTrigger>
-                            <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-                              <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-6 h-6" />
-                              <span className="text-xs text-gray-700">DA, PA & Spam Score From MOZ</span>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        {w.Spam || 0}%
-                      </div>
-                    )}
-                    {columns.find(c => c.id === 'locationTraffic')?.visible && (
-                      <div className="text-xs text-gray-600">
-                        {w.locationTraffic ? w.locationTraffic.toLocaleString() : '-'}
-                      </div>
-                    )}
-                    {columns.find(c => c.id === 'primeCountries')?.visible && (
-                      <div className="text-xs text-gray-600 flex flex-col items-center justify-center gap-1">
-                        {w.primeTrafficCountries && w.primeTrafficCountries.length > 0 ? (
-                          <>
-                            {w.primeTrafficCountries.slice(0, 2).map((c, i) => (
-                              <div key={i} className="flex items-center gap-1" title={c}>
-                                <span>{getCountryFlag(c)}</span>
-                                <span className="truncate max-w-[80px]">{c}</span>
-                              </div>
-                            ))}
-                            {w.primeTrafficCountries.length > 2 && (
-                              <span className="text-[10px] text-gray-400">+{w.primeTrafficCountries.length - 2} more</span>
-                            )}
-                          </>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </div>
-                    )}
-                    {columns.find(c => c.id === 'greyNiche')?.visible && (
-                      <div className="text-xs text-gray-600">
-                        {w.greyNicheAccepted ? (
-                          <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-[10px]">Yes</span>
-                        ) : (
-                          <span className="text-gray-400">No</span>
-                        )}
-                      </div>
-                    )}
-                    {columns.find(c => c.id === 'notes')?.visible && (
-                      <div className="text-xs text-gray-600 flex justify-center">
-                        {w.specialNotes ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <svg className="h-4 w-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 011.414.586l5.414 5.414a1 1 0 01.586 1.414V19a2 2 0 01-2 2z" />
-                                </svg>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="max-w-xs text-xs">{w.specialNotes}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ) : (
-                          <span className="text-gray-300">-</span>
-                        )}
-                      </div>
-                    )}
-                    {columns.find(c => c.id === 'language')?.visible && (
-                      <div className="text-xs text-gray-600">
-                        English
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })
-          )}
+                  );
+                })
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
