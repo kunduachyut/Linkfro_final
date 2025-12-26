@@ -55,6 +55,9 @@ export default function CartPage() {
     landingPageUrl: '',
     briefNote: ''
   });
+  const [activeUploadsItem, setActiveUploadsItem] = useState<string | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewUpload, setPreviewUpload] = useState<any>(null);
 
   const truncate = (s: string | undefined | null, n = 20) => {
     if (!s) return '';
@@ -562,6 +565,15 @@ export default function CartPage() {
                                 </span>
                               )}
                             </button>
+                            {tempUploadsByCartItem[item._id]?.length > 0 && (
+                              <button
+                                onClick={() => setActiveUploadsItem(item._id)}
+                                className="ml-2 px-2 py-1 text-xs bg-white-100 rounded-md hover:bg-green-200 transition-colors text-black border border-black"
+                                aria-label="View uploads for this item"
+                              >
+                                View
+                              </button>
+                            )}
                             <button
                               onClick={() => {
                                 if (selectedOptions[item._id] === 'content') {
@@ -722,7 +734,15 @@ export default function CartPage() {
                       <span className="px-2 py-1 rounded-md">Upload File</span>
                     </label>
                     <label className={`inline-flex items-center cursor-pointer text-sm ${uploadMode === 'link' ? 'font-semibold text-gray-900' : 'text-gray-500'}`}>
-                      <input type="radio" name={`uploadMode-${selectedItem?._id}`} value="link" checked={uploadMode === 'link'} onChange={() => { setUploadMode('link'); setPdfFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }} className="sr-only" />
+                      <input type="radio" name={`uploadMode-${selectedItem?._id}`} value="link" checked={uploadMode === 'link'} onChange={() => {
+                          setUploadMode('link');
+                          setPdfFile(null);
+                          if (fileInputRef.current) fileInputRef.current.value = '';
+                          setTimeout(() => {
+                            const el = document.getElementById(`link-input-${selectedItem?._id}-${modalKey}`) as HTMLInputElement | null;
+                            if (el) el.focus();
+                          }, 50);
+                        }} className="sr-only" />
                       <span className="px-2 py-1 rounded-md">Add Link</span>
                     </label>
                   </div>
@@ -737,7 +757,7 @@ export default function CartPage() {
                           </svg>
                         </div>
                         <p className="mt-1 text-sm text-gray-600">Drag and drop your Files here, or</p>
-                        <div className="mt-2">
+                        <div className="mt-2 flex items-center gap-2 justify-center">
                           <label className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
                             Browse Files
                             <input
@@ -754,6 +774,22 @@ export default function CartPage() {
                               className="sr-only"
                             />
                           </label>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUploadMode('link');
+                              setPdfFile(null);
+                              if (fileInputRef.current) fileInputRef.current.value = '';
+                              setTimeout(() => {
+                                const el = document.getElementById(`link-input-${selectedItem?._id}-${modalKey}`) as HTMLInputElement | null;
+                                if (el) el.focus();
+                              }, 50);
+                            }}
+                            className="px-3 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition-colors"
+                          >
+                            Add Link
+                          </button>
                         </div>
                         <p className="mt-1 text-xs text-gray-500">PDF files only, up to 10MB</p>
                       </div>
@@ -794,8 +830,9 @@ export default function CartPage() {
                         </svg>
                       </div>
                       <p className="mt-1 text-sm text-gray-600">Provide a URL to your document</p>
-                      <div className="mt-2">
+                        <div className="mt-2">
                         <input
+                          id={`link-input-${selectedItem?._id}-${modalKey}`}
                           type="url"
                           value={linkInput}
                           onChange={(e) => setLinkInput(e.target.value)}
@@ -855,8 +892,20 @@ export default function CartPage() {
                           </svg>
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900 truncate max-w-xs">{u.pdf?.filename ?? u.link ?? "Document"}</div>
-                          <div className="text-gray-600 mt-1">{u.requirements?.slice(0, 80)}{u.requirements && u.requirements.length > 80 ? "…" : ""}</div>
+                          <div className="font-medium text-gray-900 truncate max-w-xs">
+                            {u.linkDetails ? `${u.linkDetails.anchorText} (Link details)` : (u.pdf?.filename ?? u.link ?? "Document")}
+                          </div>
+                          <div className="text-gray-600 mt-1">
+                            {u.linkDetails ? (
+                              <div className="space-y-1 text-sm">
+                                <div className="truncate">Target: <a href={u.linkDetails.targetUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{u.linkDetails.targetUrl}</a></div>
+                                {u.linkDetails.blogUrl && <div className="truncate">Blog: <a href={u.linkDetails.blogUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{u.linkDetails.blogUrl}</a></div>}
+                                {u.linkDetails.paragraph && <div className="mt-1 text-xs text-gray-600">{u.linkDetails.paragraph.slice(0, 100)}{u.linkDetails.paragraph.length > 100 ? "…" : ""}</div>}
+                              </div>
+                            ) : (
+                              <>{u.requirements?.slice(0, 80)}{u.requirements && u.requirements.length > 80 ? "…" : ""}</>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -940,6 +989,115 @@ export default function CartPage() {
                 className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
               >
                 Save Link Details
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Per-item Uploads Modal (opened from cart item) */}
+      {activeUploadsItem && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-xl p-4">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg max-h-[80vh] overflow-auto border border-gray-200 shadow-xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-blue-700">Uploads for selected website</h3>
+              <button onClick={() => setActiveUploadsItem(null)} className="text-gray-500 hover:text-red-500 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {(tempUploadsByCartItem[activeUploadsItem] || []).length === 0 ? (
+                <div className="text-sm text-gray-600">No uploads for this item.</div>
+              ) : (
+                <ul className="space-y-2">
+                  {(tempUploadsByCartItem[activeUploadsItem] || []).map((u: any, idx: number) => (
+                    <li key={u.tempId ?? idx} className="border border-gray-200 rounded-md p-3 flex justify-between items-start">
+                      <div className="text-sm">
+                        <div className="font-medium">{u.linkDetails ? `${u.linkDetails.anchorText} (Link details)` : (u.pdf?.filename ?? u.link ?? 'Document')}</div>
+                        <div className="text-gray-600 text-xs">
+                          {u.linkDetails ? (
+                            <div className="space-y-1">
+                              <div className="truncate">Target: <a href={u.linkDetails.targetUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{u.linkDetails.targetUrl}</a></div>
+                              {u.linkDetails.blogUrl && <div className="truncate">Blog: <a href={u.linkDetails.blogUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{u.linkDetails.blogUrl}</a></div>}
+                            </div>
+                          ) : (
+                            (u.requirements ?? 'No requirements')
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => { setPreviewUpload(u); setShowPreviewModal(true); }}
+                          className="px-2 py-1 text-xs bg-gray-100 rounded-md hover:bg-gray-200"
+                        >
+                          Preview
+                        </button>
+                        <button
+                          onClick={() => { handleRemoveUpload(u); }}
+                          className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-md hover:bg-red-200"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="flex justify-end mt-4">
+              <button onClick={() => setActiveUploadsItem(null)} className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPreviewModal && previewUpload && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-xl p-4">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md max-h-[90vh] overflow-auto border border-gray-200 shadow-xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-blue-700">Preview Uploaded Document</h3>
+              <button onClick={() => { setShowPreviewModal(false); setPreviewUpload(null); }} className="text-gray-500 hover:text-red-500 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-3 text-sm text-gray-800">
+              <div><strong>Title:</strong> {previewUpload.pdf?.filename ?? previewUpload.link ?? 'Document'}</div>
+              {previewUpload.pdf?.size && <div><strong>Size:</strong> {Math.round(previewUpload.pdf.size / 1024)} KB</div>}
+              <div><strong>Requirements:</strong> {previewUpload.requirements ?? 'None'}</div>
+              {previewUpload.createdAt && <div><strong>Created:</strong> {new Date(previewUpload.createdAt).toLocaleString()}</div>}
+              {previewUpload.link && (
+                <div>
+                  <a href={previewUpload.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Open Link</a>
+                </div>
+              )}
+              {previewUpload.linkDetails && (
+                <div className="mt-2 border-t pt-2 space-y-1 text-sm text-gray-800">
+                  <div><strong>Anchor Text:</strong> {previewUpload.linkDetails.anchorText}</div>
+                  <div><strong>Target URL:</strong> <a href={previewUpload.linkDetails.targetUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{previewUpload.linkDetails.targetUrl}</a></div>
+                  {previewUpload.linkDetails.blogUrl && <div><strong>Blog URL:</strong> <a href={previewUpload.linkDetails.blogUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{previewUpload.linkDetails.blogUrl}</a></div>}
+                  {previewUpload.linkDetails.paragraph && <div><strong>Paragraph:</strong><div className="mt-1 text-sm text-gray-700">{previewUpload.linkDetails.paragraph}</div></div>}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button onClick={() => { setShowPreviewModal(false); setPreviewUpload(null); }} className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">Close</button>
+              <button
+                onClick={() => {
+                  handleRemoveUpload(previewUpload);
+                  setShowPreviewModal(false);
+                  setPreviewUpload(null);
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Delete
               </button>
             </div>
           </div>
