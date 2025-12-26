@@ -1040,182 +1040,186 @@ export default function PublisherWebsitesSection({
           </div>
         )}
         
-        <div className="grid grid-cols-14 gap-2 p-4 text-sm font-medium text-muted-foreground border-b">
-          <div className="col-span-1">No.</div>
-          <div className="col-span-3">Website</div>
-          <div className="col-span-2">Order accepted e-mail</div>
-          <div className="col-span-1">Notes</div>
-          <div className="col-span-1">Price</div>
-          <div className="col-span-2">Created</div>
-          <div className="col-span-1">Metrics</div>
-          <div className="col-span-1">Status</div>
-          <div className="col-span-2">Actions</div>
+        <div className="overflow-x-auto">
+          <div className="min-w-[1200px]">
+            <div className="grid grid-cols-14 gap-2 p-4 text-sm font-medium text-muted-foreground border-b">
+              <div className="col-span-1">No.</div>
+              <div className="col-span-3">Website</div>
+              <div className="col-span-2">Order accepted e-mail</div>
+              <div className="col-span-1">Notes</div>
+              <div className="col-span-1">Price</div>
+              <div className="col-span-2">Created</div>
+              <div className="col-span-1">Metrics</div>
+              <div className="col-span-1">Status</div>
+              <div className="col-span-2">Actions</div>
+            </div>
+            <div className="divide-y">
+              {filteredSites.map((website, index) => (
+                <motion.div
+                  key={website._id}
+                  className="grid grid-cols-14 gap-2 p-4 items-center hover:bg-muted/50 transition-colors cursor-pointer"
+                  onClick={() => openWebsiteModal(website)
+                  }
+                  onHoverStart={() => setHoveredWebsite(website._id)}
+                  onHoverEnd={() => setHoveredWebsite(null)}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="col-span-1">
+                    <span className="font-mono">{String(index + 1).padStart(2, '0')}</span>
+                  </div>
+
+                  <div className="col-span-3">
+                    <div className="font-medium">{formatTitle(website.title)}</div>
+                    <div className="text-sm text-muted-foreground truncate">
+                      <a
+                        href={website.title && website.title.toString().startsWith('http') ? website.title : `http://${website.title}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:text-blue-700 inline-flex items-center"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        Visit Site
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="col-span-2 text-sm text-muted-foreground truncate">
+                    {(website as any).orderAcceptedEmail ? (
+                      <div className="flex items-center gap-2">
+                        <a 
+                          href={`mailto:${(website as any).orderAcceptedEmail}`} 
+                          onClick={(e) => e.stopPropagation()} 
+                          className="text-blue-600 hover:underline font-mono truncate flex-1"
+                          title={(website as any).orderAcceptedEmail}
+                        >
+                          {(website as any).orderAcceptedEmail.length > 15 
+                            ? `${(website as any).orderAcceptedEmail.substring(0, 15)}...` 
+                            : (website as any).orderAcceptedEmail}
+                        </a>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText((website as any).orderAcceptedEmail);
+                            setCopiedEmailId(website._id);
+                            // Reset the copied state after 2 seconds
+                            setTimeout(() => {
+                              setCopiedEmailId(null);
+                            }, 2000);
+                          }}
+                          className="p-1 rounded hover:bg-muted transition-colors"
+                          title={`Copy ${(website as any).orderAcceptedEmail}`}
+                        >
+                          {copiedEmailId === website._id ? (
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <Copy className="w-4 h-4 text-muted-foreground" />
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">N/A</span>
+                    )}
+                  </div>
+
+                  <div className="col-span-1 text-sm text-muted-foreground truncate">
+                    {website.specialNotes ? website.specialNotes : '—'}
+                  </div>
+
+                  <div className="col-span-1 font-medium"> {/* Price column now closer to Notes */}
+          {formatPriceNew(computePublisherVisiblePrice(website))}
         </div>
-        <div className="divide-y">
-          {filteredSites.map((website, index) => (
-            <motion.div
-              key={website._id}
-              className="grid grid-cols-14 gap-2 p-4 items-center hover:bg-muted/50 transition-colors cursor-pointer"
-              onClick={() => openWebsiteModal(website)
-              }
-              onHoverStart={() => setHoveredWebsite(website._id)}
-              onHoverEnd={() => setHoveredWebsite(null)}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="col-span-1">
-                <span className="font-mono">{String(index + 1).padStart(2, '0')}</span>
-              </div>
 
-              <div className="col-span-3">
-                <div className="font-medium">{formatTitle(website.title)}</div>
-                <div className="text-sm text-muted-foreground truncate">
-                  <a
-                    href={website.title && website.title.toString().startsWith('http') ? website.title : `http://${website.title}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:text-blue-700 inline-flex items-center"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    Visit Site
-                  </a>
-                </div>
-              </div>
+                  <div className="col-span-2 text-sm text-muted-foreground">
+                    {website.updatedAt ? formatDate(website.updatedAt) : 'Unknown'}
+                  </div>
 
-              <div className="col-span-2 text-sm text-muted-foreground truncate">
-                {(website as any).orderAcceptedEmail ? (
-                  <div className="flex items-center gap-2">
-                    <a 
-                      href={`mailto:${(website as any).orderAcceptedEmail}`} 
-                      onClick={(e) => e.stopPropagation()} 
-                      className="text-blue-600 hover:underline font-mono truncate flex-1"
-                      title={(website as any).orderAcceptedEmail}
-                    >
-                      {(website as any).orderAcceptedEmail.length > 15 
-                        ? `${(website as any).orderAcceptedEmail.substring(0, 15)}...` 
-                        : (website as any).orderAcceptedEmail}
-                    </a>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigator.clipboard.writeText((website as any).orderAcceptedEmail);
-                        setCopiedEmailId(website._id);
-                        // Reset the copied state after 2 seconds
-                        setTimeout(() => {
-                          setCopiedEmailId(null);
-                        }, 2000);
-                      }}
-                      className="p-1 rounded hover:bg-muted transition-colors"
-                      title={`Copy ${(website as any).orderAcceptedEmail}`}
-                    >
-                      {copiedEmailId === website._id ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <Copy className="w-4 h-4 text-muted-foreground" />
+                  <div className="col-span-1 text-sm">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1">
+                        <span className="font-medium">DR:</span>
+                        <span>{website.DR || "N/A"}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="font-medium">OT:</span>
+                        <span>{website.OrganicTraffic || "N/A"}</span>
+                      </div>
+                      {website.primeTrafficCountries && website.primeTrafficCountries.length > 0 && (
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium">PTC:</span>
+                          <span className="truncate">{Array.isArray(website.primeTrafficCountries) ? website.primeTrafficCountries.join(', ') : website.primeTrafficCountries}</span>
+                        </div>
                       )}
-                    </button>
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground">N/A</span>
-                )}
-              </div>
-
-              <div className="col-span-1 text-sm text-muted-foreground truncate">
-                {website.specialNotes ? website.specialNotes : '—'}
-              </div>
-
-              <div className="col-span-1 font-medium"> {/* Price column now closer to Notes */}
-      {formatPriceNew(computePublisherVisiblePrice(website))}
-    </div>
-
-              <div className="col-span-2 text-sm text-muted-foreground">
-                {website.updatedAt ? formatDate(website.updatedAt) : 'Unknown'}
-              </div>
-
-              <div className="col-span-1 text-sm">
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1">
-                    <span className="font-medium">DR:</span>
-                    <span>{website.DR || "N/A"}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="font-medium">OT:</span>
-                    <span>{website.OrganicTraffic || "N/A"}</span>
-                  </div>
-                  {website.primeTrafficCountries && website.primeTrafficCountries.length > 0 && (
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium">PTC:</span>
-                      <span className="truncate">{Array.isArray(website.primeTrafficCountries) ? website.primeTrafficCountries.join(', ') : website.primeTrafficCountries}</span>
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
 
-              <div className="col-span-1">
-                {getStatusBadgeNew(website.status, website.rejectionReason)}
-              </div>
+                  <div className="col-span-1">
+                    {getStatusBadgeNew(website.status, website.rejectionReason)}
+                  </div>
 
-              <div className="col-span-2 flex items-center gap-2">
-                {website.status === "approved" && (
-                  <div onClick={(e) => e.stopPropagation()} className="flex items-center">
-                    <div title={website.available ? "Click to pause the website" : "Click to activate the website"}>
-                      <MinimalToggle
-                        checked={website.available}
-                        onChange={(e) => {
-                          toggleAvailability(website._id, website.available);
+                  <div className="col-span-2 flex items-center gap-2">
+                    {website.status === "approved" && (
+                      <div onClick={(e) => e.stopPropagation()} className="flex items-center">
+                        <div title={website.available ? "Click to pause the website" : "Click to activate the website"}>
+                          <MinimalToggle
+                            checked={website.available}
+                            onChange={(e) => {
+                              toggleAvailability(website._id, website.available);
+                            }}
+                            className="h-[1.4em] w-[3em] text-[14px]"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    {hoveredWebsite === website._id ? (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            editWebsite(prepareWebsiteForForm(website));
+                          }}
+                          className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+                          aria-label="Edit website"
+                        >
+                          <Edit className="w-4 h-4 text-foreground" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeSite(website._id);
+                          }}
+                          className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+                          aria-label="Delete website"
+                          disabled={deleteLoading === website._id}
+                        >
+                          {deleteLoading === website._id ? (
+                            <div className="animate-spin h-4 w-4 border-2 border-foreground border-t-transparent rounded-full"></div>
+                          ) : (
+                            <Trash2 className="w-4 h-4 text-foreground" />
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openWebsiteModal(website);
                         }}
-                        className="h-[1.4em] w-[3em] text-[14px]"
-                      />
-                    </div>
+                        className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+                        aria-label="View details"
+                      >
+                        <Eye className="w-4 h-4 text-foreground" />
+                      </button>
+                    )}
                   </div>
-                )}
-                {hoveredWebsite === website._id ? (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        editWebsite(prepareWebsiteForForm(website));
-                      }}
-                      className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
-                      aria-label="Edit website"
-                    >
-                      <Edit className="w-4 h-4 text-foreground" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeSite(website._id);
-                      }}
-                      className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
-                      aria-label="Delete website"
-                      disabled={deleteLoading === website._id}
-                    >
-                      {deleteLoading === website._id ? (
-                        <div className="animate-spin h-4 w-4 border-2 border-foreground border-t-transparent rounded-full"></div>
-                      ) : (
-                        <Trash2 className="w-4 h-4 text-foreground" />
-                      )}
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openWebsiteModal(website);
-                    }}
-                    className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
-                    aria-label="View details"
-                  >
-                    <Eye className="w-4 h-4 text-foreground" />
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          ))}
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
