@@ -217,7 +217,7 @@ const FloatingAuthPanel = () => {
                 className="bg-white/20 hover:bg-white/30 text-gray-800 text-sm py-2 px-3 rounded-full border border-white/30 shadow-sm backdrop-blur-sm"
                 onClick={() => navigateToRole('consumer')}
               >
-                Consumer
+                Advertiser
               </Button>
             )}
           </div>
