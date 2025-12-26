@@ -970,6 +970,21 @@ export default function MarketplaceSection({
                 ))}
               </select>
             </div>
+
+            {/* Grey Niche */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Grey Niche</label>
+              <select
+                name="greyNicheAccepted"
+                value={filters.greyNicheAccepted}
+                onChange={handleFilterChange}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+              >
+                <option value="">All</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            </div>
           </div>
         )}
       </div>
