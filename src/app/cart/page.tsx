@@ -725,37 +725,39 @@ export default function CartPage() {
                             </button>
                           </div>
                         </div>
-                        <button
-                          onClick={() => removeFromCart(item._id)}
-                          className="text-gray-500 hover:text-red-500 text-xs font-medium flex items-center transition-colors group/remove"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 group-hover/remove:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                          Remove
-                        </button>
-                      </div>
-                      {/* Show saved content requests for this item */}
-                      { (tempUploadsByCartItem[item._id] || []).filter(u => u.contentRequest).length > 0 && (
-                        <div className="mt-4 w-full">
-                          <h4 className="text-sm font-medium text-gray-700 mb-2">Saved Requests</h4>
-                          <ul className="space-y-2">
-                            {(tempUploadsByCartItem[item._id] || []).filter(u => u.contentRequest).map((u: any) => (
-                              <li key={u.tempId} className="border border-gray-200 rounded-lg p-3 bg-gray-50 flex items-start justify-between">
-                                <div className="text-sm">
-                                  <div className="font-medium text-gray-900">{u.contentRequest.titleSuggestion || `Request (${u.contentRequest.wordCount} words)`}</div>
-                                  <div className="text-gray-600 text-xs mt-1">Keywords: {u.contentRequest.keywords}</div>
-                                  <div className="text-gray-600 text-xs">Word Count: {u.contentRequest.wordCount}</div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <button onClick={() => handleEditRequest(item._id, u.tempId, u)} className="px-2 py-1 text-xs bg-white border rounded-md">Edit</button>
-                                  <button onClick={() => handleDeleteRequest(item._id, u.tempId)} className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-md">Delete</button>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
+                        <div className="flex items-center justify-between w-full">
+                          <button
+                            onClick={() => removeFromCart(item._id)}
+                            className="text-gray-500 hover:text-red-500 text-xs font-medium flex items-center transition-colors group/remove"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 group-hover/remove:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Remove
+                          </button>
+                          {/* Show saved content requests for this item */}
+                          { (tempUploadsByCartItem[item._id] || []).filter(u => u.contentRequest).length > 0 && (
+                            <div className="ml-4 flex-1 max-w-md">
+                              <h4 className="text-sm font-medium text-gray-700 mb-2">Saved Requests</h4>
+                              <ul className="space-y-2">
+                                {(tempUploadsByCartItem[item._id] || []).filter(u => u.contentRequest).map((u: any) => (
+                                  <li key={u.tempId} className="border border-gray-200 rounded-lg p-3 bg-gray-50 flex items-start justify-between">
+                                    <div className="text-sm">
+                                      <div className="font-medium text-gray-900">{u.contentRequest.titleSuggestion || `Request (${u.contentRequest.wordCount} words)`}</div>
+                                      <div className="text-gray-600 text-xs mt-1">Keywords: {u.contentRequest.keywords}</div>
+                                      <div className="text-gray-600 text-xs">Word Count: {u.contentRequest.wordCount}</div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <button onClick={() => handleEditRequest(item._id, u.tempId, u)} className="px-2 py-1 text-xs bg-white border rounded-md">Edit</button>
+                                      <button onClick={() => handleDeleteRequest(item._id, u.tempId)} className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-md">Delete</button>
+                                    </div>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
                 ))}
