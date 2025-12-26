@@ -120,7 +120,7 @@ export default function PendingPaymentsSection({
 
   const formatCurrency = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
-  const formatDate = (dateString?: string) => (dateString ? new Date(dateString).toLocaleDateString() : "N/A");
+  const formatDate = (dateString?: string) => (dateString ? new Date(dateString).toLocaleString() : "N/A");
 
   const completePayment = async (purchaseId: string) => {
     try {

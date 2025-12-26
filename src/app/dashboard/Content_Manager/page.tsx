@@ -826,7 +826,7 @@ setPurchaseStats(stats);
     if (!dateString) return "N/A";
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "N/A";
-    return date.toLocaleDateString("en-GB");
+    return date.toLocaleString("en-GB", { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
   }
 
   function formatCurrency(cents: number) {

@@ -650,7 +650,7 @@ export default function PurchasesSection({
                       {/* Purchase Date - Simplified */}
                       <div className="col-span-2 flex justify-center">
                         <div className="text-sm text-gray-900 font-body">
-                          {purchase.createdAt ? new Date(purchase.createdAt).toLocaleDateString() : 'N/A'}
+                          {purchase.createdAt ? new Date(purchase.createdAt).toLocaleString() : 'N/A'}
                         </div>
                       </div>
 
@@ -833,8 +833,8 @@ export default function PurchasesSection({
                           </div>
                           <div>
                             <p className="text-sm text-gray-500">Purchase Date</p>
-                            <p className="text-gray-900">
-                              {selectedContent.purchase.createdAt ? new Date(selectedContent.purchase.createdAt).toLocaleDateString() : 'N/A'}
+                              <p className="text-gray-900">
+                              {selectedContent.purchase.createdAt ? new Date(selectedContent.purchase.createdAt).toLocaleString() : 'N/A'}
                             </p>
                           </div>
                         </div>
@@ -878,8 +878,8 @@ export default function PurchasesSection({
                               <div className="flex justify-between items-start mb-3">
                                 <div>
                                   <h5 className="font-medium text-gray-900">Upload #{index + 1}</h5>
-                                  <p className="text-sm text-gray-500">
-                                    Uploaded on {upload.createdAt ? new Date(upload.createdAt).toLocaleDateString() : 'N/A'}
+                                    <p className="text-sm text-gray-500">
+                                    Uploaded on {upload.createdAt ? new Date(upload.createdAt).toLocaleString() : 'N/A'}
                                   </p>
                                 </div>
                                 {upload.pdf && (
