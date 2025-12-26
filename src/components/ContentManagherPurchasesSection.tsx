@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 // Chat feature removed for Content Manager view
-
+ 
 // Type definitions
 type PurchaseRequest = {
   id: string;
@@ -19,6 +19,12 @@ type PurchaseRequest = {
   docLink?: string;
   liveLink?: string;
   paymentLink?: string;
+  linkDetails?: {
+    anchorText?: string;
+    targetUrl?: string;
+    blogUrl?: string;
+    paragraph?: string;
+  };
 };
 
 // ...in SuperAdminPurchasesSection.tsx
@@ -84,6 +90,9 @@ const ContentManagherPurchasesSection: React.FC<SuperAdminPurchasesSectionProps>
   userRole
 }) => {
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  // Local modal for viewing link details (Content Manager)
+  const [linkDetailsModalOpen, setLinkDetailsModalOpen] = useState(false);
+  const [activeLinkDetails, setActiveLinkDetails] = useState<PurchaseRequest['linkDetails'] | null>(null);
   // Modal state for editing doc/live links (match SuperAdmin behavior)
   const [linkModalOpen, setLinkModalOpen] = useState(false);
   const [linkModalType, setLinkModalType] = useState<'doc' | 'live' | null>(null);
@@ -178,6 +187,24 @@ const ContentManagherPurchasesSection: React.FC<SuperAdminPurchasesSectionProps>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
           Request Content
+        </button>
+      );
+    } else if (contentType === 'link') {
+      return (
+        <button
+          onClick={() => {
+            // open local modal with provided purchase.linkDetails (fallback to fetch if parent prefers)
+            setActiveLinkDetails(purchase.linkDetails || null);
+            setLinkDetailsModalOpen(true);
+          }}
+          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors"
+          title="Click to view link details"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 010 5.656l-1.414 1.414a4 4 0 01-5.656-5.656l1.414-1.414" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.172 13.828a4 4 0 010-5.656l1.414-1.414a4 4 0 015.656 5.656l-1.414 1.414" />
+          </svg>
+          Link details
         </button>
       );
     } else {
@@ -677,6 +704,54 @@ const ContentManagherPurchasesSection: React.FC<SuperAdminPurchasesSectionProps>
               >
                 {confirmationAction?.status ? statusLabelMap[confirmationAction.status] ?? `Confirm ${confirmationAction.status}` : "Confirm"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Link Details Modal (shows anchorText, targetUrl, blogUrl, paragraph) */}
+      {linkDetailsModalOpen && (
+        <div className="fixed inset-0 bg-transparent bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-6 rounded-lg w-full max-w-lg shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-black">Link Details</h3>
+              <button onClick={() => setLinkDetailsModalOpen(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+
+            <div className="space-y-3">
+              {activeLinkDetails ? (
+                <div className="grid grid-cols-1 gap-3">
+                  <div>
+                    <div className="text-xs font-semibold text-gray-500">Anchor Text</div>
+                    <div className="text-sm text-gray-900">{activeLinkDetails.anchorText || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-gray-500">Target URL</div>
+                    <div className="text-sm text-indigo-600">
+                      {activeLinkDetails.targetUrl ? (
+                        <a href={activeLinkDetails.targetUrl} target="_blank" rel="noreferrer">{activeLinkDetails.targetUrl}</a>
+                      ) : '-'}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-gray-500">Blog URL</div>
+                    <div className="text-sm text-indigo-600">
+                      {activeLinkDetails.blogUrl ? (
+                        <a href={activeLinkDetails.blogUrl} target="_blank" rel="noreferrer">{activeLinkDetails.blogUrl}</a>
+                      ) : '-'}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-gray-500">Paragraph</div>
+                    <div className="text-sm text-gray-700 whitespace-pre-wrap">{activeLinkDetails.paragraph || '-'}</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-sm text-gray-600">No link details available for this purchase.</div>
+              )}
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button onClick={() => setLinkDetailsModalOpen(false)} className="px-4 py-2 bg-gray-200 rounded-md">Close</button>
             </div>
           </div>
         </div>
