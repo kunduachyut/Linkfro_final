@@ -821,7 +821,7 @@ export default function MarketplaceSection({
               {/* Column Dropdown */}
               {showColumnDropdown && (
                 <div ref={columnDropdownRef} className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-20 border border-gray-200">
-                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <div className="px-4 py-2 text-xs font-semibold text-black uppercase tracking-wider">
                     Choose Column
                   </div>
                   <div className="max-h-60 overflow-y-auto">
@@ -867,7 +867,7 @@ export default function MarketplaceSection({
               {/* Dropdown for group by options */}
               {showGroupByDropdown && (
                 <div ref={groupByRef} className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-20 border border-gray-200">
-                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sort By</div>
+                  <div className="px-4 py-2 text-xs font-semibold text-black uppercase tracking-wider">Sort By</div>
                   <div className="max-h-60 overflow-y-auto">
                     <label className={`flex items-center px-4 py-2 text-sm text-gray-700 cursor-pointer ${groupBy === 'mostRecent' ? 'bg-blue-50' : ''}`}>
                       <input type="radio" checked={groupBy === 'mostRecent'} onChange={() => { setGroupBy('mostRecent'); setShowGroupByDropdown(false); }} className="h-4 w-4 text-blue-600 mr-3" />
@@ -897,7 +897,7 @@ export default function MarketplaceSection({
           <div ref={filterPanelRef} className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {/* Price Range */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Price Range</label>
+              <label className="block text-xs font-medium text-black mb-1">Price Range</label>
               <div className="flex gap-2">
                 <input
                   type="number"
@@ -920,7 +920,7 @@ export default function MarketplaceSection({
 
             {/* DA Range */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">DA Range</label>
+              <label className="block text-xs font-medium text-black mb-1">DA Range</label>
               <div className="flex gap-2">
                 <input
                   type="number"
@@ -943,7 +943,7 @@ export default function MarketplaceSection({
 
             {/* DR Range */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">DR Range</label>
+              <label className="block text-xs font-medium text-black mb-1">DR Range</label>
               <div className="flex gap-2">
                 <input
                   type="number"
@@ -966,7 +966,7 @@ export default function MarketplaceSection({
 
             {/* Category */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
+              <label className="block text-xs font-medium text-black mb-1">Category</label>
               <select
                 name="category"
                 value={filters.category}
@@ -982,7 +982,7 @@ export default function MarketplaceSection({
 
             {/* Grey Niche */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Grey Niche</label>
+              <label className="block text-xs font-medium text-black mb-1">Grey Niche</label>
               <select
                 name="greyNicheAccepted"
                 value={filters.greyNicheAccepted}
@@ -1025,7 +1025,7 @@ export default function MarketplaceSection({
         <div className="overflow-x-auto">
           <div className="min-w-[1200px]">
             {/* Table Header */}
-            <div className="bg-blue-50 border-b border-blue-100 grid grid-cols-12 gap-4 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center font-body">
+            <div className="bg-blue-50 border-b border-blue-100 grid grid-cols-12 gap-4 px-4 py-3 text-xs font-semibold text-black uppercase tracking-wider items-center font-body">
               <div className="col-span-2 flex items-center gap-1">
                 <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
                   Price
@@ -1205,9 +1205,9 @@ export default function MarketplaceSection({
             {/* Table Body */}
             <div className="divide-y divide-gray-100">
               {loading ? (
-                <div className="p-8 text-center text-gray-500">Loading...</div>
+                <div className="p-8 text-center text-black">Loading...</div>
               ) : sortedWebsites.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">No websites found matching your criteria.</div>
+                <div className="p-8 text-center text-black">No websites found matching your criteria.</div>
               ) : (
                 sortedWebsites.map((w) => {
                   const stableId = w._id || w.id || `${w.title}-${w.url}`;
@@ -1284,7 +1284,7 @@ export default function MarketplaceSection({
                               <TooltipContent className="p-0 border-0 shadow-none bg-transparent">
                                 <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden w-[800px] h-[500px]">
                                   <div className="p-2 bg-gray-100 border-b border-gray-200">
-                                    <p className="text-xs font-medium truncate">{w.url}</p>
+                                    <p className="text-xs font-medium text-black truncate">{w.url}</p>
                                   </div>
                                   <div className="h-[400px] overflow-hidden">
                                     <iframe 
@@ -1299,7 +1299,7 @@ export default function MarketplaceSection({
                                       referrerPolicy="no-referrer"
                                     />
                                   </div>
-                                  <div className="p-2 bg-gray-50 text-xs text-gray-500">
+                                  <div className="p-2 bg-gray-50 text-xs text-black">
                                     Website Preview
                                   </div>
                                 </div>
@@ -1307,10 +1307,10 @@ export default function MarketplaceSection({
                             </Tooltip>
                           </TooltipProvider>
                           <div className="overflow-hidden">
-                            <div className="font-bold text-gray-900 truncate" title={w.title || w.url}>
+                            <div className="font-bold text-black truncate" title={w.title || w.url}>
                               {extractHostname(w.url)}
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                            <div className="flex items-center gap-2 text-xs text-black mt-0.5">
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger>
@@ -1338,7 +1338,7 @@ export default function MarketplaceSection({
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-md font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-full cursor-pointer">
+                                  <span className="px-2 py-1 bg-blue-50 text-black text-xs rounded-md font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-full cursor-pointer">
                                     {Array.isArray(w.category) ? w.category[0] : w.category}
                                   </span>
                                 </TooltipTrigger>
@@ -1370,7 +1370,7 @@ export default function MarketplaceSection({
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
-                              <span className="font-medium text-gray-700 flex items-center">
+                              <span className="font-medium text-black flex items-center">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
@@ -1389,14 +1389,14 @@ export default function MarketplaceSection({
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger>
-                                    <span className="px-1.5 py-0.5 flex items-center justify-center bg-blue-100 text-blue-600 rounded text-[10px] font-bold cursor-help">TV</span>
+                                    <span className="px-1.5 py-0.5 flex items-center justify-center bg-blue-100 text-blue-600 rounded text-[10px] font-bold cursor-help">Tr.Value</span>
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p className="text-xs">Traffic Value</p>
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
-                              <span className="font-medium text-gray-700 flex items-center">
+                              <span className="font-medium text-black flex items-center">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
@@ -1428,7 +1428,7 @@ export default function MarketplaceSection({
                                     </TooltipTrigger>
                                     <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
                                       <img src="/a-blue-WCCZIE43.jpeg" alt="Ahrefs" className="w-6 h-6" />
-                                      <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
+                                      <span className="text-xs text-black">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
@@ -1445,7 +1445,7 @@ export default function MarketplaceSection({
                                     </TooltipTrigger>
                                     <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
                                       <img src="/idlAwxs03C.jpeg" alt="MOZ" className="w-6 h-6" />
-                                      <span className="text-xs text-gray-700">DA, PA & Spam Score From MOZ</span>
+                                      <span className="text-xs text-black">DA, PA & Spam Score From MOZ</span>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
@@ -1462,7 +1462,7 @@ export default function MarketplaceSection({
                                     </TooltipTrigger>
                                     <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
                                       <img src="/a-blue-WCCZIE43.jpeg" alt="Ahrefs" className="w-6 h-6" />
-                                      <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
+                                      <span className="text-xs text-black">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
@@ -1489,11 +1489,11 @@ export default function MarketplaceSection({
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
-                            <span className="font-bold">PA</span> <span className="font-bold">{w.PA || 0}</span>
+                            <span className="font-bold">PA</span> <span className="bg-blue-400 text-white px-1.5 rounded text-[10px] font-bold">{w.PA || 0}</span>
                           </div>
                         )}
                         {columns.find(c => c.id === 'spam')?.visible && (
-                          <div className="text-xs text-gray-600 flex items-center justify-center gap-1">
+                          <div className="text-xs text-black flex items-center justify-center gap-1">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -1509,12 +1509,12 @@ export default function MarketplaceSection({
                           </div>
                         )}
                         {columns.find(c => c.id === 'locationTraffic')?.visible && (
-                          <div className="text-xs text-gray-600">
+                          <div className="text-xs text-black">
                             {w.locationTraffic ? formatNumber(w.locationTraffic) : '-'}
                           </div>
                         )}
                         {columns.find(c => c.id === 'primeCountries')?.visible && (
-                          <div className="text-xs text-gray-600 flex flex-col items-center justify-center gap-1">
+                          <div className="text-xs text-black flex flex-col items-center justify-center gap-1">
                             {w.primeTrafficCountries && w.primeTrafficCountries.length > 0 ? (
                               <>
                                 {w.primeTrafficCountries.slice(0, 2).map((c, i) => (
@@ -1527,10 +1527,10 @@ export default function MarketplaceSection({
                                   <TooltipProvider>
                                     <Tooltip>
                                       <TooltipTrigger asChild>
-                                        <span className="text-[10px] text-gray-400 cursor-help">+{w.primeTrafficCountries.length - 2}</span>
+                                        <span className="text-[10px] text-black cursor-help">+{w.primeTrafficCountries.length - 2}</span>
                                       </TooltipTrigger>
                                       <TooltipContent>
-                                        <p className="text-xs">
+                                        <p className="text-xs text-black">
                                           {w.primeTrafficCountries.slice(2).join(', ')}
                                         </p>
                                       </TooltipContent>
@@ -1539,21 +1539,21 @@ export default function MarketplaceSection({
                                 )}
                               </>
                             ) : (
-                              <span className="text-gray-400">-</span>
+                              <span className="text-black">-</span>
                             )}
                           </div>
                         )}
                         {columns.find(c => c.id === 'greyNiche')?.visible && (
-                          <div className="text-xs text-gray-600">
+                          <div className="text-xs text-black">
                             {w.greyNicheAccepted ? (
                               <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded text-[10px]">Yes</span>
                             ) : (
-                              <span className="text-gray-400">No</span>
+                              <span className="text-black">No</span>
                             )}
                           </div>
                         )}
                         {columns.find(c => c.id === 'notes')?.visible && (
-                          <div className="text-xs text-gray-600 flex justify-center">
+                          <div className="text-xs text-black flex justify-center">
                             {w.specialNotes ? (
                               <TooltipProvider>
                                 <Tooltip>
@@ -1563,18 +1563,18 @@ export default function MarketplaceSection({
                                     </svg>
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                    <p className="max-w-xs text-xs">{w.specialNotes}</p>
+                                    <p className="max-w-xs text-xs text-black">{w.specialNotes}</p>
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
                             ) : (
-                              <span className="text-gray-300">-</span>
+                              <span className="text-black">-</span>
                             )}
                           </div>
                         )}
                         {columns.find(c => c.id === 'language')?.visible && (
-                          <div className="text-xs text-gray-600">
-                            English
+                          <div className="text-xs text-black">
+                            <span className="text-black">English</span>
                           </div>
                         )}
                       </div>
