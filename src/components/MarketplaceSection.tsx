@@ -1296,12 +1296,6 @@ export default function MarketplaceSection({
                               {extractHostname(w.url)}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-                              <span className="flex items-center gap-1">
-                                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                3 Days
-                              </span>
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger>
