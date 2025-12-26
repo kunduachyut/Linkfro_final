@@ -1389,7 +1389,7 @@ export default function MarketplaceSection({
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger>
-                                    <span className="px-1.5 py-0.5 flex items-center justify-center bg-blue-100 text-blue-600 rounded text-[10px] font-bold cursor-help">Tr.Value</span>
+                                    <span className="px-1.5 py-0.5 flex items-center justify-center bg-blue-100 text-blue-600 rounded text-[10px] font-bold cursor-help">Value</span>
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p className="text-xs">Traffic Value</p>
