@@ -94,189 +94,191 @@ export default function ContentRequestsSection({
               </button>
             </div>
           ) : (
-            <div>
-              {/* Table Header with Tooltips */}
-              <div className="grid grid-cols-18 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-body">
-                <div className="col-span-4 flex items-center">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help">TOPIC</span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-body">Topic or subject of the requested content</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+            <div className="overflow-x-auto">
+              <div className="min-w-[1200px]">
+                {/* Table Header with Tooltips */}
+                <div className="grid grid-cols-18 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-body">
+                  <div className="col-span-4 flex items-center">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help">TOPIC</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-body">Topic or subject of the requested content</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="col-span-4 flex items-center">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help">WEBSITE</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-body">Website domain for which the content is requested</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="col-span-3 flex justify-center">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help">CONTENT TYPE</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-body">Type of content requested (article, blog post, etc.)</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="col-span-2 flex justify-center">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help">REQUEST DATE</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-body">Date when the content request was submitted</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="col-span-2 flex justify-center">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help">STATUS</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-body">Current status of the content request</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="col-span-2 flex justify-center">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help">ACTIONS</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-body">View details or edit the content request</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <div className="col-span-1"></div>
                 </div>
-                <div className="col-span-4 flex items-center">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help">WEBSITE</span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-body">Website domain for which the content is requested</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <div className="col-span-3 flex justify-center">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help">CONTENT TYPE</span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-body">Type of content requested (article, blog post, etc.)</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <div className="col-span-2 flex justify-center">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help">REQUEST DATE</span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-body">Date when the content request was submitted</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <div className="col-span-2 flex justify-center">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help">STATUS</span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-body">Current status of the content request</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <div className="col-span-2 flex justify-center">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help">ACTIONS</span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-body">View details or edit the content request</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <div className="col-span-1"></div>
-              </div>
-              
-              {/* Table Body */}
-              <div className="divide-y divide-gray-200">
-                {contentRequests.map((request, index) => {
-                  return (
-                    <div key={request._id || index} className="grid grid-cols-18 gap-4 px-6 py-4 hover:bg-gray-50 items-center">
-                      {/* Topic */}
-                      <div className="col-span-4">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold font-body">
-                            {(request.topic || 'C').charAt(0).toUpperCase()}
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900 font-body">
-                              {request.topic || 'Content Request'}
+                
+                {/* Table Body */}
+                <div className="divide-y divide-gray-200">
+                  {contentRequests.map((request, index) => {
+                    return (
+                      <div key={request._id || index} className="grid grid-cols-18 gap-4 px-6 py-4 hover:bg-gray-50 items-center">
+                        {/* Topic */}
+                        <div className="col-span-4">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold font-body">
+                              {(request.topic || 'C').charAt(0).toUpperCase()}
                             </div>
-                            <div className="text-xs text-gray-500 font-body">
-                              {request.description ? `${request.description.substring(0, 30)}...` : 'No description'}
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900 font-body">
+                                {request.topic || 'Content Request'}
+                              </div>
+                              <div className="text-xs text-gray-500 font-body">
+                                {request.description ? `${request.description.substring(0, 30)}...` : 'No description'}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      {/* Website */}
-                      <div className="col-span-4">
-                        <div className="text-sm text-gray-900 font-body">
-                          {request.websiteTitle || request.websiteId || 'Unknown Website'}
+                        
+                        {/* Website */}
+                        <div className="col-span-4">
+                          <div className="text-sm text-gray-900 font-body">
+                            {request.websiteTitle || request.websiteId || 'Unknown Website'}
+                          </div>
+                          <div className="text-xs text-gray-500 font-body">
+                            {request.websiteUrl || 'No URL provided'}
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500 font-body">
-                          {request.websiteUrl || 'No URL provided'}
+                        
+                        {/* Content Type */}
+                        <div className="col-span-3 flex justify-center">
+                          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 font-body">
+                            {request.contentType || 'Article'}
+                          </span>
                         </div>
-                      </div>
-                      
-                      {/* Content Type */}
-                      <div className="col-span-3 flex justify-center">
-                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 font-body">
-                          {request.contentType || 'Article'}
-                        </span>
-                      </div>
-                      
-                      {/* Request Date */}
-                      <div className="col-span-2 flex justify-center">
-                        <div className="text-sm text-gray-900 font-body">
-                          {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'N/A'}
+                        
+                        {/* Request Date */}
+                        <div className="col-span-2 flex justify-center">
+                          <div className="text-sm text-gray-900 font-body">
+                            {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'N/A'}
+                          </div>
                         </div>
-                      </div>
-                      
-                      {/* Status */}
-                      <div className="col-span-2 flex justify-center">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full font-body ${
-                          request.status === 'completed' 
-                            ? 'bg-green-100 text-green-800'
-                            : request.status === 'in-progress'
-                            ? 'bg-blue-100 text-blue-800'
-                            : request.status === 'cancelled'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {request.status || 'pending'}
-                        </span>
-                      </div>
-                      
-                      {/* Actions */}
-                      <div className="col-span-2 flex justify-center">
-                        <div className="flex space-x-2">
-                          <button
-                            className="text-orange-600 hover:text-orange-800 p-1"
-                            title="View Details"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                          </button>
-                          <button
-                            className="text-gray-500 hover:text-gray-700 p-1"
-                            title="Edit Request"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          {request.status === 'completed' && (
+                        
+                        {/* Status */}
+                        <div className="col-span-2 flex justify-center">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full font-body ${
+                            request.status === 'completed' 
+                              ? 'bg-green-100 text-green-800'
+                              : request.status === 'in-progress'
+                              ? 'bg-blue-100 text-blue-800'
+                              : request.status === 'cancelled'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {request.status || 'pending'}
+                          </span>
+                        </div>
+                        
+                        {/* Actions */}
+                        <div className="col-span-2 flex justify-center">
+                          <div className="flex space-x-2">
                             <button
-                              className="text-green-600 hover:text-green-800 p-1"
-                              title="Download Content"
+                              className="text-orange-600 hover:text-orange-800 p-1"
+                              title="View Details"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                               </svg>
                             </button>
-                          )}
+                            <button
+                              className="text-gray-500 hover:text-gray-700 p-1"
+                              title="Edit Request"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                            </button>
+                            {request.status === 'completed' && (
+                              <button
+                                className="text-green-600 hover:text-green-800 p-1"
+                                title="Download Content"
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* More Options */}
+                        <div className="col-span-1 flex justify-end">
+                          <button className="text-gray-400 hover:text-gray-500">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                            </svg>
+                          </button>
                         </div>
                       </div>
-                      
-                      {/* More Options */}
-                      <div className="col-span-1 flex justify-end">
-                        <button className="text-gray-400 hover:text-gray-500">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
