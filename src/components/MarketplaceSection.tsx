@@ -250,6 +250,17 @@ const truncate = (s: string, n = 15) => {
   return s.length > n ? s.slice(0, n) + '…' : s;
 };
 
+// Format large numbers to be more readable (e.g., 1000 -> 1K, 1000000 -> 1M)
+const formatNumber = (num: number): string => {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(2).replace(/\.?0+$/, '') + 'M';
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(/\.?0+$/, '') + 'K';
+  }
+  return num.toString();
+};
+
 // Extract hostname/domain from a string value. Removes protocol, www. and path/query/hash.
 const extractHostname = (input?: string): string => {
   if (!input) return '';
@@ -1371,7 +1382,7 @@ export default function MarketplaceSection({
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
-                                {w.OrganicTraffic ? w.OrganicTraffic.toLocaleString() : '0'}
+                                {w.OrganicTraffic ? formatNumber(w.OrganicTraffic) : '0'}
                               </span>
                             </div>
                             <div className="flex items-center gap-2 text-xs">
@@ -1397,7 +1408,7 @@ export default function MarketplaceSection({
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
-                                {w.trafficValue ? `$${w.trafficValue.toLocaleString()}` : '$0'}
+                                {w.trafficValue ? `$${formatNumber(w.trafficValue)}` : '$0'}
                               </span>
                             </div>
                           </div>
@@ -1499,7 +1510,7 @@ export default function MarketplaceSection({
                         )}
                         {columns.find(c => c.id === 'locationTraffic')?.visible && (
                           <div className="text-xs text-gray-600">
-                            {w.locationTraffic ? w.locationTraffic.toLocaleString() : '-'}
+                            {w.locationTraffic ? formatNumber(w.locationTraffic) : '-'}
                           </div>
                         )}
                         {columns.find(c => c.id === 'primeCountries')?.visible && (
