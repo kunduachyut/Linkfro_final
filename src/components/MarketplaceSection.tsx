@@ -1359,10 +1359,10 @@ export default function MarketplaceSection({
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                      <img src="/a-blue-WCCZIE43.jpeg" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
                                     </TooltipTrigger>
                                     <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
+                                      <img src="/a-blue-WCCZIE43.jpeg" alt="Ahrefs" className="w-6 h-6" />
                                       <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
                                     </TooltipContent>
                                   </Tooltip>
@@ -1385,10 +1385,10 @@ export default function MarketplaceSection({
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                      <img src="/a-blue-WCCZIE43.jpeg" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
                                     </TooltipTrigger>
                                     <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
+                                      <img src="/a-blue-WCCZIE43.jpeg" alt="Ahrefs" className="w-6 h-6" />
                                       <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
                                     </TooltipContent>
                                   </Tooltip>
@@ -1409,17 +1409,17 @@ export default function MarketplaceSection({
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                      <img src="/a-blue-WCCZIE43.jpeg" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
                                     </TooltipTrigger>
                                     <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
+                                      <img src="/a-blue-WCCZIE43.jpeg" alt="Ahrefs" className="w-6 h-6" />
                                       <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
-                                DR
+                                <span className="font-bold">DR</span>
                               </span>
-                              <span className="bg-blue-600 text-white px-1.5 rounded text-[10px]">{w.DR || 0}</span>
+                              <span className="bg-blue-600 text-white px-1.5 rounded text-[10px] font-bold">{w.DR || 0}</span>
                             </div>
                             <div className="flex items-center justify-between text-xs">
                               <span className="font-medium text-gray-500 flex items-center">
@@ -1434,26 +1434,26 @@ export default function MarketplaceSection({
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
-                                DA
+                                <span className="font-bold">DA</span>
                               </span>
-                              <span className="bg-blue-400 text-white px-1.5 rounded text-[10px]">{w.DA || 0}</span>
+                              <span className="bg-blue-400 text-white px-1.5 rounded text-[10px] font-bold">{w.DA || 0}</span>
                             </div>
                             <div className="flex items-center justify-between text-xs">
                               <span className="font-medium text-gray-500 flex items-center">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
+                                      <img src="/a-blue-WCCZIE43.jpeg" alt="Ahrefs" className="w-3 h-3 mr-1 cursor-pointer" />
                                     </TooltipTrigger>
                                     <TooltipContent className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-                                      <img src="/a-blue-WCCZIE43.png" alt="Ahrefs" className="w-6 h-6" />
+                                      <img src="/a-blue-WCCZIE43.jpeg" alt="Ahrefs" className="w-6 h-6" />
                                       <span className="text-xs text-gray-700">DR, RD, Organic Traffic & Traffic Value from Ahrefs</span>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
-                                RD
+                                <span className="font-bold">RD</span>
                               </span>
-                              <span className="bg-purple-500 text-white px-1.5 rounded text-[10px]">{w.RD || '-'}</span>
+                              <span className="bg-purple-500 text-white px-1.5 rounded text-[10px] font-bold">{w.RD || '-'}</span>
                             </div>
                           </div>
                         </div>
@@ -1474,7 +1474,7 @@ export default function MarketplaceSection({
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
-                            PA {w.PA || 0}
+                            <span className="font-bold">PA</span> <span className="font-bold">{w.PA || 0}</span>
                           </div>
                         )}
                         {columns.find(c => c.id === 'spam')?.visible && (
