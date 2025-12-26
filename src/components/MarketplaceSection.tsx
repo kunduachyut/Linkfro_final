@@ -1121,7 +1121,7 @@ export default function MarketplaceSection({
               )}
               {/* Group remaining stats into remaining columns */}
               <div className="col-span-5 grid grid-cols-4 gap-0 text-center">
-                {columns.find(c => c.id === 'pa')?.visible && <div>PA</div>}
+                {columns.find(c => c.id === 'pa')?.visible && <div className="text-xs">PA</div>}
                 {columns.find(c => c.id === 'spam')?.visible && (
                   <div className="flex justify-center items-center gap-1">
                     Spam
@@ -1142,7 +1142,8 @@ export default function MarketplaceSection({
                 {columns.find(c => c.id === 'locationTraffic')?.visible && <div>Loc. Traffic</div>}
                 {columns.find(c => c.id === 'primeCountries')?.visible && (
                   <div className="flex justify-center items-center gap-1">
-                    Prime Countries
+                    <span className="text-xs">Prime</span>
+                    <span className="text-xs">Countries</span>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
@@ -1159,7 +1160,8 @@ export default function MarketplaceSection({
                 )}
                 {columns.find(c => c.id === 'greyNiche')?.visible && (
                   <div className="flex justify-center items-center gap-1">
-                    Grey Niche
+                    <span className="text-xs">Grey</span>
+                    <span className="text-xs">Niche</span>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
@@ -1362,7 +1364,7 @@ export default function MarketplaceSection({
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger>
-                                    <span className="px-1.5 py-0.5 flex items-center justify-center bg-orange-100 text-orange-600 rounded text-[10px] font-bold cursor-help">OT</span>
+                                    <span className="px-1.5 py-0.5 flex items-center justify-center bg-orange-100 text-orange-600 rounded text-[10px] font-bold cursor-help">Traffic</span>
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p className="text-xs">Organic Traffic</p>
@@ -1519,11 +1521,22 @@ export default function MarketplaceSection({
                                 {w.primeTrafficCountries.slice(0, 2).map((c, i) => (
                                   <div key={i} className="flex items-center gap-1" title={c}>
                                     <span>{getCountryFlag(c)}</span>
-                                    <span className="truncate max-w-[80px]">{c}</span>
+                                    <span className="truncate max-w-[80px]">{truncate(c, 12)}</span>
                                   </div>
                                 ))}
                                 {w.primeTrafficCountries.length > 2 && (
-                                  <span className="text-[10px] text-gray-400">+{w.primeTrafficCountries.length - 2} more</span>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className="text-[10px] text-gray-400 cursor-help">+{w.primeTrafficCountries.length - 2}</span>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p className="text-xs">
+                                          {w.primeTrafficCountries.slice(2).join(', ')}
+                                        </p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
                                 )}
                               </>
                             ) : (
