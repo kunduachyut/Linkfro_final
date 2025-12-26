@@ -357,6 +357,9 @@ export default function PendingPaymentsSection({
                       : website.category
                     : undefined;
                 const primaryCountry = website && typeof website === "object" ? website.primaryCountry : undefined;
+                const primeTrafficCountries = website && typeof website === "object" ? website.primeTrafficCountries : undefined;
+                // Use primaryCountry if available, otherwise use the first primeTrafficCountry if available, otherwise show "Global"
+                const displayCountry = primaryCountry || (Array.isArray(primeTrafficCountries) && primeTrafficCountries.length > 0 ? primeTrafficCountries[0] : undefined);
 
                 const priceCents =
                   typeof purchase.amountCents === "number"
@@ -409,8 +412,19 @@ export default function PendingPaymentsSection({
                     {/* Country */}
                     <div className="col-span-1 flex justify-center">
                       <div className="flex items-center gap-1">
-                        <span className="text-xs font-body">{getCountryFlagEmoji(primaryCountry)}</span>
-                        <span className="text-sm text-gray-900 truncate font-body">{primaryCountry || "Global"}</span>
+                        <span className="text-xs font-body">{getCountryFlagEmoji(displayCountry)}</span>
+                        <div className="max-w-[80px]">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="text-sm text-gray-900 truncate font-body">{(displayCountry && displayCountry.length > 7 ? displayCountry.substring(0, 7) + '...' : displayCountry) || "Global"}</span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs">{displayCountry || "Global"}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
                       </div>
                     </div>
 

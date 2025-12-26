@@ -335,7 +335,7 @@ export default function ConsumerDashboard() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 lg:mb-8 w-full">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-blue-600 font-display">
-              {activeTab === "marketplace" && "Marketplace"}
+              {activeTab === "marketplace" && "Link Asset Marketplace"}
               {activeTab === "purchases" && "My Purchases"}
               {activeTab === "pendingPayments" && "Pending Payments"}
               {activeTab === "adRequests" && "Ad Requests"}
@@ -343,7 +343,7 @@ export default function ConsumerDashboard() {
               {activeTab === "analytics" && "Analytics Dashboard"}
             </h1>
             <p className="mt-2 text-base lg:text-lg text-blue-500 font-body">
-              {activeTab === "marketplace" && "Link Asset Marketplace | Explore & Purchase Premium Resources"}
+              {activeTab === "marketplace" && "Explore & Purchase Premium Resources"}
               {activeTab === "purchases" && "Manage your purchased websites"}
               {activeTab === "pendingPayments" && "Complete payment for your pending purchases"}
               {activeTab === "adRequests" && "Track and manage ad placements"}
