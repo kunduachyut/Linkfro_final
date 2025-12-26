@@ -394,6 +394,39 @@ export default function CartPage() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, []);
 
+  const handleRemoveUpload = (upload: any) => {
+    const idToRemove = upload.tempId;
+
+    setMyUploads((prev: any[]) => prev.filter((u: any) => u.tempId !== idToRemove));
+
+    setTempUploadsByCartItem((prev: Record<string, any[]>) => {
+      const next: Record<string, any[]> = { ...prev };
+      Object.keys(next).forEach((key) => {
+        next[key] = next[key].filter((u) => u.tempId !== idToRemove);
+        if (next[key].length === 0) delete next[key];
+      });
+      return next;
+    });
+
+    setFileDataByCartItem((prev: Record<string, any[]>) => {
+      const next: Record<string, any[]> = { ...prev };
+      Object.keys(next).forEach((key) => {
+        next[key] = next[key].filter((item) => {
+          if (!item) return false;
+          // match by link
+          if (upload.link && item.link && item.link === upload.link) return false;
+          // match by pdf filename/size
+          if (upload.pdf && item.file && upload.pdf.filename && item.file.name && upload.pdf.size && item.file.size && upload.pdf.filename === item.file.name && upload.pdf.size === item.file.size) return false;
+          // match by linkDetails
+          if (upload.linkDetails && item.linkDetails && JSON.stringify(upload.linkDetails) === JSON.stringify(item.linkDetails)) return false;
+          return true;
+        });
+        if (next[key].length === 0) delete next[key];
+      });
+      return next;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-blue-50 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -832,6 +865,15 @@ export default function CartPage() {
                         ) : (
                           <div className="text-gray-600 bg-blue-100 px-3 py-1 rounded-full font-medium">{u.pdf?.size ? `${Math.round(u.pdf.size / 1024)} KB` : ""}</div>
                         )}
+                        <button
+                          onClick={() => handleRemoveUpload(u)}
+                          aria-label="Remove uploaded document"
+                          className="p-1 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
                       </div>
                     </li>
                   ))}
