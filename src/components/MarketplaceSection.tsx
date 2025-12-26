@@ -1277,11 +1277,15 @@ export default function MarketplaceSection({
                                   </div>
                                   <div className="h-48 overflow-hidden">
                                     <iframe 
-                                      src={w.url} 
+                                      src={w.url.startsWith('http') ? w.url : `https://${w.url}`}
                                       className="w-full h-full"
                                       title={`Preview of ${w.url}`}
-                                      sandbox="allow-same-origin allow-scripts"
+                                      sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
                                       loading="lazy"
+                                      onError={(e) => {
+                                        console.log('Failed to load iframe for:', w.url);
+                                      }}
+                                      referrerPolicy="no-referrer"
                                     />
                                   </div>
                                   <div className="p-2 bg-gray-50 text-xs text-gray-500">
