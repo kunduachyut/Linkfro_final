@@ -45,7 +45,7 @@ type PriceConflict = {
 type SuperAdminPriceConflictsSectionProps = {
   priceConflicts: PriceConflict[];
   priceConflictsLoading: boolean;
-  resolvePriceConflict: (conflictGroup: string, selectedWebsiteId: string, reason?: string) => void;
+  resolvePriceConflict: (conflictGroup: string, selectedWebsiteId: string, reason?: string, extraPriceCents?: number) => void;
   formatDate: (dateString?: string) => string;
 };
 
@@ -57,6 +57,7 @@ const SuperAdminPriceConflictsSection: React.FC<SuperAdminPriceConflictsSectionP
 }) => {
   const [selectedWebsiteId, setSelectedWebsiteId] = useState<{[key: string]: string}>({});
   const [resolutionReason, setResolutionReason] = useState<{[key: string]: string}>({});
+  const [extraPrices, setExtraPrices] = useState<{[key: string]: string}>({});
 
   const handleSelectWebsite = (groupId: string, websiteId: string) => {
     setSelectedWebsiteId(prev => ({
@@ -72,16 +73,35 @@ const SuperAdminPriceConflictsSection: React.FC<SuperAdminPriceConflictsSectionP
     }));
   };
 
+  const handleExtraPriceChange = (groupId: string, value: string) => {
+    setExtraPrices(prev => ({
+      ...prev,
+      [groupId]: value
+    }));
+  };
+
   const handleResolveConflict = (conflict: PriceConflict) => {
     const selectedId = selectedWebsiteId[conflict.groupId];
     const reason = resolutionReason[conflict.groupId];
+    const extraPrice = extraPrices[conflict.groupId];
     
     if (!selectedId) {
       alert("Please select a website to resolve this conflict");
       return;
     }
-    
-    resolvePriceConflict(conflict.groupId, selectedId, reason);
+
+    let extraPriceCents: number | undefined = undefined;
+    if (extraPrice && extraPrice.trim() !== '') {
+      const parsed = Number(parseFloat(extraPrice) * 100);
+      if (!Number.isNaN(parsed) && parsed >= 0) {
+        extraPriceCents = Math.round(parsed);
+      }
+    }
+
+    // Pass extra price cents if provided (optional fourth parameter)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore allow passing extra param if parent supports it
+    resolvePriceConflict(conflict.groupId, selectedId, reason, extraPriceCents);
   };
 
   return (
@@ -224,6 +244,24 @@ const SuperAdminPriceConflictsSection: React.FC<SuperAdminPriceConflictsSectionP
                           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 text-sm"
                           rows={2}
                         />
+                      </div>
+                      <div>
+                        <label htmlFor={`extraPrice-${conflict.groupId}`} className="block text-sm font-medium text-gray-700 mb-1">
+                          Extra price to add (optional)
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-700">$</span>
+                          <input
+                            id={`extraPrice-${conflict.groupId}`}
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={extraPrices[conflict.groupId] || ''}
+                            onChange={(e) => handleExtraPriceChange(conflict.groupId, e.target.value)}
+                            placeholder="0.00"
+                            className="w-40 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 text-sm"
+                          />
+                        </div>
                       </div>
                       
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

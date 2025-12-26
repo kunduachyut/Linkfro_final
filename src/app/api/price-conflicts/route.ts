@@ -109,7 +109,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { conflictGroup, selectedWebsiteId, reason } = await req.json();
+    const { conflictGroup, selectedWebsiteId, reason, extraPriceCents } = await req.json();
 
     if (!conflictGroup || !selectedWebsiteId) {
       return NextResponse.json({ 
@@ -141,7 +141,23 @@ export async function POST(req: Request) {
     }
 
     // Approve the selected website
-    await selectedWebsite.approve(reason || `Selected as winner in price conflict resolution`);
+    // If admin supplied an extraPriceCents, persist it and update authoritative price
+    if (typeof extraPriceCents === 'number' && !Number.isNaN(extraPriceCents)) {
+      const currentCents = typeof selectedWebsite.priceCents === 'number' ? selectedWebsite.priceCents : (typeof selectedWebsite.price === 'number' ? Math.round(selectedWebsite.price * 100) : 0);
+      if ((selectedWebsite as any).originalPriceCents == null) {
+        (selectedWebsite as any).originalPriceCents = currentCents;
+      }
+      (selectedWebsite as any).adminExtraPriceCents = extraPriceCents;
+      selectedWebsite.priceCents = ((selectedWebsite as any).originalPriceCents ?? currentCents) + (selectedWebsite as any).adminExtraPriceCents;
+      selectedWebsite.price = selectedWebsite.priceCents / 100;
+      selectedWebsite.status = 'approved';
+      selectedWebsite.available = true;
+      selectedWebsite.approvedAt = new Date();
+      selectedWebsite.rejectionReason = '';
+      await selectedWebsite.save();
+    } else {
+      await selectedWebsite.approve(reason || `Selected as winner in price conflict resolution`);
+    }
     
     // Reject all other websites in the conflict
     const rejectionPromises = conflictWebsites

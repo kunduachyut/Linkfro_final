@@ -657,18 +657,21 @@ const [confirmationAction, setConfirmationAction] = useState<{
     }
   }
 
-  async function resolvePriceConflict(conflictGroup: string, selectedWebsiteId: string, reason?: string) {
+  async function resolvePriceConflict(conflictGroup: string, selectedWebsiteId: string, reason?: string, extraPriceCents?: number) {
     try {
+      const payload: any = {
+        conflictGroup,
+        selectedWebsiteId,
+        reason: reason || 'Price conflict resolved by admin'
+      };
+      if (typeof extraPriceCents === 'number' && !Number.isNaN(extraPriceCents)) payload.extraPriceCents = extraPriceCents;
+
       const response = await fetch('/api/price-conflicts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          conflictGroup,
-          selectedWebsiteId,
-          reason: reason || 'Price conflict resolved by admin'
-        })
+        body: JSON.stringify(payload)
       });
 
       if (response.ok) {
