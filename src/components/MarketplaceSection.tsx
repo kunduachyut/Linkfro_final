@@ -1530,7 +1530,7 @@ export default function MarketplaceSection({
                                         <span className="text-[10px] text-black cursor-help">+{w.primeTrafficCountries.length - 2}</span>
                                       </TooltipTrigger>
                                       <TooltipContent>
-                                        <p className="text-xs text-black">
+                                        <p className="text-xs text-white">
                                           {w.primeTrafficCountries.slice(2).join(', ')}
                                         </p>
                                       </TooltipContent>
