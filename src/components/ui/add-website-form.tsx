@@ -546,7 +546,9 @@ export function AddWebsiteForm({
   }, [showCategoryDropdown]);
   
   return (
-    <div className="w-full max-w-4xl mx-auto py-8">
+    <>
+      <style>{`.confirm-modal-root * { color: #000 !important; } .confirm-modal-root svg { color: #000 !important; }`}</style>
+      <div className="w-full max-w-4xl mx-auto py-8">
       {/* Progress indicator */}
       <motion.div
         className="mb-8"
@@ -1118,7 +1120,7 @@ export function AddWebsiteForm({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 confirm-modal-root"
             onClick={() => setShowConfirmation(false)}
           >
             <motion.div
@@ -1193,7 +1195,7 @@ export function AddWebsiteForm({
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Spam:</span>
-                        <span className="font-medium">% {submissionData.spam}</span>
+                        <span className="font-medium">{submissionData.spam}%</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Organic Traffic:</span>
@@ -1254,6 +1256,7 @@ export function AddWebsiteForm({
                   variant="outline"
                   onClick={() => setShowConfirmation(false)}
                   disabled={isSubmitting}
+                  className="text-white"
                 >
                   Cancel
                 </Button>
@@ -1280,5 +1283,6 @@ export function AddWebsiteForm({
         )}
       </AnimatePresence>
     </div>
+    </>
   );
 }
