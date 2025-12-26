@@ -1247,7 +1247,7 @@ export default function MarketplaceSection({
                         <div className="flex flex-col">
                           <span className="font-bold text-green-600 flex items-center gap-1">
                             <span className="text-sm">$</span>
-                            <span className="text-lg">{(w.priceCents / 100).toFixed(2)}</span>
+                            <span className="text-lg">{w.priceCents / 100}</span>
                             <span className="text-xs text-gray-900">USD</span>
                             <div className="flex flex-col">
                               <button

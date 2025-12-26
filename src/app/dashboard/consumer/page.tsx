@@ -343,7 +343,7 @@ export default function ConsumerDashboard() {
               {activeTab === "analytics" && "Analytics Dashboard"}
             </h1>
             <p className="mt-2 text-base lg:text-lg text-blue-500 font-body">
-              {activeTab === "marketplace" && "Browse and purchase digital assets"}
+              {activeTab === "marketplace" && "Link Asset Marketplace | Explore & Purchase Premium Resources"}
               {activeTab === "purchases" && "Manage your purchased websites"}
               {activeTab === "pendingPayments" && "Complete payment for your pending purchases"}
               {activeTab === "adRequests" && "Track and manage ad placements"}
