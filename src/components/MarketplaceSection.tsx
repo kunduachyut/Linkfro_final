@@ -372,6 +372,9 @@ export default function MarketplaceSection({
   // Create ref for filter panel
   const filterPanelRef = useRef<HTMLDivElement>(null);
   
+  // Create ref for category dropdown
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+  
   // Create ref for column dropdown
   const columnDropdownRef = useRef<HTMLDivElement>(null);
   const groupByRef = useRef<HTMLDivElement>(null);
@@ -503,6 +506,8 @@ export default function MarketplaceSection({
     { id: 'language', label: 'Language', visible: true },
   ]);
 
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [categorySearch, setCategorySearch] = useState('');
   const [showColumnDropdown, setShowColumnDropdown] = useState(false);
   const [showGroupByDropdown, setShowGroupByDropdown] = useState(false);
   const [groupBy, setGroupBy] = useState<'mostRecent' | 'oldest' | 'priceLowHigh' | 'priceHighLow'>('mostRecent');
@@ -544,6 +549,19 @@ export default function MarketplaceSection({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showColumnDropdown]);
+
+  // Add useEffect to handle outside clicks for Category dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (showCategoryDropdown && categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setShowCategoryDropdown(false);
+        setCategorySearch('');
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showCategoryDropdown]);
 
   // Add useEffect to handle outside clicks for Group By dropdown
   useEffect(() => {
@@ -905,7 +923,7 @@ export default function MarketplaceSection({
                   placeholder="Min"
                   value={filters.minPrice}
                   onChange={handleFilterChange}
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm text-black"
                 />
                 <input
                   type="number"
@@ -913,7 +931,7 @@ export default function MarketplaceSection({
                   placeholder="Max"
                   value={filters.maxPrice}
                   onChange={handleFilterChange}
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm text-black"
                 />
               </div>
             </div>
@@ -928,7 +946,7 @@ export default function MarketplaceSection({
                   placeholder="Min"
                   value={filters.minDA}
                   onChange={handleFilterChange}
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm text-black"
                 />
                 <input
                   type="number"
@@ -936,7 +954,7 @@ export default function MarketplaceSection({
                   placeholder="Max"
                   value={filters.maxDA}
                   onChange={handleFilterChange}
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm text-black"
                 />
               </div>
             </div>
@@ -951,7 +969,7 @@ export default function MarketplaceSection({
                   placeholder="Min"
                   value={filters.minDR}
                   onChange={handleFilterChange}
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm text-black"
                 />
                 <input
                   type="number"
@@ -959,25 +977,71 @@ export default function MarketplaceSection({
                   placeholder="Max"
                   value={filters.maxDR}
                   onChange={handleFilterChange}
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm text-black"
                 />
               </div>
             </div>
 
             {/* Category */}
-            <div>
+            <div className="relative" ref={categoryDropdownRef}>
               <label className="block text-xs font-medium text-black mb-1">Category</label>
-              <select
-                name="category"
-                value={filters.category}
-                onChange={handleFilterChange}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-              >
-                <option value="">All Categories</option>
-                {allCategories.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <button
+                  type="button"
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-sm text-black text-left flex justify-between items-center"
+                  onClick={() => {
+                    setShowCategoryDropdown(!showCategoryDropdown);
+                    setCategorySearch('');
+                  }}
+                >
+                  <span>{filters.category || 'All Categories'}</span>
+                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {showCategoryDropdown && (
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg max-h-60 overflow-auto">
+                    <div className="p-2 border-b border-gray-200">
+                      <input
+                        type="text"
+                        placeholder="Search categories..."
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm text-black"
+                        value={categorySearch}
+                        onChange={(e) => setCategorySearch(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                    <div className="py-1 max-h-48 overflow-y-auto">
+                      <div 
+                        className={`px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-100 ${!filters.category ? 'bg-blue-100' : ''}`}
+                        onClick={() => {
+                          setFilters(prev => ({ ...prev, category: '' }));
+                          setShowCategoryDropdown(false);
+                          setCategorySearch('');
+                        }}
+                      >
+                        All Categories
+                      </div>
+                      {allCategories
+                        .filter(cat => cat.toLowerCase().includes(categorySearch.toLowerCase()))
+                        .map(category => (
+                          <div 
+                            key={category}
+                            className={`px-3 py-1.5 text-sm text-black cursor-pointer hover:bg-gray-100 ${filters.category === category ? 'bg-blue-100' : ''}`}
+                            onClick={() => {
+                              setFilters(prev => ({ ...prev, category }));
+                              setShowCategoryDropdown(false);
+                              setCategorySearch('');
+                            }}
+                          >
+                            {category}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Grey Niche */}
@@ -987,7 +1051,7 @@ export default function MarketplaceSection({
                 name="greyNicheAccepted"
                 value={filters.greyNicheAccepted}
                 onChange={handleFilterChange}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                className="w-full px-2 py-1 border border-gray-300 rounded text-sm text-black"
               >
                 <option value="">All</option>
                 <option value="true">Yes</option>
@@ -1012,7 +1076,7 @@ export default function MarketplaceSection({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
-          <select className="ml-2 border border-gray-300 rounded text-sm p-1">
+          <select className="ml-2 border border-gray-300 rounded text-sm p-1 text-black">
             <option>20 / page</option>
             <option>50 / page</option>
             <option>100 / page</option>
