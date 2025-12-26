@@ -480,8 +480,6 @@ export default function MarketplaceSection({
 
   // Column visibility state
   const [columns, setColumns] = useState<ColumnConfig[]>([
-    { id: 'price', label: 'Price', visible: true },
-    { id: 'website', label: 'Website', visible: true },
     { id: 'category', label: 'Category', visible: true },
     { id: 'traffic', label: 'Traffic', visible: true },
     { id: 'authority', label: 'DR | DA | RD', visible: true },
@@ -1017,45 +1015,41 @@ export default function MarketplaceSection({
           <div className="min-w-[1200px]">
             {/* Table Header */}
             <div className="bg-blue-50 border-b border-blue-100 grid grid-cols-12 gap-4 px-4 py-3 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center font-body">
-              {columns.find(c => c.id === 'price')?.visible && (
-                <div className="col-span-2 flex items-center gap-1">
-                  <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
-                    Price
-                    <svg className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                    </svg>
-                  </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs text-xs font-normal normal-case">Final price including publisher rate and platform fee.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+              <div className="col-span-2 flex items-center gap-1">
+                <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
+                  Price
+                  <svg className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
                 </div>
-              )}
-              {columns.find(c => c.id === 'website')?.visible && (
-                <div className="col-span-2 flex items-center gap-1">
-                  Website
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs text-xs font-normal normal-case">Website domain available for link placement.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              )}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs font-normal normal-case">Final price including publisher rate and platform fee.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="col-span-2 flex items-center gap-1">
+                Website
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs font-normal normal-case">Website domain available for link placement.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               {columns.find(c => c.id === 'category')?.visible && (
                 <div className="col-span-1 flex justify-center items-center gap-1">
                   Category
@@ -1216,121 +1210,117 @@ export default function MarketplaceSection({
                       className={`grid grid-cols-12 gap-4 px-4 py-4 items-center hover:bg-gray-50 transition-colors ${isSelected ? 'bg-blue-50' : ''}`}
                     >
                       {/* Price Column */}
-                      {columns.find(c => c.id === 'price')?.visible && (
-                        <div className="col-span-2 flex items-center gap-3">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // Show confirmation toast
-                              toast({
-                                title: "Added to Cart",
-                                description: `${w.title} has been added to your cart.`,
-                              });
-                              addToCart({
-                                _id: stableId,
-                                title: w.title,
-                                priceCents: typeof w.priceCents === 'number' ? w.priceCents : Math.round((w.priceCents || 0) * 100),
-                              });
-                            }}
-                            disabled={isPurchased || !w.available}
-                            className={`px-4 py-1.5 rounded text-white text-sm font-medium shadow-sm ${isPurchased ? 'bg-green-500 cursor-default' :
-                              !w.available ? 'bg-gray-400 cursor-not-allowed' :
-                                'bg-blue-600 hover:bg-blue-700'
-                            }`}
-                          >
-                            {isPurchased ? 'Owned' : 'Buy'}
-                          </button>
-                          <div className="flex flex-col">
-                            <span className="font-bold text-green-600">
-                              <span className="text-sm">$</span>
-                              <span className="text-lg">{(w.priceCents / 100).toFixed(2)}</span>
-                              <span className="text-xs ml-1 text-gray-900">USD</span>
-                            </span>
-                            <div className="flex items-center gap-2 mt-1">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const newWishlistState = !isInWishlist;
-                                  setWishlist(prev => ({ ...prev, [stableId]: newWishlistState }));
-                                  updateWishlist(stableId, newWishlistState ? 'add' : 'remove');
-                                }}
-                                className={`${isInWishlist ? 'text-orange-500' : 'text-gray-300 hover:text-orange-400'}`}
-                              >
-                                <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
-                                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                </svg>
-                              </button>
-                              <svg className="h-4 w-4 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z" />
+                      <div className="col-span-2 flex items-center gap-3">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Show confirmation toast
+                            toast({
+                              title: "Added to Cart",
+                              description: `${w.title} has been added to your cart.`,
+                            });
+                            addToCart({
+                              _id: stableId,
+                              title: w.title,
+                              priceCents: typeof w.priceCents === 'number' ? w.priceCents : Math.round((w.priceCents || 0) * 100),
+                            });
+                          }}
+                          disabled={isPurchased || !w.available}
+                          className={`px-4 py-1.5 rounded text-white text-sm font-medium shadow-sm ${isPurchased ? 'bg-green-500 cursor-default' :
+                            !w.available ? 'bg-gray-400 cursor-not-allowed' :
+                              'bg-blue-600 hover:bg-blue-700'
+                          }`}
+                        >
+                          {isPurchased ? 'Owned' : 'Buy'}
+                        </button>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-green-600">
+                            <span className="text-sm">$</span>
+                            <span className="text-lg">{(w.priceCents / 100).toFixed(2)}</span>
+                            <span className="text-xs ml-1 text-gray-900">USD</span>
+                          </span>
+                          <div className="flex items-center gap-2 mt-1">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const newWishlistState = !isInWishlist;
+                                setWishlist(prev => ({ ...prev, [stableId]: newWishlistState }));
+                                updateWishlist(stableId, newWishlistState ? 'add' : 'remove');
+                              }}
+                              className={`${isInWishlist ? 'text-orange-500' : 'text-gray-300 hover:text-orange-400'}`}
+                            >
+                              <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                               </svg>
-                            </div>
+                            </button>
+                            <svg className="h-4 w-4 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z" />
+                            </svg>
                           </div>
                         </div>
-                      )}
+                      </div>
 
                       {/* Website Column */}
-                      {columns.find(c => c.id === 'website')?.visible && (
-                        <div className="col-span-2">
-                          <div className="flex items-center gap-2">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="p-2 bg-gray-100 rounded-lg cursor-pointer">
-                                    <span className="text-xl">{getCountryFlag(w.primaryCountry)}</span>
+                      <div className="col-span-2">
+                        <div className="flex items-center gap-2">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="p-2 bg-gray-100 rounded-lg cursor-pointer">
+                                  <span className="text-xl">{getCountryFlag(w.primaryCountry)}</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent className="p-0 border-0 shadow-none bg-transparent">
+                                <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden w-80">
+                                  <div className="p-2 bg-gray-100 border-b border-gray-200">
+                                    <p className="text-xs font-medium truncate">{w.url}</p>
                                   </div>
-                                </TooltipTrigger>
-                                <TooltipContent className="p-0 border-0 shadow-none bg-transparent">
-                                  <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden w-80">
-                                    <div className="p-2 bg-gray-100 border-b border-gray-200">
-                                      <p className="text-xs font-medium truncate">{w.url}</p>
-                                    </div>
-                                    <div className="h-48 overflow-hidden">
-                                      <iframe 
-                                        src={w.url} 
-                                        className="w-full h-full"
-                                        title={`Preview of ${w.url}`}
-                                        sandbox="allow-same-origin allow-scripts"
-                                        loading="lazy"
-                                      />
-                                    </div>
-                                    <div className="p-2 bg-gray-50 text-xs text-gray-500">
-                                      Website Preview
-                                    </div>
+                                  <div className="h-48 overflow-hidden">
+                                    <iframe 
+                                      src={w.url} 
+                                      className="w-full h-full"
+                                      title={`Preview of ${w.url}`}
+                                      sandbox="allow-same-origin allow-scripts"
+                                      loading="lazy"
+                                    />
                                   </div>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            <div className="overflow-hidden">
-                              <div className="font-bold text-gray-900 truncate" title={w.title || w.url}>
-                                {extractHostname(w.url)}
-                              </div>
-                              <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-                                <span className="flex items-center gap-1">
-                                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                  </svg>
-                                  3 Days
-                                </span>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <span className="flex items-center gap-1 text-blue-600 cursor-help hover:text-blue-800 transition-colors">
-                                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        Description
-                                      </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="max-w-xs text-xs">{w.description || "No description available."}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
+                                  <div className="p-2 bg-gray-50 text-xs text-gray-500">
+                                    Website Preview
+                                  </div>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          <div className="overflow-hidden">
+                            <div className="font-bold text-gray-900 truncate" title={w.title || w.url}>
+                              {extractHostname(w.url)}
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                              <span className="flex items-center gap-1">
+                                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                3 Days
+                              </span>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <span className="flex items-center gap-1 text-blue-600 cursor-help hover:text-blue-800 transition-colors">
+                                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                      Description
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="max-w-xs text-xs">{w.description || "No description available."}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             </div>
                           </div>
                         </div>
-                      )}
+                      </div>
 
                       {/* Category Column */}
                       {columns.find(c => c.id === 'category')?.visible && (
