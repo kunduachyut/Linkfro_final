@@ -1282,11 +1282,11 @@ export default function MarketplaceSection({
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent className="p-0 border-0 shadow-none bg-transparent">
-                                <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden w-80">
+                                <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden w-[800px] h-[500px]">
                                   <div className="p-2 bg-gray-100 border-b border-gray-200">
                                     <p className="text-xs font-medium truncate">{w.url}</p>
                                   </div>
-                                  <div className="h-48 overflow-hidden">
+                                  <div className="h-[400px] overflow-hidden">
                                     <iframe 
                                       src={w.url.startsWith('http') ? w.url : `https://${w.url}`}
                                       className="w-full h-full"
@@ -1420,7 +1420,7 @@ export default function MarketplaceSection({
                         <div className="col-span-1">
                           <div className="flex flex-col gap-1">
                             <div className="flex items-center justify-between text-xs">
-                              <span className="font-medium text-gray-500 flex items-center">
+                              <span className="font-medium text-black flex items-center">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
@@ -1437,7 +1437,7 @@ export default function MarketplaceSection({
                               <span className="bg-blue-600 text-white px-1.5 rounded text-[10px] font-bold">{w.DR || 0}</span>
                             </div>
                             <div className="flex items-center justify-between text-xs">
-                              <span className="font-medium text-gray-500 flex items-center">
+                              <span className="font-medium text-black flex items-center">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
@@ -1454,7 +1454,7 @@ export default function MarketplaceSection({
                               <span className="bg-blue-400 text-white px-1.5 rounded text-[10px] font-bold">{w.DA || 0}</span>
                             </div>
                             <div className="flex items-center justify-between text-xs">
-                              <span className="font-medium text-gray-500 flex items-center">
+                              <span className="font-medium text-black flex items-center">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
@@ -1477,7 +1477,7 @@ export default function MarketplaceSection({
                       {/* Stats Columns (Grid) */}
                       <div className="col-span-5 grid grid-cols-4 gap-2 text-center items-center">
                         {columns.find(c => c.id === 'pa')?.visible && (
-                          <div className="text-xs text-gray-600 flex items-center justify-center gap-1">
+                          <div className="text-xs text-black flex items-center justify-center gap-1">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
