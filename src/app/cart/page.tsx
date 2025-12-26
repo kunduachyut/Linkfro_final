@@ -952,19 +952,19 @@ export default function CartPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Anchor Text*</label>
-                <input type="text" value={linkDetailsData.anchorText} onChange={(e) => setLinkDetailsData(prev => ({ ...prev, anchorText: e.target.value }))} className="w-full p-2 border rounded-md" placeholder="e.g., Click here" />
+                <input type="text" value={linkDetailsData.anchorText} onChange={(e) => setLinkDetailsData(prev => ({ ...prev, anchorText: e.target.value }))} className="w-full p-2 border rounded-md text-black" placeholder="e.g., Click here" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Target URL*</label>
-                <input type="url" value={linkDetailsData.targetUrl} onChange={(e) => setLinkDetailsData(prev => ({ ...prev, targetUrl: e.target.value }))} className="w-full p-2 border rounded-md" placeholder="https://example.com/target" />
+                <input type="url" value={linkDetailsData.targetUrl} onChange={(e) => setLinkDetailsData(prev => ({ ...prev, targetUrl: e.target.value }))} className="w-full p-2 border rounded-md text-black" placeholder="https://example.com/target" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Blog URL</label>
-                <input type="url" value={linkDetailsData.blogUrl} onChange={(e) => setLinkDetailsData(prev => ({ ...prev, blogUrl: e.target.value }))} className="w-full p-2 border rounded-md" placeholder="https://blog.example.com/post" />
+                <input type="url" value={linkDetailsData.blogUrl} onChange={(e) => setLinkDetailsData(prev => ({ ...prev, blogUrl: e.target.value }))} className="w-full p-2 border rounded-md text-black" placeholder="https://blog.example.com/post" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Paragraph (Optional)</label>
-                <textarea value={linkDetailsData.paragraph} onChange={(e) => setLinkDetailsData(prev => ({ ...prev, paragraph: e.target.value }))} className="w-full p-2 border rounded-md" rows={4} placeholder="Optional paragraph about the link" />
+                <textarea value={linkDetailsData.paragraph} onChange={(e) => setLinkDetailsData(prev => ({ ...prev, paragraph: e.target.value }))} className="w-full p-2 border rounded-md text-black" rows={4} placeholder="Optional paragraph about the link" />
               </div>
             </div>
 
