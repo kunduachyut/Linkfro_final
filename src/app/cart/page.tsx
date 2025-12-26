@@ -379,6 +379,19 @@ export default function CartPage() {
     setTimeout(() => setShowClearCartSuccess(false), 3000);
   };
 
+  const formatTraffic = (traffic: number | string | undefined): string => {
+    if (traffic === undefined || traffic === null) return 'N/A';
+    const num = typeof traffic === 'string' ? parseInt(traffic) : traffic;
+    if (isNaN(num)) return 'N/A';
+    
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  };
+
   const getCountryFlag = (countryName: string | undefined): string => {
     if (!countryName) return '🌐';
     const countryFlags: Record<string, string> = {
@@ -522,7 +535,7 @@ export default function CartPage() {
                                       </div>
                                       <div className="flex justify-between">
                                         <span className="text-gray-500">Traffic:</span>
-                                        <span className="font-medium">{websiteDetails[item._id].traffic}</span>
+                                        <span className="font-medium">{formatTraffic(websiteDetails[item._id].OrganicTraffic)}</span>
                                       </div>
                                     </div>
                                   ) : null}
