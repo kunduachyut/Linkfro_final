@@ -484,293 +484,297 @@ export default function PurchasesSection({
             </div>
           ) : (
             <div>
-              {/* Table Header - Updated to 12 columns to match marketplace design */}
-              <TooltipProvider>
-                <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-blue-50 border-b border-blue-100 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center font-body">
-                  {/* Website Column */}
-                  <div className="col-span-3 flex items-center gap-1">
-                    <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
-                      Website
+              <div className="overflow-x-auto">
+                <div className="min-w-[1200px]">
+                  {/* Table Header - Updated to 12 columns to match marketplace design */}
+                  <TooltipProvider>
+                    <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-blue-50 border-b border-blue-100 text-xs font-semibold text-gray-700 uppercase tracking-wider items-center font-body">
+                      {/* Website Column */}
+                      <div className="col-span-3 flex items-center gap-1">
+                        <div className="flex items-center cursor-pointer hover:text-blue-600 font-body">
+                          Website
+                        </div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs text-xs font-normal normal-case">Website domain you purchased link placement on</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      
+                      {/* Content Type Column */}
+                      <div className="col-span-2 flex justify-center items-center gap-1">
+                        <div className="flex items-center font-body">
+                          Content Type
+                        </div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs text-xs font-normal normal-case">Shows if you used your own article or requested content creation</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      
+                      {/* Purchase Date Column */}
+                      <div className="col-span-2 flex justify-center items-center gap-1">
+                        <div className="flex items-center font-body">
+                          Purchase Date
+                        </div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs text-xs font-normal normal-case">Date when this order was created</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      
+                      {/* Amount Column */}
+                      <div className="col-span-1 flex justify-center items-center gap-1">
+                        <div className="flex items-center font-body">
+                          Amount
+                        </div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs text-xs font-normal normal-case">Total price paid or due for this order</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      
+                      {/* Status Column */}
+                      <div className="col-span-2 flex justify-center items-center gap-1">
+                        <div className="flex items-center font-body">
+                          Status
+                        </div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs text-xs font-normal normal-case">Current stage of your order — pending, ongoing, payment pending, or approved</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      
+                      {/* Actions Column */}
+                      <div className="col-span-2 flex justify-center items-center gap-1">
+                        <div className="flex items-center font-body">
+                          Actions
+                        </div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs text-xs font-normal normal-case">Available actions for this purchase</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs text-xs font-normal normal-case">Website domain you purchased link placement on</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  
-                  {/* Content Type Column */}
-                  <div className="col-span-2 flex justify-center items-center gap-1">
-                    <div className="flex items-center font-body">
-                      Content Type
-                    </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs text-xs font-normal normal-case">Shows if you used your own article or requested content creation</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  
-                  {/* Purchase Date Column */}
-                  <div className="col-span-2 flex justify-center items-center gap-1">
-                    <div className="flex items-center font-body">
-                      Purchase Date
-                    </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs text-xs font-normal normal-case">Date when this order was created</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  
-                  {/* Amount Column */}
-                  <div className="col-span-1 flex justify-center items-center gap-1">
-                    <div className="flex items-center font-body">
-                      Amount
-                    </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs text-xs font-normal normal-case">Total price paid or due for this order</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  
-                  {/* Status Column */}
-                  <div className="col-span-2 flex justify-center items-center gap-1">
-                    <div className="flex items-center font-body">
-                      Status
-                    </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs text-xs font-normal normal-case">Current stage of your order — pending, ongoing, payment pending, or approved</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  
-                  {/* Actions Column */}
-                  <div className="col-span-2 flex justify-center items-center gap-1">
-                    <div className="flex items-center font-body">
-                      Actions
-                    </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <svg className="h-3 w-3 text-gray-400 hover:text-blue-500 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs text-xs font-normal normal-case">Available actions for this purchase</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                  </TooltipProvider>
+
+                  {/* Table Body */}
+                  <div className="divide-y divide-gray-100">
+                    {filteredPurchases.map((purchase, index) => {
+                      const websiteTitle = getWebsiteTitle(purchase);
+                      const websiteUrl = getWebsiteUrl(purchase);
+                      const amountCents = getAmountCents(purchase);
+                      const websiteId = getWebsiteId(purchase);
+                      const uploads = contentUploads[purchase._id] || [];
+                      const isLoadingUploads = loadingUploads[purchase._id] || false;
+
+                      return (
+                        <div key={purchase._id || index} className="grid grid-cols-12 gap-4 px-4 py-4 hover:bg-gray-50 items-center">
+                          {/* Website Info - Similar to marketplace design */}
+                          <div className="col-span-3">
+                            <div className="flex items-center gap-2">
+                              <div className="p-2 bg-gray-100 rounded-lg">
+                                <div className="flex-shrink-0 h-6 w-6 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold text-xs font-body">
+                                  {websiteTitle.charAt(0).toUpperCase()}
+                                </div>
+                              </div>
+                              <div className="overflow-hidden">
+                                <div className="font-bold text-gray-900 truncate font-body" title={websiteTitle}>
+                                  {websiteTitle}
+                                </div>
+                                <div className="text-xs text-gray-500 truncate font-body" title={websiteUrl}>
+                                  {websiteUrl}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Content Type - Enhanced styling */}
+                          <div className="col-span-2 flex justify-center">
+                            <button
+                              onClick={() => handleContentTypeClick(purchase)}
+                              className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full font-body ${purchase.contentType === 'request'
+                                ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                                } transition-colors cursor-pointer`}
+                            >
+                              {purchase.contentType === 'request' ? 'Content Request' : 'My Content'}
+                            </button>
+                          </div>
+
+                          {/* Purchase Date - Simplified */}
+                          <div className="col-span-2 flex justify-center">
+                            <div className="text-sm text-gray-900 font-body">
+                              {purchase.createdAt ? new Date(purchase.createdAt).toLocaleString() : 'N/A'}
+                            </div>
+                          </div>
+
+                          {/* Amount - Enhanced styling */}
+                          <div className="col-span-1 flex justify-center">
+                            <div className="font-bold text-green-600 font-body">
+                              <span className="text-sm font-body">$</span>
+                              <span className="text-base font-body">{(amountCents / 100).toFixed(2)}</span>
+                            </div>
+                          </div>
+
+                          {/* Status - Enhanced styling to match marketplace */}
+                          <div className="col-span-2 flex justify-center">
+                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full font-body ${purchase.status === 'paid' || purchase.status === 'completed' || purchase.status === 'approved'
+                              ? 'bg-green-100 text-green-800'
+                              : purchase.status === 'pending' || purchase.status === 'ongoing'
+                                ? (purchase.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800')
+                                : purchase.status === 'rejected'
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-gray-100 text-gray-800'
+                              }`}>
+                              {purchase.status || 'Unknown'}
+                            </span>
+                          </div>
+
+                          {/* Actions - Consolidated and improved */}
+                          <div className="col-span-2 flex justify-center space-x-2">
+                            {/* View Details Button */}
+                            <button
+                              className="p-1.5 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100 transition-colors"
+                              onClick={async (e) => {
+                                // Fetch details on click if not already loaded
+                                if (websiteId && !websiteDetails[websiteId] && !loadingDetails[websiteId]) {
+                                  await fetchWebsiteDetails(websiteId);
+                                }
+                                // Capture the button position so the tooltip can render in a portal
+                                try {
+                                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                  setTooltipRect({ left: rect.left + rect.width / 2, top: rect.bottom });
+                                } catch (err) {
+                                  setTooltipRect(null);
+                                }
+                                // Set this item as the active details item
+                                setActiveDetailsItem(purchase._id);
+                              }}
+                              title="View website details"
+                            >
+                              {loadingDetails[websiteId] ? (
+                                <svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                              ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              )}
+                            </button>
+
+                            {/* Doc Link Button */}
+                            {purchase.docLink ? (
+                              <button
+                                onClick={() => window.open(purchase.docLink, '_blank')}
+                                className="p-1.5 text-indigo-600 hover:text-indigo-800 rounded-full hover:bg-indigo-50 transition-colors"
+                                title="View documentation"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className="p-1.5 text-gray-300 cursor-not-allowed"
+                                title="No documentation available"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                              </button>
+                            )}
+
+                            {/* Live Link Button */}
+                            {purchase.liveLink ? (
+                              <button
+                                onClick={() => window.open(purchase.liveLink, '_blank')}
+                                className="p-1.5 text-green-600 hover:text-green-800 rounded-full hover:bg-green-50 transition-colors"
+                                title="View live link"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className="p-1.5 text-gray-300 cursor-not-allowed"
+                                title="No live link available"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                              </button>
+                            )}
+
+                            {/* Chat Button */}
+                            <button
+                              onClick={() => handleChatClick(purchase._id)}
+                              className="p-1.5 text-indigo-600 hover:text-indigo-900 rounded-full hover:bg-indigo-50 transition-colors"
+                              title="Chat with admin"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              </TooltipProvider>
-
-              {/* Table Body */}
-              <div className="divide-y divide-gray-100">
-                {filteredPurchases.map((purchase, index) => {
-                  const websiteTitle = getWebsiteTitle(purchase);
-                  const websiteUrl = getWebsiteUrl(purchase);
-                  const amountCents = getAmountCents(purchase);
-                  const websiteId = getWebsiteId(purchase);
-                  const uploads = contentUploads[purchase._id] || [];
-                  const isLoadingUploads = loadingUploads[purchase._id] || false;
-
-                  return (
-                    <div key={purchase._id || index} className="grid grid-cols-12 gap-4 px-4 py-4 hover:bg-gray-50 items-center">
-                      {/* Website Info - Similar to marketplace design */}
-                      <div className="col-span-3">
-                        <div className="flex items-center gap-2">
-                          <div className="p-2 bg-gray-100 rounded-lg">
-                            <div className="flex-shrink-0 h-6 w-6 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold text-xs font-body">
-                              {websiteTitle.charAt(0).toUpperCase()}
-                            </div>
-                          </div>
-                          <div className="overflow-hidden">
-                            <div className="font-bold text-gray-900 truncate font-body" title={websiteTitle}>
-                              {websiteTitle}
-                            </div>
-                            <div className="text-xs text-gray-500 truncate font-body" title={websiteUrl}>
-                              {websiteUrl}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Content Type - Enhanced styling */}
-                      <div className="col-span-2 flex justify-center">
-                        <button
-                          onClick={() => handleContentTypeClick(purchase)}
-                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full font-body ${purchase.contentType === 'request'
-                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                            : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                            } transition-colors cursor-pointer`}
-                        >
-                          {purchase.contentType === 'request' ? 'Content Request' : 'My Content'}
-                        </button>
-                      </div>
-
-                      {/* Purchase Date - Simplified */}
-                      <div className="col-span-2 flex justify-center">
-                        <div className="text-sm text-gray-900 font-body">
-                          {purchase.createdAt ? new Date(purchase.createdAt).toLocaleString() : 'N/A'}
-                        </div>
-                      </div>
-
-                      {/* Amount - Enhanced styling */}
-                      <div className="col-span-1 flex justify-center">
-                        <div className="font-bold text-green-600 font-body">
-                          <span className="text-sm font-body">$</span>
-                          <span className="text-base font-body">{(amountCents / 100).toFixed(2)}</span>
-                        </div>
-                      </div>
-
-                      {/* Status - Enhanced styling to match marketplace */}
-                      <div className="col-span-2 flex justify-center">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full font-body ${purchase.status === 'paid' || purchase.status === 'completed' || purchase.status === 'approved'
-                          ? 'bg-green-100 text-green-800'
-                          : purchase.status === 'pending' || purchase.status === 'ongoing'
-                            ? (purchase.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800')
-                            : purchase.status === 'rejected'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                          {purchase.status || 'Unknown'}
-                        </span>
-                      </div>
-
-                      {/* Actions - Consolidated and improved */}
-                      <div className="col-span-2 flex justify-center space-x-2">
-                        {/* View Details Button */}
-                        <button
-                          className="p-1.5 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100 transition-colors"
-                          onClick={async (e) => {
-                            // Fetch details on click if not already loaded
-                            if (websiteId && !websiteDetails[websiteId] && !loadingDetails[websiteId]) {
-                              await fetchWebsiteDetails(websiteId);
-                            }
-                            // Capture the button position so the tooltip can render in a portal
-                            try {
-                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                              setTooltipRect({ left: rect.left + rect.width / 2, top: rect.bottom });
-                            } catch (err) {
-                              setTooltipRect(null);
-                            }
-                            // Set this item as the active details item
-                            setActiveDetailsItem(purchase._id);
-                          }}
-                          title="View website details"
-                        >
-                          {loadingDetails[websiteId] ? (
-                            <svg className="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                          ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                          )}
-                        </button>
-
-                        {/* Doc Link Button */}
-                        {purchase.docLink ? (
-                          <button
-                            onClick={() => window.open(purchase.docLink, '_blank')}
-                            className="p-1.5 text-indigo-600 hover:text-indigo-800 rounded-full hover:bg-indigo-50 transition-colors"
-                            title="View documentation"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                          </button>
-                        ) : (
-                          <button
-                            disabled
-                            className="p-1.5 text-gray-300 cursor-not-allowed"
-                            title="No documentation available"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                          </button>
-                        )}
-
-                        {/* Live Link Button */}
-                        {purchase.liveLink ? (
-                          <button
-                            onClick={() => window.open(purchase.liveLink, '_blank')}
-                            className="p-1.5 text-green-600 hover:text-green-800 rounded-full hover:bg-green-50 transition-colors"
-                            title="View live link"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                          </button>
-                        ) : (
-                          <button
-                            disabled
-                            className="p-1.5 text-gray-300 cursor-not-allowed"
-                            title="No live link available"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                          </button>
-                        )}
-
-                        {/* Chat Button */}
-                        <button
-                          onClick={() => handleChatClick(purchase._id)}
-                          className="p-1.5 text-indigo-600 hover:text-indigo-900 rounded-full hover:bg-indigo-50 transition-colors"
-                          title="Chat with admin"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
               </div>
             </div>
           )}
